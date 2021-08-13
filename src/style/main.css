@@ -1,0 +1,18 @@
+* {
+  margin: 0;
+  font-family: sans-serif;
+}
+
+html {
+  background: #272744;
+}
+
+canvas {
+  display: block;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-crisp-edges;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  width: 100vw;
+  height: 100vh;
+}

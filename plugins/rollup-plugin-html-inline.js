@@ -1,24 +1,26 @@
-var minify = require("html-minifier").minify;
+var minify = require('html-minifier').minify;
 
 export const defaultTemplate = (options, script, sourcemap, style) =>
   `<title>${options.title}</title>
+  ${options.scripts.map((s) => `<script src="${s}"></script>`).join('')}
 <style>${style}</style>
 <canvas id="${options.canvasId}"></canvas>
 <script>${script.trim()}${
-    sourcemap ? "//# sourceMappingURL=${sourcemap}" : ""
+    sourcemap ? '//# sourceMappingURL=' + sourcemap : ''
   }</script>`;
 
 export default function inline(
   options = {
-    title: "js13k-2021-SPACE",
-    canvasId: "g",
+    title: 'js13k-2021-SPACE',
+    canvasId: 'g',
     template: undefined,
     sourcemap: undefined,
     delete: false,
-  }
+    scripts: [],
+  },
 ) {
   return {
-    name: "rollup-plugin-html-inline",
+    name: 'rollup-plugin-html-inline',
     generateBundle(_, bundle, isWrite) {
       if (!isWrite) return;
       const renderTemplate = options.template || defaultTemplate;
@@ -27,10 +29,10 @@ export default function inline(
 
       Object.keys(bundle).forEach((o) => {
         const entry = bundle[o];
-        if (entry.fileName.endsWith("js")) {
-          scripts.push(entry.type == "chunk" ? entry.code : entry.source);
-        } else if (entry.fileName.endsWith("css")) {
-          styles.push(entry.type == "chunk" ? entry.code : entry.source);
+        if (entry.fileName.endsWith('js')) {
+          scripts.push(entry.type == 'chunk' ? entry.code : entry.source);
+        } else if (entry.fileName.endsWith('css')) {
+          styles.push(entry.type == 'chunk' ? entry.code : entry.source);
         }
         if (options.delete) {
           delete bundle[o];
@@ -42,7 +44,7 @@ export default function inline(
           options,
           scripts.join(),
           options.sourcemap,
-          styles.join()
+          styles.join(),
         ),
         {
           collapseWhitespace: true,
@@ -53,14 +55,14 @@ export default function inline(
           removeOptionalTags: true,
           removeRedundantAttributes: true,
           html5: true,
-        }
+        },
       );
 
       const output = {
-        fileName: "index.html",
-        name: "index",
+        fileName: 'index.html',
+        name: 'index',
         source: source,
-        type: "asset",
+        type: 'asset',
       };
       this.emitFile(output);
     },
