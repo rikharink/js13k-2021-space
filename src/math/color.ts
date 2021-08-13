@@ -27,6 +27,10 @@ export function splitRgb(rgb: number): RgbColor {
   return [r, g, b];
 }
 
+export function normalizeRgb(rgb: RgbColor): RgbColor {
+  return [rgb[0] / 255, rgb[1] / 255, rgb[2] / 255];
+}
+
 //FROM: https://css-tricks.com/converting-color-spaces-in-javascript/
 export function hslToRgb(hsl: HslColor): RgbColor {
   let [h, s, l] = hsl;

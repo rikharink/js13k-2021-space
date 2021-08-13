@@ -32,6 +32,7 @@
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-postcss": "^4.0.1",
     "rollup-plugin-terser": "^7.0.2",
+    "terser": "^5.7.1",
     "tslib": "^2.3.1",
     "typescript": "^4.3.5",
     "zipstats": "^1.1.0"

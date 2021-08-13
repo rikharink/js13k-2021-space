@@ -4,7 +4,7 @@
 }
 
 html {
-  background: #272744;
+  overflow: hidden;
 }
 
 canvas {

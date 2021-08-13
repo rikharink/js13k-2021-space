@@ -39,3 +39,9 @@ declare module '*.frag.glsl' {
   const ref: string;
   export default ref;
 }
+
+/* AUDIO */
+declare module '*.awlet' {
+  const ref: string;
+  export default ref;
+}
