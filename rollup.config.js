@@ -6,8 +6,10 @@ import livereload from 'rollup-plugin-livereload';
 import dev from 'rollup-plugin-dev';
 import postcss from 'rollup-plugin-postcss';
 import image from '@rollup/plugin-image';
-import inline, { defaultTemplate } from './plugins/rollup-plugin-html-inline';
-import packageOutput from './plugins/rollup-plugin-package-js13k';
+import inline, {
+  defaultTemplate,
+} from './plugins/rollup-plugin-html-inline.js';
+import packageOutput from './plugins/rollup-plugin-package-js13k.js';
 
 const env = process.env.NODE_ENV || 'production';
 const isDev = env === 'development';
@@ -69,9 +71,9 @@ if (isDev) {
 }
 
 export default defineConfig({
-  input: join(__dirname, 'src', 'index.ts'),
+  input: join('src', 'index.ts'),
   output: {
-    file: join(__dirname, 'dist', 'bundle.js'),
+    file: join('dist', 'bundle.js'),
     format: 'iife',
     sourcemap: true,
     strict: false,

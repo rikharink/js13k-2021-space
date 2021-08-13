@@ -1,4 +1,4 @@
-var minify = require('html-minifier').minify;
+import { minify } from 'html-minifier';
 
 export const defaultTemplate = (options, script, sourcemap, style) =>
   `<title>${options.title}</title>

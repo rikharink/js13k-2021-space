@@ -1,11 +1,11 @@
-const fs = require('fs');
-const path = require('path');
-const archiver = require('archiver');
-const { execFile } = require('child_process');
-const notifier = require('node-notifier');
-const filesize = require('filesize');
-const zipstats = require('zipstats');
-const ect = require('ect-bin');
+import fs from 'fs';
+import path from 'path';
+import archiver from 'archiver';
+import { execFile} from 'child_process';
+import notifier from 'node-notifier';
+import filesize from 'filesize';
+import zipstats from 'zipstats';
+import ect from 'ect-bin';
 
 function notifyFilesize(title, path, notify) {
   const stat = fs.statSync(path);
@@ -40,7 +40,7 @@ export default function packageJs13k(
         const outputPath = path.join(options.directory, `${options.name}.zip`);
         const output = fs.createWriteStream(outputPath);
         output.on('close', () => {
-          execFile(ect, ['-8', outputPath], (err) => {
+          execFile(ect, ['-9', outputPath], (err) => {
             if (err) {
               reject(err);
             } else {
