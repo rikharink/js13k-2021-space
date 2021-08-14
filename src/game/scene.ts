@@ -17,7 +17,7 @@ export class Scene implements ITickable {
     this._planets = planets;
   }
 
-  public tick(t?: Seconds, dt?: Seconds): void {
+  public tick(t: Seconds, dt: Seconds): void {
     this._player.tick(t, dt);
   }
 
