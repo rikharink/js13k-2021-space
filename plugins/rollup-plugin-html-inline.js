@@ -1,7 +1,8 @@
 import { minify } from 'html-minifier';
 
 export const defaultTemplate = (options, script, sourcemap, style) =>
-  `<title>${options.title}</title>
+  `${options.meta.join('')}
+  <title>${options.title}</title>
   ${options.scripts.map((s) => `<script src="${s}"></script>`).join('')}
 <style>${style}</style>
 <canvas id="${options.canvasId}"></canvas>
@@ -16,6 +17,7 @@ export default function inline(
     template: undefined,
     sourcemap: undefined,
     delete: false,
+    meta: [],
     scripts: [],
   },
 ) {

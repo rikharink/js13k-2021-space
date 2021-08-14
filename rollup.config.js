@@ -41,26 +41,33 @@ let plugins = [
       unsafe_methods: true,
       hoist_funs: true,
       booleans_as_integers: true,
-      drop_console: true,
+      drop_console: !isDev,
     },
     mangle: {
-      properties: true,
+      properties: {
+        reserved: [],
+      },
       module: true,
       toplevel: true,
     },
   }),
   inline({
-    title: 'SPACE',
+    title: 'InterPlanetary Transport System',
     canvasId: 'g',
     template: defaultTemplate,
     sourcemap: isDev ? 'bundle.js.map' : undefined,
     delete: false,
+    meta: [
+      '<meta name="viewport" content="width=device-width, initial-scale=1">',
+      '<meta name="apple-mobile-web-app-capable" content="yes">',
+      '<meta name="mobile-web-app-capable" content="yes"></meta>',
+    ],
     scripts: [
       //'https://cdn.jsdelivr.net/npm/near-api-js@0.41.0/dist/near-api-js.min.js',
     ],
   }),
   packageOutput({
-    name: 'js13k-2021-space',
+    name: 'js13k-2021-interplanetary-transport-system',
     directory: 'dist',
     include: ['index.html'],
     notify: isDev,

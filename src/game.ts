@@ -1,52 +1,84 @@
-import { RgbColor } from './types';
-import { Settings } from './settings';
+import { PointerManager } from './managers/pointer-manager';
+import { Scene } from './game/scene';
+import { Milliseconds, Seconds } from './types';
+import { CanvasRenderer } from './canvas/canvas-renderer';
+import { IRenderer } from './interfaces/renderer';
 import { ITickable } from './interfaces/tickable';
-import { InputManager } from './managers/input-manager';
-import { background } from './palette';
-import { splitRgb, normalizeRgb } from './math/color';
+import { Planet } from './game/planet';
+import { Settings } from './settings';
+import { Player } from './game/player';
 
 const ALPHA = 0.9;
 
-export class Game implements ITickable {
-  public inputManager = new InputManager();
+class GameObject implements ITickable {
+  public readonly pointerManager = new PointerManager();
   public fps: number = 0;
   private _dt: number = 0;
+  private _adt: number = 0;
   private _then: number = 0;
+  private _renderer: IRenderer;
+  private _player: Player;
+  private _currentScene!: Scene;
   private _canvas: HTMLCanvasElement;
-  private gl: WebGL2RenderingContext;
-  private _bg: RgbColor;
 
   public constructor() {
     requestAnimationFrame(this.tick.bind(this));
-    this._canvas = <HTMLCanvasElement>document.getElementById('g');
-    this._canvas.width = Settings.resolution[0];
-    this._canvas.height = Settings.resolution[1];
-    this.gl = this._canvas.getContext('webgl2')!;
-    this._bg = normalizeRgb(splitRgb(background));
+    this._canvas = <HTMLCanvasElement>(
+      document.getElementById(Settings.canvasId)
+    );
+    this._renderer = new CanvasRenderer(this._canvas);
+    this._player = new Player();
+    this.currentScene = new Scene({
+      player: this._player,
+      planets: [
+        new Planet(
+          [Settings.resolution[0] / 2, Settings.resolution[1] / 2],
+          75,
+        ),
+        new Planet(
+          [Settings.resolution[0] / 4, Settings.resolution[1] / 4],
+          75,
+        ),
+      ],
+    });
   }
 
-  tick(t: number): void {
+  public set currentScene(scene: Scene) {
+    this._currentScene = scene;
+    this._player.currentScene = scene;
+    this._renderer.currentScene = scene;
+  }
+
+  public get canvas(): HTMLCanvasElement {
+    return this._canvas;
+  }
+
+  public start() {}
+
+  tick(t: Milliseconds): void {
     requestAnimationFrame(this.tick.bind(this));
-    t = this._updateFPS(t);
-    this.inputManager.tick();
-    this._render(t);
+    t = this._updateTimes(t);
+    this._updateFPS(t);
+    this._renderer.render(t, this._dt);
+    this._currentScene.tick(t, this._dt);
   }
 
-  private _render(t: number) {
-    const gl = this.gl;
-    gl.clearColor(this._bg[0], this._bg[1], this._bg[2], 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-  }
-
-  private _updateFPS(t: number) {
+  private _updateTimes(t: Milliseconds): Seconds {
     t *= 0.001;
-    let dt = t - this._then;
+    this._dt = t - this._then;
     this._then = t;
-    this._dt += dt;
-    this.fps = ALPHA * this.fps + (1.0 - ALPHA) * (1 / dt);
-    if (this._dt >= 1) {
-      dt = 0;
-    }
+    this._adt += this._dt;
     return t;
   }
+
+  private _updateFPS(t: Seconds) {
+    this._then = t;
+    this._adt += this._dt;
+    this.fps = ALPHA * this.fps + (1.0 - ALPHA) * (1 / this._dt);
+    if (this._adt >= 1) {
+      this._adt = 0;
+    }
+  }
 }
+
+export const Game = new GameObject();

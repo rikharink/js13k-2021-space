@@ -1,3 +1,4 @@
+import { Vector2 } from './math/vector2';
 import {
   KeyboardInput,
   PointerInput,
@@ -111,3 +112,5 @@ export type Frequency = number;
 export type Seconds = number;
 export type Index = number;
 export type NormalRange = number;
+
+export type Point2D = Vector2;

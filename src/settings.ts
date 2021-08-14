@@ -1,4 +1,5 @@
 export const Settings = {
   debug: true,
-  resolution: [640, 480],
+  resolution: [1280, 720],
+  canvasId: 'g',
 };
