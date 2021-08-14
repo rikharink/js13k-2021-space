@@ -1,4 +1,3 @@
-import { PointerManager } from './../managers/pointer-manager';
 import { TAU } from './../math/math';
 import { background, palette } from '../palette';
 import { RgbColor, Point2D, Seconds } from './../types';
@@ -7,7 +6,7 @@ import { Settings } from '../settings';
 import { IRenderer } from '../interfaces/renderer';
 import { splitRgb } from '../math/color';
 import { Circle } from '../game/circle';
-import { Game } from '../game';
+import { add, Vector2 } from '../math/vector2';
 
 export class CanvasRenderer implements IRenderer {
   private _canvas: HTMLCanvasElement;
@@ -73,13 +72,14 @@ export class CanvasRenderer implements IRenderer {
           splitRgb(palette[1]),
         );
       }
-    }
 
-    // if (Settings.debug && Game.pointerManager.position) {
-    //   this.drawCircle(
-    //     new Circle(Game.pointerManager.position, 10),
-    //     splitRgb(palette[0]),
-    //   );
-    // }
+      if (this._scene.player.isActive && this._scene.player.forceVector) {
+        this.drawLine(
+          this._scene.player.center,
+          this._scene.player.forceVector,
+          splitRgb(palette[1]),
+        );
+      }
+    }
   }
 }

@@ -24,6 +24,24 @@ export function add(out: Vector2, a: Vector2, b: Vector2): Vector2 {
   return out;
 }
 
+export function subtract(out: Vector2, a: Vector2, b: Vector2): Vector2 {
+  out[0] = a[0] - b[0];
+  out[1] = a[1] - b[1];
+  return out;
+}
+
+export function scale(out: Vector2, a: Vector2, b: number): Vector2 {
+  out[0] = a[0] * b;
+  out[1] = a[1] * b;
+  return out;
+}
+
+export function negate(out: Vector2, a: Vector2): Vector2 {
+  out[0] = -a[0];
+  out[1] = -a[1];
+  return out;
+}
+
 export function distance(a: Vector2, b: Vector2) {
   return Math.hypot(b[0] - a[0], b[1] - a[1]);
 }
@@ -57,7 +75,7 @@ export function bezier(
   p1: Vector2,
   p2: Vector2,
   p3: Vector2,
-  t: number
+  t: number,
 ): void {
   lerp(_a, p0, p1, t);
   lerp(_b, p1, p2, t);
