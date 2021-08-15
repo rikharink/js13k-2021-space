@@ -6,7 +6,7 @@ name: CI
 # triggers the workflow on push or pull request events for the main branch
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   # workflow contains a single job called "build"
@@ -34,8 +34,11 @@ jobs:
           yarn dist
 
       - name: Publish game to GH Pages
-        run: /
-          yarn deploy
+        run: |
+          git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
+          yarn deploy -- -u "github-actions-bot <support+actions@github.com>"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish game to Itch.io via Butler
         uses: josephbmanley/butler-publish-itchio-action@master
