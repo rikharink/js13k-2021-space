@@ -35,8 +35,8 @@ class GameObject {
     this._player = new Player(this._pointerManager);
     this.currentScene = new Scene({
       rng: this._rng,
-      width: this._canvas.offsetWidth,
-      height: this._canvas.offsetHeight,
+      width: Settings.resolution[0],
+      height: Settings.resolution[1],
       player: this._player,
       numberOfStars: 2000,
       planets: [
