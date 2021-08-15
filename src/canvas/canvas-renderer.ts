@@ -1,18 +1,18 @@
-import { TAU } from './../math/math';
 import { background, palette } from '../palette';
-import { RgbColor, Point2D, Seconds } from './../types';
+import { RgbColor, Seconds } from './../types';
 import { Scene } from '../game/scene';
 import { Settings } from '../settings';
 import { IRenderer } from '../interfaces/renderer';
 import { splitRgb } from '../math/color';
-import { Circle } from '../game/circle';
-import { add, Vector2 } from '../math/vector2';
+import { rgbaString } from '../util/util';
+import { drawCircle, drawLine } from './util';
 
 export class CanvasRenderer implements IRenderer {
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
   private _scene?: Scene;
   private _bg: RgbColor;
+  private _fps: number = 0;
 
   constructor(canvas: HTMLCanvasElement) {
     this._canvas = canvas;
@@ -26,60 +26,53 @@ export class CanvasRenderer implements IRenderer {
     this._scene = scene;
   }
 
-  rgbaString(color: RgbColor, alpha: number): string {
-    return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
+  set fps(fps: number) {
+    this._fps = fps;
   }
 
-  private drawCircle(circle: Circle, color: RgbColor) {
+  render(): void {
+    if (this._scene) {
+      this._render(this._scene);
+    }
+  }
+
+  private _renderStars() {
     const ctx = this._ctx;
-    ctx.fillStyle = this.rgbaString(color, 1);
-    ctx.beginPath();
-    ctx.arc(circle.center[0], circle.center[1], circle.radius, 0, TAU);
-    ctx.closePath();
-    ctx.fill();
+    for (let star of this._scene?.stars ?? []) {
+      ctx.beginPath();
+      ctx.arc(star[0], star[1], star[2], 0, 360);
+      ctx.fillStyle = rgbaString(splitRgb(palette[0]), 0.8);
+      ctx.fill();
+    }
   }
 
-  private drawLine(start: Point2D, end: Point2D, color: RgbColor) {
-    const ctx = this._ctx;
-    ctx.lineWidth = 1;
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = this.rgbaString(color, 1);
-    ctx.beginPath();
-    ctx.moveTo(start[0], start[1]);
-    ctx.lineTo(end[0], end[1]);
-    ctx.closePath();
-    ctx.stroke();
-  }
-
-  render(t?: Seconds, dt?: Seconds): void {
+  private _render(scene: Scene) {
     const ctx = this._ctx;
     //DRAW BACKGROUND
-    ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-    ctx.fillStyle = this.rgbaString(this._bg, 1);
+    ctx.fillStyle = rgbaString(this._bg, 1);
     ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
+    this._renderStars();
 
     //DRAW SCENE
-    if (this._scene) {
-      for (let planet of this._scene.planets ?? []) {
-        this.drawCircle(planet, planet.color);
-      }
-      this.drawCircle(this._scene.player, this._scene.player.color);
+    for (let planet of scene.planets ?? []) {
+      drawCircle(ctx, planet, planet.color);
+    }
+    drawCircle(ctx, scene.player, scene.player.color);
 
-      if (this._scene.player.attraction) {
-        this.drawLine(
-          this._scene.player.center,
-          this._scene.player.attraction.center,
+    if (Settings.debug) {
+      if (scene.player.attraction) {
+        drawLine(
+          ctx,
+          scene.player.center,
+          scene.player.attraction.center,
           splitRgb(palette[1]),
         );
       }
 
-      if (this._scene.player.isActive && this._scene.player.forceVector) {
-        this.drawLine(
-          this._scene.player.center,
-          this._scene.player.forceVector,
-          splitRgb(palette[1]),
-        );
-      }
+      ctx.fillStyle = rgbaString(splitRgb(palette[0]), 1);
+      ctx.fillRect(10, 10, 45, 13);
+      ctx.fillStyle = rgbaString(splitRgb(palette[5]), 1);
+      ctx.fillText(`FPS: ${this._fps}`, 12, 20);
     }
   }
 }

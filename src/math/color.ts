@@ -1,5 +1,7 @@
 import { Percentage, RgbColor, HslColor } from '../types';
 
+
+
 export function lighten(color: RgbColor, percentage: Percentage): RgbColor {
   let hsl = rgbToHsl(color);
   hsl[2] += (percentage / 100) * 50;

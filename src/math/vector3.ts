@@ -16,7 +16,7 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-import { get_translation, Matrix4x4 } from "./matrix4x4";
+import { get_translation, Matrix4x4 } from './matrix4x4';
 
 export type Vector3 = [x: number, y: number, z: number];
 
@@ -63,9 +63,9 @@ export function negate(out: Vector3, a: Vector3) {
 }
 
 export function normalize(out: Vector3, a: Vector3) {
-  let x = a[0];
-  let y = a[1];
-  let z = a[2];
+  const x = a[0];
+  const y = a[1];
+  const z = a[2];
   let len = x * x + y * y + z * z;
 
   if (len > 0) {
@@ -83,10 +83,10 @@ export function dot(a: Vector3, b: Vector3) {
 }
 
 export function cross(out: Vector3, a: Vector3, b: Vector3) {
-  let ax = a[0],
+  const ax = a[0],
     ay = a[1],
     az = a[2];
-  let bx = b[0],
+  const bx = b[0],
     by = b[1],
     bz = b[2];
 
@@ -97,7 +97,7 @@ export function cross(out: Vector3, a: Vector3, b: Vector3) {
 }
 
 export function transform_point(out: Vector3, a: Vector3, m: Matrix4x4) {
-  let x = a[0],
+  const x = a[0],
     y = a[1],
     z = a[2];
   let w = m[3] * x + m[7] * y + m[11] * z + m[15];
@@ -109,29 +109,29 @@ export function transform_point(out: Vector3, a: Vector3, m: Matrix4x4) {
 }
 
 export function transform_direction(out: Vector3, a: Vector3, m: Matrix4x4) {
-  let tip = transform_point([0, 0, 0], a, m);
-  let base = get_translation([0, 0, 0], m);
+  const tip = transform_point([0, 0, 0], a, m);
+  const base = get_translation([0, 0, 0], m);
   return subtract(out, tip, base);
 }
 
 export function length(a: Vector3) {
-  let x = a[0];
-  let y = a[1];
-  let z = a[2];
+  const x = a[0];
+  const y = a[1];
+  const z = a[2];
   return Math.hypot(x, y, z);
 }
 
 export function distance(a: Vector3, b: Vector3) {
-  let x = b[0] - a[0];
-  let y = b[1] - a[1];
-  let z = b[2] - a[2];
+  const x = b[0] - a[0];
+  const y = b[1] - a[1];
+  const z = b[2] - a[2];
   return Math.hypot(x, y, z);
 }
 
 export function distance_squared(a: Vector3, b: Vector3) {
-  let x = b[0] - a[0];
-  let y = b[1] - a[1];
-  let z = b[2] - a[2];
+  const x = b[0] - a[0];
+  const y = b[1] - a[1];
+  const z = b[2] - a[2];
   return x * x + y * y + z * z;
 }
 
@@ -140,9 +140,9 @@ export function distance_manhattan(a: Vector3, b: Vector3) {
 }
 
 export function lerp(out: Vector3, a: Vector3, b: Vector3, t: number) {
-  let ax = a[0];
-  let ay = a[1];
-  let az = a[2];
+  const ax = a[0];
+  const ay = a[1];
+  const az = a[2];
   out[0] = ax + t * (b[0] - ax);
   out[1] = ay + t * (b[1] - ay);
   out[2] = az + t * (b[2] - az);
@@ -160,7 +160,7 @@ export function bezier(
   p1: Vector3,
   p2: Vector3,
   p3: Vector3,
-  t: number
+  t: number,
 ): void {
   lerp(_a, p0, p1, t);
   lerp(_b, p1, p2, t);

@@ -1,4 +1,4 @@
-import { Random, UUIDV4 } from '../types';
+import { Random, RgbColor, UUIDV4 } from '../types';
 
 export function swap<T>(arr: T[], i: number, j: number): void {
   [arr[j], arr[i]] = [arr[i], arr[j]];
@@ -17,4 +17,8 @@ export function hasOwnKey<O>(
   key: string | number | symbol,
 ): key is keyof O {
   return Object.prototype.hasOwnProperty.call(obj, key);
+}
+
+export function rgbaString(color: RgbColor, alpha: number): string {
+  return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
 }

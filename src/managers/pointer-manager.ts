@@ -1,10 +1,11 @@
-import { Game } from '../game';
 import { Point2D } from './../types';
 export class PointerManager {
+  private _canvas: HTMLCanvasElement;
   private _position?: Point2D;
   private _state: boolean = false;
 
-  constructor() {
+  constructor(canvas: HTMLCanvasElement) {
+    this._canvas = canvas;
     window.addEventListener('pointerdown', this._handlePointerEvent.bind(this));
     window.addEventListener('pointermove', this._handlePointerEvent.bind(this));
     window.addEventListener('pointerup', this._handlePointerEvent.bind(this));
@@ -20,7 +21,7 @@ export class PointerManager {
   }
 
   private _handlePointerEvent(ev: PointerEvent) {
-    this._position = this.scalePosition(Game.canvas, [ev.clientX, ev.clientY]);
+    this._position = this.scalePosition(this._canvas, [ev.clientX, ev.clientY]);
     this._state = !!ev.buttons;
   }
 

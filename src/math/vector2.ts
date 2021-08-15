@@ -42,13 +42,25 @@ export function negate(out: Vector2, a: Vector2): Vector2 {
   return out;
 }
 
+export function normalize(out: Vector2, a: Vector2) {
+  const x = a[0];
+  const y = a[1];
+  let len = x * x + y * y;
+  if (len > 0) {
+    len = 1 / Math.sqrt(len);
+  }
+  out[0] = a[0] * len;
+  out[1] = a[1] * len;
+  return out;
+}
+
 export function distance(a: Vector2, b: Vector2) {
   return Math.hypot(b[0] - a[0], b[1] - a[1]);
 }
 
 export function distance_squared(a: Vector2, b: Vector2) {
-  let x = b[0] - a[0];
-  let y = b[1] - a[1];
+  const x = b[0] - a[0];
+  const y = b[1] - a[1];
   return x * x + y * y;
 }
 
@@ -57,8 +69,8 @@ export function distance_manhattan(a: Vector2, b: Vector2) {
 }
 
 export function lerp(out: Vector2, a: Vector2, b: Vector2, t: number) {
-  let ax = a[0];
-  let ay = a[1];
+  const ax = a[0];
+  const ay = a[1];
   out[0] = ax + t * (b[0] - ax);
   out[1] = ay + t * (b[1] - ay);
   return out;

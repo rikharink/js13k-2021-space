@@ -20,4 +20,10 @@ export class Circle {
   public collidesWith(other: Circle): boolean {
     return hasCollision(this, other);
   }
+
+  public isInside(point: Point2D): boolean {
+    const x = point[0] - this._center[0];
+    const y = point[1] - this._center[1];
+    return x * x + y * y < this._radius * this._radius;
+  }
 }

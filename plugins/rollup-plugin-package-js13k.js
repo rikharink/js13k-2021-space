@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import archiver from 'archiver';
-import { execFile} from 'child_process';
+import { execFile } from 'child_process';
 import notifier from 'node-notifier';
 import filesize from 'filesize';
 import zipstats from 'zipstats';
@@ -11,6 +11,7 @@ function notifyFilesize(title, path, notify) {
   const stat = fs.statSync(path);
   const size = filesize(stat.size);
   console.log(zipstats(path));
+  console.log('total zipsize:', size, '\n');
   if (notify) {
     notifier.notify({
       title: title,

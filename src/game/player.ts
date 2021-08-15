@@ -1,4 +1,13 @@
-import { scale, add, Vector2, subtract, negate } from './../math/vector2';
+import { PointerManager } from './../managers/pointer-manager';
+import {
+  scale,
+  add,
+  Vector2,
+  subtract,
+  negate,
+  normalize,
+  distance_squared,
+} from './../math/vector2';
 import { Scene } from './scene';
 import { ITickable } from './../interfaces/tickable';
 import { Point2D, RgbColor, Seconds } from './../types';
@@ -6,23 +15,25 @@ import { Circle } from './circle';
 import { palette } from '../palette';
 import { splitRgb } from '../math/color';
 import { Planet } from './planet';
-import { distance } from '../math/vector2';
-import { Game } from '../game';
+import { clamp } from '../math/math';
 
 export class Player extends Circle implements ITickable {
   public readonly color: RgbColor;
   private _scene!: Scene;
   private _attraction!: Planet;
 
-  private _velocity: Vector2 = [0.0, 0.0];
-  private _acceleration: Vector2 = [0.0, 0.0];
+  private _velocity: Vector2 = [0, 0];
+  private _acceleration: Vector2 = [0, 0];
 
+  private _launchVector: Vector2 = [0, 0];
   private _active: boolean = false;
   private _startPos?: Point2D;
-  private _forceVector: Vector2 = [0.0, 0.0];
 
-  constructor() {
+  private _pm: PointerManager;
+
+  constructor(pm: PointerManager) {
     super([10, 10], 5);
+    this._pm = pm;
     this.color = splitRgb(palette[2]);
   }
 
@@ -34,16 +45,12 @@ export class Player extends Circle implements ITickable {
     return this._active;
   }
 
-  public get forceVector(): Vector2 {
-    return this._forceVector;
-  }
-
   public updateAttraction(): Planet {
     let closest: Planet | undefined = undefined;
     let minD = Number.POSITIVE_INFINITY;
 
     for (let planet of this._scene.planets) {
-      let d = distance(planet.center, this._center);
+      let d = distance_squared(planet.center, this._center);
       if (d < minD) {
         minD = d;
         closest = planet;
@@ -57,30 +64,37 @@ export class Player extends Circle implements ITickable {
   }
 
   public tick(_t: Seconds, dt: Seconds): void {
+    this.handleInput();
     this.physics(dt);
-    const active = Game.pointerManager.isActive();
-    //START TOUCH
+  }
+
+  private handleInput() {
+    const active = this._pm.isActive();
+    //START
     if (!this._active && active) {
-      this._startPos = Game.pointerManager.position;
+      this._startPos = this._pm.position;
     }
-    //RELEASE TOUCH
+    //RELEASE
     else if (this._active && !active) {
       this._startPos = undefined;
-      this._velocity = this._forceVector;
+      // this._velocity = this._forceVector;
     }
-    //MOVE TOUCH
-    else if (Game.pointerManager.position && this._startPos) {
-      let dydx: Vector2 = [0, 0];
-      subtract(dydx, Game.pointerManager.position, this._startPos);
-      negate(this._forceVector, dydx);
-      add(this._forceVector, this.center, this._forceVector);
+    //MOVE
+    else if (this._pm.position && this._startPos) {
+      negate(
+        this._launchVector,
+        normalize(
+          this._launchVector,
+          subtract(this._launchVector, this._pm.position, this._startPos),
+        ),
+      );
     }
     this._active = active;
   }
 
   private physics(dt: Seconds): void {
-    let tmp: Vector2 = [0, 0];
     this._attraction = this.updateAttraction();
+    let tmp: Vector2 = [0, 0];
     const new_pos = add(
       tmp,
       this._center,
@@ -103,8 +117,13 @@ export class Player extends Circle implements ITickable {
   }
 
   private applyForces(): Vector2 {
-    let result: Vector2 = [0, 0];
-    subtract(result, this._attraction.center, this.center);
-    return result;
+    const gravity: Vector2 = [0, 0];
+    const ds = distance_squared(this._attraction.center, this.center);
+    const F = ds !== 0 ? this._attraction.mass / ds : 0;
+    const direction = normalize(
+      gravity,
+      subtract(gravity, this._attraction.center, this.center),
+    );
+    return scale(gravity, direction, F);
   }
 }

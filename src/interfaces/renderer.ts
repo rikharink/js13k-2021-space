@@ -1,7 +1,7 @@
 import { Scene } from '../game/scene';
-import { Seconds } from './../types';
 
 export interface IRenderer {
   set currentScene(scene: Scene);
-  render(t?: Seconds, dt?: Seconds): void;
+  set fps(fps: number);
+  render(): void;
 }
