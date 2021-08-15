@@ -5,6 +5,7 @@ import { Point2D } from '../types';
 import { uuidv4 } from '../util/util';
 import { accent } from '../palette';
 import { splitRgb } from '../math/color';
+import { Settings } from '../settings';
 
 export class Planet extends Circle implements IIdentifiable {
   private readonly _id = uuidv4();
@@ -14,7 +15,7 @@ export class Planet extends Circle implements IIdentifiable {
   constructor(center: Point2D, radius: number, mass: number) {
     super(center, radius);
     this.color = splitRgb(accent);
-    this._mass = mass;
+    this._mass = mass * Settings.planetWeightScaling;
   }
 
   public get id(): UUIDV4 {

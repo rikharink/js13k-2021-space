@@ -43,7 +43,7 @@ class GameObject {
         new Planet(
           [Settings.resolution[0] / 2, Settings.resolution[1] / 2],
           75,
-          75000000,
+          75,
         ),
       ],
     });

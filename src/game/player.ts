@@ -46,17 +46,17 @@ export class Player extends Circle implements ITickable {
   }
 
   public updateAttraction(): Planet {
-    let closest: Planet | undefined = undefined;
-    let minD = Number.POSITIVE_INFINITY;
+    let mostAttractive: Planet | undefined = undefined;
+    let maxF = Number.NEGATIVE_INFINITY;
 
     for (let planet of this._scene.planets) {
-      let d = distance_squared(planet.center, this._center);
-      if (d < minD) {
-        minD = d;
-        closest = planet;
+      let f = this.getForce(planet);
+      if (f >= maxF) {
+        maxF = f;
+        mostAttractive = planet;
       }
     }
-    return closest!;
+    return mostAttractive!;
   }
 
   public get attraction(): Planet {
@@ -116,10 +116,14 @@ export class Player extends Circle implements ITickable {
     this._velocity = new_vel;
   }
 
+  private getForce(planet: Planet): number {
+    const ds = distance_squared(planet.center, this.center);
+    return ds !== 0 ? planet.mass / ds : 0;
+  }
+
   private applyForces(): Vector2 {
     const gravity: Vector2 = [0, 0];
-    const ds = distance_squared(this._attraction.center, this.center);
-    const F = ds !== 0 ? this._attraction.mass / ds : 0;
+    const F = this.getForce(this._attraction);
     const direction = normalize(
       gravity,
       subtract(gravity, this._attraction.center, this.center),
