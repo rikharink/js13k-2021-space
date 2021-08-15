@@ -1,0 +1,47 @@
+# This workflow build the latest commit from the main branch
+# and publishes the result to the Github Pages branch
+
+name: CI
+
+# triggers the workflow on push or pull request events for the main branch
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  # workflow contains a single job called "build"
+  build:
+    # type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # sequence of tasks that will be executed as part of the job
+    steps:
+      # input branch
+      - name: Checkout main branch
+        uses: actions/checkout@v2
+
+      # setup runtime & dependencies
+      - name: Setup Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.x'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build game
+        run: |
+          yarn dist
+
+      - name: Publish game to GH Pages
+        run: /
+          yarn deploy
+
+      - name: Publish game to Itch.io via Butler
+        uses: josephbmanley/butler-publish-itchio-action@master
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_CREDENTIALS }}
+          CHANNEL: html
+          ITCH_GAME: interplanetarytransportsystem
+          ITCH_USER: Meidor
+          PACKAGE: dist/index.html

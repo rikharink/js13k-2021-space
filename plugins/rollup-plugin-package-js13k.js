@@ -6,16 +6,22 @@ import notifier from 'node-notifier';
 import filesize from 'filesize';
 import zipstats from 'zipstats';
 import ect from 'ect-bin';
+import chalk from 'chalk';
 
 function notifyFilesize(title, path, notify) {
   const stat = fs.statSync(path);
   const size = filesize(stat.size);
+  const percentage = ((stat.size / 13312) * 100).toFixed(2);
   console.log(zipstats(path));
-  console.log('total zipsize:', size, '\n');
+  const message = `total zipsize: ${size} [${percentage}%]\n`;
+  console.log(
+    percentage <= 100 ? chalk.blue.bold(message) : chalk.red.bold(message),
+  );
+
   if (notify) {
     notifier.notify({
       title: title,
-      message: `${size}`,
+      message: `${size} [${percentage}%]`,
       wait: false,
       sound: false,
     });
