@@ -1,6 +1,6 @@
-import { Scene } from '../game/scene';
+import { State } from '../game/state';
 
 export interface IRenderer {
   set fps(fps: number);
-  render(scene: Scene): void;
+  render(state: State): void;
 }

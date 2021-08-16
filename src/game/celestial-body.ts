@@ -9,18 +9,20 @@ import { Settings } from '../settings';
 import { copy } from '../math/vector2';
 
 export class CelestialBody extends Circle implements IIdentifiable {
-  public readonly id;
-  public mass: number;
-  public readonly color: RgbColor;
+  public id;
+  public readonly color: RgbColor = splitRgb(accent);
 
-  constructor(center: Point2D, radius: number, mass: number, id?: UUIDV4) {
-    super(center, radius);
+  constructor(position: Point2D, radius: number, mass: number, id?: UUIDV4) {
+    super(position, radius, mass * Settings.planetWeightScaling);
     this.id = id ?? uuidv4();
-    this.color = splitRgb(accent);
-    this.mass = mass * Settings.planetWeightScaling;
   }
 
   clone(): CelestialBody {
-    return new CelestialBody(copy([0, 0], this.position), this.radius, this.mass, this.id);
+    return new CelestialBody(
+      copy([0, 0], this.position),
+      this.radius,
+      this.mass,
+      this.id,
+    );
   }
 }

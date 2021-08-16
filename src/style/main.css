@@ -29,7 +29,7 @@ canvas {
   object-fit: contain;
 }
 
-.bg {
+#bg {
   position: absolute;
   object-fit: cover;
   z-index: -1;

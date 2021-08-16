@@ -30,6 +30,12 @@ export function add(out: Vector2, a: Vector2, b: Vector2): Vector2 {
   return out;
 }
 
+export function add_scalar(out: Vector2, a: Vector2, n: number): Vector2 {
+  out[0] = a[0] + n;
+  out[1] = a[1] + n;
+  return out;
+}
+
 export function subtract(out: Vector2, a: Vector2, b: Vector2): Vector2 {
   out[0] = a[0] - b[0];
   out[1] = a[1] - b[1];
@@ -60,6 +66,10 @@ export function normalize(out: Vector2, a: Vector2) {
   return out;
 }
 
+export function dot(a: Vector2, b: Vector2): number {
+  return a[0] * b[0] + a[1] * b[1];
+}
+
 export function distance(a: Vector2, b: Vector2) {
   return Math.hypot(b[0] - a[0], b[1] - a[1]);
 }
@@ -72,6 +82,12 @@ export function distance_squared(a: Vector2, b: Vector2) {
 
 export function distance_manhattan(a: Vector2, b: Vector2) {
   return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
+}
+
+export function length(a: Vector2) {
+  const x = a[0];
+  const y = a[1];
+  return Math.hypot(x * x, y * y);
 }
 
 export function lerp(out: Vector2, a: Vector2, b: Vector2, t: number) {

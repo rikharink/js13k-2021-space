@@ -1,39 +1,30 @@
-import { Seconds, Random } from './../types';
-import { ITickable } from './../interfaces/tickable';
+import { IStepable } from './../interfaces/stepable';
+import { Seconds } from '../types';
 import { Player } from './player';
 import { CelestialBody } from './celestial-body';
 import { applyPhysics, getGravitationalForce } from '../physics/physics';
 import { add as vadd, scale } from '../math/vector2';
+import { handleCollisions } from '../physics/collision-handler';
 
-interface SceneOptions {
+interface StateOptions {
   width: number;
   height: number;
   player: Player;
   celestialBodies: CelestialBody[];
 }
-export class Scene implements ITickable<void> {
-  public readonly celestialBodies: CelestialBody[];
-  public readonly player: Player;
-  public readonly width: number;
-  public readonly height: number;
+
+export class State implements IStepable<void> {
+  public celestialBodies: CelestialBody[];
+  public player: Player;
+  public width: number;
+  public height: number;
   public attraction!: CelestialBody;
 
-  constructor({
-    width,
-    height,
-    player,
-    celestialBodies,
-  }: SceneOptions) {
+  constructor({ width, height, player, celestialBodies }: StateOptions) {
     this.width = width;
     this.height = height;
     this.player = player;
     this.celestialBodies = celestialBodies;
-  }
-
-  public clone(): Scene {
-    let scene = new Scene({ width: this.width, height: this.height, player: this.player.clone(), celestialBodies: this.celestialBodies.map(cb => cb.clone()) });
-    scene.attraction = this.attraction?.clone();
-    return scene;
   }
 
   public updateAttraction(): CelestialBody {
@@ -50,24 +41,36 @@ export class Scene implements ITickable<void> {
     return mostAttractive!;
   }
 
-  public tick(t: Seconds, dt: Seconds) {
-    this.player.tick(t, dt);
+  public step(dt: Seconds) {
+    this.player.tick();
     this.attraction = this.updateAttraction();
     applyPhysics(dt, this);
+    handleCollisions(dt, this);
+  }
+
+  public clone(): State {
+    let state = new State({
+      width: this.width,
+      height: this.height,
+      player: this.player.clone(),
+      celestialBodies: this.celestialBodies.map((cb) => cb.clone()),
+    });
+    state.attraction = this.attraction?.clone();
+    return state;
   }
 }
 
-function add(a: Scene, b: Scene): Scene {
+function add(a: State, b: State): State {
   let s = b.clone();
   vadd(s.player.position, a.player.position, b.player.position);
   vadd(s.player.acceleration, a.player.acceleration, b.player.acceleration);
   vadd(s.player.velocity, a.player.velocity, b.player.velocity);
   s.updateAttraction();
-  return s
+  return s;
 }
 
-function mul(scene: Scene, n: number): Scene {
-  let s = scene.clone();
+function mul(state: State, n: number): State {
+  let s = state.clone();
   scale(s.player.position, s.player.position, n);
   scale(s.player.acceleration, s.player.acceleration, n);
   scale(s.player.velocity, s.player.velocity, n);
@@ -75,7 +78,6 @@ function mul(scene: Scene, n: number): Scene {
   return s;
 }
 
-export function blend(previous: Scene | undefined, current: Scene, alpha: number): Scene {
-  if (!previous) return current;
+export function blend(previous: State, current: State, alpha: number): State {
   return add(mul(current, alpha), mul(previous, 1 - alpha));
 }

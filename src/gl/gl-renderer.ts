@@ -1,4 +1,4 @@
-import { Scene } from './../game/scene';
+import { State } from '../game/state';
 import { background } from './../palette';
 import { normalizeRgb, splitRgb } from '../math/color';
 import { Settings } from '../settings';
@@ -10,7 +10,7 @@ export class GLRenderer implements IRenderer {
   private _canvas: HTMLCanvasElement;
   private _gl: WebGL2RenderingContext;
   private _bg: RgbColor;
-  private _scene?: Scene;
+  private _state?: State;
   private _fps: number = 0;
 
   constructor(canvas: HTMLCanvasElement) {
@@ -21,8 +21,8 @@ export class GLRenderer implements IRenderer {
     this._bg = normalizeRgb(splitRgb(background));
   }
 
-  set currentScene(scene: Scene) {
-    this._scene = scene;
+  set currentstate(state: State) {
+    this._state = state;
   }
 
   set fps(fps: number) {
@@ -30,12 +30,12 @@ export class GLRenderer implements IRenderer {
   }
 
   render(): void {
-    if (this._scene) {
-      this._render(this._scene);
+    if (this._state) {
+      this._render(this._state);
     }
   }
 
-  private _render(scene: Scene) {
+  private _render(state: State) {
     this._gl.clearColor(this._bg[0], this._bg[1], this._bg[2], 1.0);
     this._gl.clear(GL_CONSTANTS.COLOR_BUFFER_BIT);
   }

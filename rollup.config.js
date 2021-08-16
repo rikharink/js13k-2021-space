@@ -10,7 +10,6 @@ import inline, {
   defaultTemplate,
 } from './plugins/rollup-plugin-html-inline.js';
 import packageOutput from './plugins/rollup-plugin-package-js13k.js';
-import workerPlugin from './plugins/rollup-plugin-worker.js';
 
 const env = process.env.NODE_ENV || 'production';
 const isDev = env === 'development';
@@ -24,7 +23,6 @@ let plugins = [
     plugins: [],
   }),
   typescript(),
-  workerPlugin({ minify: false }),
   terser({
     ecma: 11,
     module: true,
@@ -42,6 +40,7 @@ let plugins = [
       hoist_funs: true,
       booleans_as_integers: true,
       drop_console: !isDev,
+      drop_debugger: !isDev,
     },
     mangle: {
       properties: {
@@ -93,7 +92,7 @@ export default defineConfig({
   output: {
     file: join('dist', 'bundle.js'),
     format: 'iife',
-    sourcemap: true,
+    sourcemap: 'inline',
     strict: false,
   },
   plugins: plugins,

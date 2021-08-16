@@ -1,5 +1,5 @@
 import { PointerManager } from './managers/pointer-manager';
-import { blend, Scene } from './game/scene';
+import { blend, State } from './game/state';
 import { Milliseconds, Random, Seconds } from './types';
 import { CanvasRenderer } from './canvas/canvas-renderer';
 import { IRenderer } from './interfaces/renderer';
@@ -21,21 +21,26 @@ class GameObject {
   private _player: Player;
   public cnvs: HTMLCanvasElement;
   private _rng: Random;
-  private _previousState?: Scene;
-  private _currentState!: Scene;
+  private _previousState: State;
+  private _currentState: State;
   private _accumulator: number = 0;
   private _raf?: number;
 
   public constructor() {
     this._rng = seedRand(Settings.seed);
-    this.cnvs = <HTMLCanvasElement>(
-      document.getElementById(Settings.canvasId)
+    this.cnvs = <HTMLCanvasElement>document.getElementById(Settings.canvasId);
+    document.body.appendChild(
+      renderBackground(
+        window.outerWidth,
+        window.outerHeight,
+        this._rng,
+        Settings.nrOfBackgroundStars,
+      ),
     );
-    document.body.appendChild(renderBackground(Settings.resolution[0], Settings.resolution[1], this._rng, Settings.nrOfBackgroundStars));
     this._pointerManager = new PointerManager(this.cnvs);
     this._renderer = new CanvasRenderer(this.cnvs);
     this._player = new Player(this._pointerManager);
-    this._currentState = new Scene({
+    this._currentState = new State({
       width: Settings.resolution[0],
       height: Settings.resolution[1],
       player: this._player,
@@ -47,7 +52,7 @@ class GameObject {
         ),
       ],
     });
-
+    this._previousState = this._currentState.clone();
     window.addEventListener('focus', this.start.bind(this));
     window.addEventListener('blur', this.stop.bind(this));
   }
@@ -91,11 +96,17 @@ class GameObject {
     this._accumulator += this._dt;
     while (this._accumulator >= 1 / Settings.tps) {
       this._previousState = this._currentState.clone();
-      this._currentState.tick(t, 1 / Settings.tps);
+      this._currentState.step(1 / Settings.tps);
       this._accumulator -= 1 / Settings.tps;
       t += this._dt;
     }
-    this._renderer.render(blend(this._previousState, this._currentState, this._accumulator / this._dt));
+    this._renderer.render(
+      blend(
+        this._previousState,
+        this._currentState,
+        this._accumulator / this._dt,
+      ),
+    );
   }
 }
 

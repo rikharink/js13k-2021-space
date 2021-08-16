@@ -1,19 +1,13 @@
-import { PointerManager } from './../managers/pointer-manager';
-import {
-  Vector2,
-  subtract,
-  negate,
-  normalize,
-  copy,
-} from './../math/vector2';
+import { Settings } from './../settings';
 import { ITickable } from './../interfaces/tickable';
-import { Point2D, RgbColor, Seconds } from './../types';
+import { PointerManager } from './../managers/pointer-manager';
+import { Vector2, subtract, negate, normalize, copy } from './../math/vector2';
+import { Point2D, RgbColor } from './../types';
 import { Circle } from './circle';
 import { palette } from '../palette';
 import { splitRgb } from '../math/color';
 
 export class Player extends Circle implements ITickable<void> {
-
   public readonly color: RgbColor = splitRgb(palette[2]);
 
   public velocity: Vector2 = [0, 0];
@@ -25,11 +19,11 @@ export class Player extends Circle implements ITickable<void> {
   private _pm: PointerManager;
 
   constructor(pm: PointerManager) {
-    super([10, 10], 5);
+    super([10, 10], 5, Settings.playerMass);
     this._pm = pm;
   }
 
-  public tick(_t: Seconds, _dt: Seconds): void {
+  public tick(): void {
     this.handleInput();
   }
 
@@ -64,7 +58,9 @@ export class Player extends Circle implements ITickable<void> {
     player.acceleration = copy([0, 0], this.acceleration);
     player.isInputting = this.isInputting;
     player._launchVector = copy([0, 0], this._launchVector);
-    player._startPos = this._startPos ? copy([0, 0], this._startPos) : undefined;
+    player._startPos = this._startPos
+      ? copy([0, 0], this._startPos)
+      : undefined;
     return player;
   }
 }
