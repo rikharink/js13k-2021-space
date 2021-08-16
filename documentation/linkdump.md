@@ -9,3 +9,4 @@
   - [GJK](http://web.archive.org/web/20140111155957/http://www.codezealot.org/archives/88)
   - [EPA](http://web.archive.org/web/20140725204610/http://www.codezealot.org/archives/180)
 - <https://github.com/burntcustard/burntcustard.github.io/tree/master/meteoroid>
+- <https://perso.liris.cnrs.fr/nicolas.pronost/UUCourses/GamePhysics/lectures/lecture%207%20Collision%20Resolution.pdf>
