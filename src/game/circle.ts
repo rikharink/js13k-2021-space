@@ -1,20 +1,14 @@
 import { hasCollision } from '../physics/collision/circle-collider';
 import { Point2D } from './../types';
 export class Circle {
-  protected _center: Point2D;
-  protected _radius: number;
+  public position: Point2D;
+  public radius: number;
+  public mass: number;
 
-  public constructor(center: Point2D, radius: number) {
-    this._center = center;
-    this._radius = radius;
-  }
-
-  public get center(): Point2D {
-    return this._center;
-  }
-
-  public get radius(): number {
-    return this._radius;
+  public constructor(center: Point2D, radius: number, mass: number = 0) {
+    this.position = center;
+    this.radius = radius;
+    this.mass = mass;
   }
 
   public collidesWith(other: Circle): boolean {
@@ -22,8 +16,8 @@ export class Circle {
   }
 
   public isInside(point: Point2D): boolean {
-    const x = point[0] - this._center[0];
-    const y = point[1] - this._center[1];
-    return x * x + y * y < this._radius * this._radius;
+    const x = point[0] - this.position[0];
+    const y = point[1] - this.position[1];
+    return x * x + y * y < this.radius * this.radius;
   }
 }

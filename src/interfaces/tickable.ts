@@ -1,3 +1,3 @@
-export interface ITickable {
-  tick(t?: number, dt?: number): void;
+export interface ITickable<T> {
+  tick(t?: number, dt?: number): T;
 }

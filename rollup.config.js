@@ -31,7 +31,7 @@ let plugins = [
     toplevel: true,
     compress: {
       keep_fargs: false,
-      passes: 5,
+      passes: 10,
       pure_funcs: ['assert', 'debug'],
       pure_getters: true,
       unsafe: true,

@@ -1,7 +1,7 @@
 import { Point2D } from './../types';
 export class PointerManager {
   private _canvas: HTMLCanvasElement;
-  private _position?: Point2D;
+  public position?: Point2D;
   private _state: boolean = false;
 
   constructor(canvas: HTMLCanvasElement) {
@@ -12,16 +12,12 @@ export class PointerManager {
     window.addEventListener('blur', this._clearState.bind(this));
   }
 
-  public get position(): Point2D | undefined {
-    return this._position;
-  }
-
   private _clearState() {
     this._state = false;
   }
 
   private _handlePointerEvent(ev: PointerEvent) {
-    this._position = this.scalePosition(this._canvas, [ev.clientX, ev.clientY]);
+    this.position = this.scalePosition(this._canvas, [ev.clientX, ev.clientY]);
     this._state = !!ev.buttons;
   }
 
@@ -32,7 +28,7 @@ export class PointerManager {
     return [(pos[0] - rect.left) * scaleX, (pos[1] - rect.top) * scaleY];
   }
 
-  public isActive(): boolean {
+  public hasInput(): boolean {
     return this._state;
   }
 }

@@ -10,7 +10,7 @@ export function drawCircle(
 ) {
   ctx.fillStyle = rgbaString(color, 1);
   ctx.beginPath();
-  ctx.arc(circle.center[0], circle.center[1], circle.radius, 0, TAU);
+  ctx.arc(circle.position[0], circle.position[1], circle.radius, 0, TAU);
   ctx.closePath();
   ctx.fill();
 }

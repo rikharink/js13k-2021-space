@@ -1,13 +1,13 @@
 import { PointerManager } from './managers/pointer-manager';
-import { Scene } from './game/scene';
+import { blend, Scene } from './game/scene';
 import { Milliseconds, Random, Seconds } from './types';
 import { CanvasRenderer } from './canvas/canvas-renderer';
 import { IRenderer } from './interfaces/renderer';
-import { ITickable } from './interfaces/tickable';
-import { Planet } from './game/planet';
+import { CelestialBody } from './game/celestial-body';
 import { Settings } from './settings';
 import { Player } from './game/player';
 import { seedRand } from './math/random';
+import { renderBackground } from './game/background';
 
 const ALPHA = 0.9;
 
@@ -19,28 +19,28 @@ class GameObject {
   private _then: number = 0;
   private _renderer: IRenderer;
   private _player: Player;
-  private _canvas: HTMLCanvasElement;
+  public cnvs: HTMLCanvasElement;
   private _rng: Random;
-  private _currentScene!: Scene;
+  private _previousState?: Scene;
+  private _currentState!: Scene;
   private _accumulator: number = 0;
   private _raf?: number;
 
   public constructor() {
     this._rng = seedRand(Settings.seed);
-    this._canvas = <HTMLCanvasElement>(
+    this.cnvs = <HTMLCanvasElement>(
       document.getElementById(Settings.canvasId)
     );
-    this._pointerManager = new PointerManager(this._canvas);
-    this._renderer = new CanvasRenderer(this._canvas);
+    document.body.appendChild(renderBackground(Settings.resolution[0], Settings.resolution[1], this._rng, Settings.nrOfBackgroundStars));
+    this._pointerManager = new PointerManager(this.cnvs);
+    this._renderer = new CanvasRenderer(this.cnvs);
     this._player = new Player(this._pointerManager);
-    this.currentScene = new Scene({
-      rng: this._rng,
+    this._currentState = new Scene({
       width: Settings.resolution[0],
       height: Settings.resolution[1],
       player: this._player,
-      numberOfStars: 2000,
-      planets: [
-        new Planet(
+      celestialBodies: [
+        new CelestialBody(
           [Settings.resolution[0] / 2, Settings.resolution[1] / 2],
           75,
           75,
@@ -50,16 +50,6 @@ class GameObject {
 
     window.addEventListener('focus', this.start.bind(this));
     window.addEventListener('blur', this.stop.bind(this));
-  }
-
-  public set currentScene(scene: Scene) {
-    this._currentScene = scene;
-    this._player.currentScene = scene;
-    this._renderer.currentScene = scene;
-  }
-
-  public get canvas(): HTMLCanvasElement {
-    return this._canvas;
   }
 
   public start() {
@@ -73,11 +63,11 @@ class GameObject {
   }
 
   private _updateTimes(t: Milliseconds): Seconds {
-    t *= 0.001;
-    this._dt = t - this._then;
-    this._then = t;
+    let r = t * 0.001;
+    this._dt = r - this._then;
+    this._then = r;
     this._adt += this._dt;
-    return t;
+    return r;
   }
 
   private _updateFPS(t: Seconds) {
@@ -94,15 +84,18 @@ class GameObject {
     this._raf = requestAnimationFrame(this._loop.bind(this));
     t = this._updateTimes(t);
     this._updateFPS(t);
-    if (this._dt > 1e3) {
+    if (this._dt > 1) {
       return;
     }
     this._accumulator += this._dt;
+    this._accumulator += this._dt;
     while (this._accumulator >= 1 / Settings.tps) {
-      this._currentScene.tick(t, 1 / Settings.tps);
+      this._previousState = this._currentState.clone();
+      this._currentState.tick(t, 1 / Settings.tps);
       this._accumulator -= 1 / Settings.tps;
+      t += this._dt;
     }
-    this._renderer.render();
+    this._renderer.render(blend(this._previousState, this._currentState, this._accumulator / this._dt));
   }
 }
 

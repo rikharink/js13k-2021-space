@@ -1,10 +1,4 @@
 import { Vector2 } from './math/vector2';
-import {
-  KeyboardInput,
-  PointerInput,
-  MouseInput,
-  GamepadInput,
-} from './interfaces/game-input';
 
 export type IDictionary<T> = Partial<{ [key: string]: T }>;
 
@@ -50,7 +44,6 @@ export type EventTypes =
   | MouseEventType
   | PointerEventType
   | GamepadEventType;
-export type Input = KeyboardInput | PointerInput | MouseInput | GamepadInput;
 
 export type SoundContext = AudioContext | OfflineAudioContext;
 export const A = 0;
