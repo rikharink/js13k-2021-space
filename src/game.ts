@@ -6,6 +6,9 @@ import { IRenderer } from './interfaces/renderer';
 import { Settings } from './settings';
 import { Player } from './game/player';
 import { seedRand } from './math/random';
+import { WebmonetizationManger } from './managers/webmonetization-manager';
+
+//@ts-ignore
 import level1 from './game/levels/level1.lvl.json';
 
 const ALPHA = 0.9;
@@ -14,6 +17,7 @@ class GameObject {
   public fps: number = 60;
   public isActive: boolean = false;
   private readonly _pointerManager;
+  private readonly _monetizationManager;
   private _dt: number = 0;
   private _adt: number = 0;
   private _then: number = 0;
@@ -30,6 +34,7 @@ class GameObject {
   public constructor() {
     this.cnvs = <HTMLCanvasElement>document.getElementById(Settings.canvasId);
     this._pointerManager = new PointerManager(this.cnvs);
+    this._monetizationManager = new WebmonetizationManger();
     this._rng = seedRand(Settings.seed);
     this._renderer = new CanvasRenderer(this.cnvs, this._rng);
 

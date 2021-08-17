@@ -1,3 +1,5 @@
+import { MonetizationObject } from '@webmonetization/types'
+
 /* IMAGES */
 declare module '*.svg' {
   const ref: string;
@@ -50,4 +52,10 @@ declare module '*.awlet' {
 declare module '*.lvl.json' {
   const ref: Level;
   export default ref;
+}
+
+declare global {
+  interface Document {
+    monetization?: MonetizationObject
+  }
 }

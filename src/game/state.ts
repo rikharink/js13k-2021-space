@@ -3,14 +3,13 @@ import { Seconds } from '../types';
 import { Player } from './player';
 import { CelestialBody } from './celestial-body';
 import { applyPhysics, getGravitationalForce } from '../physics/physics';
-import { add as vadd, copy, scale } from '../math/vector2';
+import { add as vadd, copy, scale, Vector2 } from '../math/vector2';
 import { handleCollisions } from '../physics/collision-handler';
 import { Level } from './level';
 import { PointerManager } from '../managers/pointer-manager';
 
 interface StateOptions {
-  width: number;
-  height: number;
+  size: Vector2;
   player: Player;
   celestialBodies: CelestialBody[];
 }
@@ -18,13 +17,11 @@ interface StateOptions {
 export class State implements IStepable<void> {
   public celestialBodies: CelestialBody[];
   public player: Player;
-  public width: number;
-  public height: number;
+  public size: Vector2;
   public attraction!: CelestialBody;
 
-  constructor({ width, height, player, celestialBodies }: StateOptions) {
-    this.width = width;
-    this.height = height;
+  constructor({ size, player, celestialBodies }: StateOptions) {
+    this.size = size;
     this.player = player;
     this.celestialBodies = celestialBodies;
   }
@@ -32,10 +29,8 @@ export class State implements IStepable<void> {
   public static fromLevel(pm: PointerManager, level: Level): State {
     let player = new Player(pm);
     copy(player.position, level.spawn);
-    console.debug(level);
     return new State({
-      width: level.width,
-      height: level.height,
+      size: level.size,
       player: player,
       celestialBodies: level.bodies.map(c => new CelestialBody(c.position, c.radius, c.mass, c.id))
     });
@@ -64,8 +59,7 @@ export class State implements IStepable<void> {
 
   public clone(): State {
     let state = new State({
-      width: this.width,
-      height: this.height,
+      size: copy([0, 0], this.size),
       player: this.player.clone(),
       celestialBodies: this.celestialBodies.map((cb) => cb.clone()),
     });
