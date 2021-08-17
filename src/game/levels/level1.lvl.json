@@ -1,0 +1,18 @@
+{
+    "width": 1280,
+    "height": 720,
+    "spawn": [
+        719,
+        300
+    ],
+    "bodies": [
+        {
+            "position": [
+                640,
+                320
+            ],
+            "radius": 75,
+            "mass": 75
+        }
+    ]
+}

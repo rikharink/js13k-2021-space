@@ -3,11 +3,10 @@ import { blend, State } from './game/state';
 import { Milliseconds, Random, Seconds } from './types';
 import { CanvasRenderer } from './canvas/canvas-renderer';
 import { IRenderer } from './interfaces/renderer';
-import { CelestialBody } from './game/celestial-body';
 import { Settings } from './settings';
 import { Player } from './game/player';
 import { seedRand } from './math/random';
-import { renderBackground } from './game/background';
+import level1 from './game/levels/level1.lvl.json';
 
 const ALPHA = 0.9;
 
@@ -31,16 +30,9 @@ class GameObject {
   public constructor() {
     this.cnvs = <HTMLCanvasElement>document.getElementById(Settings.canvasId);
     this._pointerManager = new PointerManager(this.cnvs);
-    this._renderer = new CanvasRenderer(this.cnvs);
     this._rng = seedRand(Settings.seed);
-    document.body.appendChild(
-      renderBackground(
-        window.outerWidth,
-        window.outerHeight,
-        this._rng,
-        Settings.nrOfBackgroundStars,
-      ),
-    );
+    this._renderer = new CanvasRenderer(this.cnvs, this._rng);
+
     window.addEventListener('focus', this.start.bind(this));
     window.addEventListener('blur', this.stop.bind(this));
     this.initState();
@@ -48,19 +40,7 @@ class GameObject {
 
   public initState() {
     this._player = new Player(this._pointerManager);
-    this._currentState = new State({
-      width: Settings.resolution[0],
-      height: Settings.resolution[1],
-      player: this._player,
-      celestialBodies: [
-        new CelestialBody(
-          [Settings.resolution[0] / 2, Settings.resolution[1] / 2],
-          75,
-          75,
-        ),
-      ],
-    });
-    this._previousState = this._currentState.clone();
+    this._currentState = State.fromLevel(this._pointerManager, level1);
   }
 
   public start() {

@@ -45,3 +45,9 @@ declare module '*.awlet' {
   const ref: string;
   export default ref;
 }
+
+/* LEVELS */
+declare module '*.lvl.json' {
+  const ref: Level;
+  export default ref;
+}

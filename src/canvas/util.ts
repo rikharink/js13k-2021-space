@@ -7,7 +7,7 @@ export function drawCircle(
   ctx: CanvasRenderingContext2D,
   circle: Circle,
   color: RgbColor,
-) {
+): void {
   ctx.fillStyle = rgbaString(color, 1);
   ctx.beginPath();
   ctx.arc(circle.position[0], circle.position[1], circle.radius, 0, TAU);
@@ -20,7 +20,7 @@ export function drawLine(
   start: Point2D,
   end: Point2D,
   color: RgbColor,
-) {
+): void {
   ctx.lineWidth = 1;
   ctx.lineCap = 'round';
   ctx.strokeStyle = rgbaString(color, 1);
@@ -30,3 +30,7 @@ export function drawLine(
   ctx.closePath();
   ctx.stroke();
 }
+
+export function drawArrow(ctx: CanvasRenderingContext2D, start: Point2D, end: Point2D) {
+}
+

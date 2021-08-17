@@ -6,17 +6,31 @@ import { splitRgb } from '../math/color';
 import { rgbaString } from '../util/util';
 import { drawCircle, drawLine } from './util';
 import { normalize, negate, subtract, Vector2 } from '../math/vector2';
+import { renderBackground } from '../game/background';
+import { Random } from '../types';
 
 export class CanvasRenderer implements IRenderer {
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
   private _fps: number = 0;
+  private _background: HTMLCanvasElement;
+  private _rng: Random;
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, rng: Random) {
     this._canvas = canvas;
     this._canvas.width = Settings.resolution[0];
     this._canvas.height = Settings.resolution[1];
     this._ctx = this._canvas.getContext('2d')!;
+    this._rng = rng;
+
+    this._background =
+      renderBackground(
+        Settings.resolution[0],
+        Settings.resolution[1],
+        this._rng,
+        Settings.nrOfBackgroundStars,
+      );
+
   }
 
   set fps(fps: number) {
@@ -52,7 +66,7 @@ export class CanvasRenderer implements IRenderer {
       ),
     );
 
-    
+
     ctx.fillStyle = rgbaString(splitRgb(palette[0]), 1);
     ctx.fillRect(10, 10, 45, 13);
     ctx.fillStyle = rgbaString(splitRgb(palette[5]), 1);
@@ -61,7 +75,7 @@ export class CanvasRenderer implements IRenderer {
 
   public render(state: State) {
     const ctx = this._ctx;
-    ctx.clearRect(0, 0, Settings.resolution[0], Settings.resolution[1]);
+    ctx.drawImage(this._background, 0, 0);
     this._renderCelestialBodies(ctx, state);
     this._renderPlayer(ctx, state);
     if (Settings.debug) {

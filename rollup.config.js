@@ -2,6 +2,7 @@ import { join } from 'path';
 import { defineConfig } from 'rollup';
 import { terser } from 'rollup-plugin-terser';
 import typescript from '@rollup/plugin-typescript';
+import json from '@rollup/plugin-json';
 import livereload from 'rollup-plugin-livereload';
 import dev from 'rollup-plugin-dev';
 import postcss from 'rollup-plugin-postcss';
@@ -22,6 +23,7 @@ let plugins = [
     path: './',
     plugins: [],
   }),
+  json(),
   typescript(),
   terser({
     ecma: 11,
@@ -44,7 +46,7 @@ let plugins = [
     },
     mangle: {
       properties: {
-        reserved: ['startRecording', 'stopRecording', 'download', 'recorder'],
+        reserved: [],
       },
       module: true,
       toplevel: true,
@@ -92,7 +94,7 @@ export default defineConfig({
   output: {
     file: join('dist', 'bundle.js'),
     format: 'iife',
-    sourcemap: 'inline',
+    sourcemap: true,
     strict: false,
   },
   plugins: plugins,

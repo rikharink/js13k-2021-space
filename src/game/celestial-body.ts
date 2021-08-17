@@ -8,7 +8,14 @@ import { splitRgb } from '../math/color';
 import { Settings } from '../settings';
 import { copy } from '../math/vector2';
 
-export class CelestialBody extends Circle implements IIdentifiable {
+export interface ICelestialBody {
+  id?: UUIDV4;
+  position: Point2D;
+  radius: number;
+  mass: number;
+}
+
+export class CelestialBody extends Circle implements IIdentifiable, ICelestialBody {
   public id;
   public readonly color: RgbColor = splitRgb(accent);
 

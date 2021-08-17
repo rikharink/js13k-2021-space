@@ -1,7 +1,7 @@
 import { Settings } from './../settings';
 import { ITickable } from './../interfaces/tickable';
 import { PointerManager } from './../managers/pointer-manager';
-import { Vector2, subtract, negate, normalize, copy } from './../math/vector2';
+import { Vector2, subtract, negate, normalize, copy, scale } from './../math/vector2';
 import { Point2D, RgbColor } from './../types';
 import { Circle } from './circle';
 import { palette } from '../palette';
@@ -40,7 +40,7 @@ export class Player extends Circle implements ITickable<void> {
     //RELEASE
     else if (this.isInputting && !active) {
       this._startPos = undefined;
-      // this._velocity = this._forceVector;
+      scale(this.velocity, this._launchVector, 1200);
     }
     //MOVE
     else if (this._pm.position && this._startPos) {

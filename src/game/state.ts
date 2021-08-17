@@ -3,8 +3,10 @@ import { Seconds } from '../types';
 import { Player } from './player';
 import { CelestialBody } from './celestial-body';
 import { applyPhysics, getGravitationalForce } from '../physics/physics';
-import { add as vadd, scale } from '../math/vector2';
+import { add as vadd, copy, scale } from '../math/vector2';
 import { handleCollisions } from '../physics/collision-handler';
+import { Level } from './level';
+import { PointerManager } from '../managers/pointer-manager';
 
 interface StateOptions {
   width: number;
@@ -25,6 +27,18 @@ export class State implements IStepable<void> {
     this.height = height;
     this.player = player;
     this.celestialBodies = celestialBodies;
+  }
+
+  public static fromLevel(pm: PointerManager, level: Level): State {
+    let player = new Player(pm);
+    copy(player.position, level.spawn);
+    console.debug(level);
+    return new State({
+      width: level.width,
+      height: level.height,
+      player: player,
+      celestialBodies: level.bodies.map(c => new CelestialBody(c.position, c.radius, c.mass, c.id))
+    });
   }
 
   public updateAttraction(): CelestialBody {
