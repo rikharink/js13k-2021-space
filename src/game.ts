@@ -13,22 +13,26 @@ const ALPHA = 0.9;
 
 class GameObject {
   public fps: number = 60;
+  public isActive: boolean = false;
   private readonly _pointerManager;
   private _dt: number = 0;
   private _adt: number = 0;
   private _then: number = 0;
   private _renderer: IRenderer;
-  private _player: Player;
   public cnvs: HTMLCanvasElement;
   private _rng: Random;
-  private _previousState: State;
-  private _currentState: State;
   private _accumulator: number = 0;
   private _raf?: number;
 
+  private _player!: Player;
+  private _previousState!: State;
+  private _currentState!: State;
+
   public constructor() {
-    this._rng = seedRand(Settings.seed);
     this.cnvs = <HTMLCanvasElement>document.getElementById(Settings.canvasId);
+    this._pointerManager = new PointerManager(this.cnvs);
+    this._renderer = new CanvasRenderer(this.cnvs);
+    this._rng = seedRand(Settings.seed);
     document.body.appendChild(
       renderBackground(
         window.outerWidth,
@@ -37,8 +41,12 @@ class GameObject {
         Settings.nrOfBackgroundStars,
       ),
     );
-    this._pointerManager = new PointerManager(this.cnvs);
-    this._renderer = new CanvasRenderer(this.cnvs);
+    window.addEventListener('focus', this.start.bind(this));
+    window.addEventListener('blur', this.stop.bind(this));
+    this.initState();
+  }
+
+  public initState() {
     this._player = new Player(this._pointerManager);
     this._currentState = new State({
       width: Settings.resolution[0],
@@ -53,18 +61,18 @@ class GameObject {
       ],
     });
     this._previousState = this._currentState.clone();
-    window.addEventListener('focus', this.start.bind(this));
-    window.addEventListener('blur', this.stop.bind(this));
   }
 
   public start() {
     this._raf = requestAnimationFrame(this._loop.bind(this));
+    this.isActive = true;
   }
 
   public stop() {
     if (this._raf) {
       cancelAnimationFrame(this._raf);
     }
+    this.isActive = false;
   }
 
   private _updateTimes(t: Milliseconds): Seconds {

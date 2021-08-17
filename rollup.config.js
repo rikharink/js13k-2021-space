@@ -44,7 +44,7 @@ let plugins = [
     },
     mangle: {
       properties: {
-        reserved: [],
+        reserved: ['startRecording', 'stopRecording', 'download', 'recorder'],
       },
       module: true,
       toplevel: true,

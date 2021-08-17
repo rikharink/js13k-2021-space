@@ -58,6 +58,11 @@
   resolved "https://registry.yarnpkg.com/@trysound/sax/-/sax-0.1.1.tgz#3348564048e7a2d7398c935d466c0414ebb6a669"
   integrity sha512-Z6DoceYb/1xSg5+e+ZlPZ9v0N16ZvZ+wYMraFue4HYrE4ttONKtsvruIRf6t9TBR0YvSOfi1hUU0fJfBLCDYow==
 
+"@types/dom-mediacapture-record@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@types/dom-mediacapture-record/-/dom-mediacapture-record-1.0.10.tgz#3b96ead62f89b01eb2b9d5d080f29b2373f2493c"
+  integrity sha512-8O84hHuVhMMLHLybf3y9SQpNcnQSuzVzcJaUNq9+4Ovb7fodS0aQXep4hyMtxd6fe/dyszbHFjFqtyawf4y46A==
+
 "@types/estree@0.0.39":
   version "0.0.39"
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
