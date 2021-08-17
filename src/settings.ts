@@ -7,5 +7,6 @@ export const Settings = {
   planetWeightScaling: 1000000,
   G: 1,
   nrOfBackgroundStars: 2000,
-  playerMass: 1,
+  playerMass: 0,
+  playerDampening: 0.9,
 };

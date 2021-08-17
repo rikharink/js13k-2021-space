@@ -2,6 +2,7 @@ import { Circle } from '../game/circle';
 import { State } from '../game/state';
 import {
   add,
+  copy,
   distance_squared,
   normalize,
   scale,
@@ -13,6 +14,7 @@ import { Milliseconds } from '../types';
 
 function semiImplicitEuler(dt: Milliseconds, state: State) {
   const tmp: Vector2 = [0, 0];
+  copy(state.player.previousPosition, state.player.position);
   scale(
     state.player.acceleration,
     normalize(

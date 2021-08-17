@@ -9,10 +9,13 @@ import { splitRgb } from '../math/color';
 
 export class Player extends Circle implements ITickable<void> {
   public readonly color: RgbColor = splitRgb(palette[2]);
+  public readonly dampening: number = Settings.playerDampening;
 
   public velocity: Vector2 = [0, 0];
   public acceleration: Vector2 = [0, 0];
   public isInputting: boolean = false;
+  public previousPosition: Vector2;
+
   private _launchVector: Vector2 = [0, 0];
   private _startPos?: Point2D;
 
@@ -20,6 +23,7 @@ export class Player extends Circle implements ITickable<void> {
 
   constructor(pm: PointerManager) {
     super([10, 10], 5, Settings.playerMass);
+    this.previousPosition = copy([0, 0], this.position);
     this._pm = pm;
   }
 
