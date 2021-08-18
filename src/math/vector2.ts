@@ -30,6 +30,11 @@ export function add(out: Vector2, a: Vector2, b: Vector2): Vector2 {
   return out;
 }
 
+export function rotateClockwise(out: Vector2, a: Vector2): Vector2 {
+  [out[0], out[1]] = [a[1], a[0]];
+  return out;
+}
+
 export function add_scalar(out: Vector2, a: Vector2, n: number): Vector2 {
   out[0] = a[0] + n;
   out[1] = a[1] + n;

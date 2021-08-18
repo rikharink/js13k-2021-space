@@ -6,7 +6,7 @@ import { uuidv4 } from '../util/util';
 import { accent } from '../palette';
 import { splitRgb } from '../math/color';
 import { Settings } from '../settings';
-import { copy } from '../math/vector2';
+import { copy, Vector2 } from '../math/vector2';
 
 export interface ICelestialBody {
   id?: UUIDV4;

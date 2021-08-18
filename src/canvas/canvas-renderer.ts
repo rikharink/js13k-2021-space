@@ -5,21 +5,22 @@ import { IRenderer } from '../interfaces/renderer';
 import { splitRgb } from '../math/color';
 import { rgbaString } from '../util/util';
 import { drawCircle, drawLine } from './util';
-import { normalize, negate, subtract, Vector2 } from '../math/vector2';
 import { renderBackground } from '../game/background';
-import { Random } from '../types';
-
+import { F, Random } from '../types';
+import { DEGREE_TO_RADIAN } from '../math/math';
 export class CanvasRenderer implements IRenderer {
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
   private _fps: number = 0;
   private _background: HTMLCanvasElement;
   private _rng: Random;
+  private _bufferContext: CanvasRenderingContext2D;
 
   constructor(canvas: HTMLCanvasElement, rng: Random) {
     this._canvas = canvas;
-    this._canvas.width = Settings.resolution[0];
-    this._canvas.height = Settings.resolution[1];
+    this._bufferContext = document.createElement('canvas').getContext('2d')!;
+    this._setSize();
+
     this._ctx = this._canvas.getContext('2d')!;
     this._rng = rng;
 
@@ -30,11 +31,17 @@ export class CanvasRenderer implements IRenderer {
         this._rng,
         Settings.nrOfBackgroundStars,
       );
-
   }
 
   set fps(fps: number) {
     this._fps = fps;
+  }
+
+  private _setSize() {
+    this._canvas.width = Settings.resolution[0];
+    this._canvas.height = Settings.resolution[1];
+    this._bufferContext.canvas.width = Settings.resolution[0];
+    this._bufferContext.canvas.height = Settings.resolution[1];
   }
 
   private _renderCelestialBodies(ctx: CanvasRenderingContext2D, state: State) {
@@ -56,17 +63,6 @@ export class CanvasRenderer implements IRenderer {
         splitRgb(palette[1]),
       );
     }
-
-    let tmp: Vector2 = [0, 0];
-    normalize(
-      tmp,
-      negate(
-        tmp,
-        subtract(tmp, state.player.position, state.attraction.position),
-      ),
-    );
-
-
     ctx.fillStyle = rgbaString(splitRgb(palette[0]), 1);
     ctx.fillRect(10, 10, 45, 13);
     ctx.fillStyle = rgbaString(splitRgb(palette[5]), 1);
@@ -74,12 +70,13 @@ export class CanvasRenderer implements IRenderer {
   }
 
   public render(state: State) {
-    const ctx = this._ctx;
+    const ctx = this._bufferContext;
     ctx.drawImage(this._background, 0, 0);
     this._renderCelestialBodies(ctx, state);
     this._renderPlayer(ctx, state);
     if (Settings.debug) {
       this._renderDebug(ctx, state);
     }
+    this._ctx.drawImage(this._bufferContext.canvas, 0, 0);
   }
 }

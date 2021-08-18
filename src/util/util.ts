@@ -1,3 +1,4 @@
+import { subtract, Vector2 } from '../math/vector2';
 import { Random, RgbColor, UUIDV4 } from '../types';
 
 export function swap<T>(arr: T[], i: number, j: number): void {
@@ -21,4 +22,8 @@ export function hasOwnKey<O>(
 
 export function rgbaString(color: RgbColor, alpha: number): string {
   return `rgba(${color[0]}, ${color[1]}, ${color[2]}, ${alpha})`;
+}
+
+export function rotateVector(out: Vector2, wh: Vector2) {
+  subtract(out, wh, out);
 }

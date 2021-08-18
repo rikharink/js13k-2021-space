@@ -1,6 +1,6 @@
 export const Settings = {
   debug: true,
-  resolution: [1920, 1080],
+  resolution: [1334, 750],
   tps: 164,
   canvasId: 'g',
   seed: 'IPTS',

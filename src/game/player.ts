@@ -6,6 +6,7 @@ import { Point2D, RgbColor } from './../types';
 import { Circle } from './circle';
 import { palette } from '../palette';
 import { splitRgb } from '../math/color';
+import { rotateVector } from '../util/util';
 
 export class Player extends Circle implements ITickable<void> {
   public readonly color: RgbColor = splitRgb(palette[2]);
@@ -15,6 +16,7 @@ export class Player extends Circle implements ITickable<void> {
   public acceleration: Vector2 = [0, 0];
   public isInputting: boolean = false;
   public previousPosition: Vector2;
+  public launches: number = 0;
 
   private _launchVector: Vector2 = [0, 0];
   private _startPos?: Point2D;
@@ -39,6 +41,7 @@ export class Player extends Circle implements ITickable<void> {
     }
     //RELEASE
     else if (this.isInputting && !active) {
+      this.launches++;
       this._startPos = undefined;
       scale(this.velocity, this._launchVector, 1200);
     }

@@ -7,6 +7,7 @@ import { Settings } from './settings';
 import { Player } from './game/player';
 import { seedRand } from './math/random';
 import { WebmonetizationManger } from './managers/webmonetization-manager';
+import { Level } from './game/level';
 
 //@ts-ignore
 import level1 from './game/levels/level1.lvl.json';
@@ -27,7 +28,6 @@ class GameObject {
   private _accumulator: number = 0;
   private _raf?: number;
 
-  private _player!: Player;
   private _previousState!: State;
   private _currentState!: State;
 
@@ -40,12 +40,11 @@ class GameObject {
 
     window.addEventListener('focus', this.start.bind(this));
     window.addEventListener('blur', this.stop.bind(this));
-    this.initState();
+    this.loadLevel(level1);
   }
 
-  public initState() {
-    this._player = new Player(this._pointerManager);
-    this._currentState = State.fromLevel(this._pointerManager, level1);
+  public loadLevel(level: Level) {
+    this._currentState = State.fromLevel(this._pointerManager, level);
   }
 
   public start() {
