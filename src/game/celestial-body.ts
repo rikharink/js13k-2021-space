@@ -19,17 +19,27 @@ export class CelestialBody extends Circle implements IIdentifiable, ICelestialBo
   public id;
   public readonly color: RgbColor = splitRgb(accent);
 
-  constructor(position: Point2D, radius: number, mass: number, id?: UUIDV4) {
-    super(position, radius, mass * Settings.planetWeightScaling);
+  constructor(position: Point2D, radius: number, mass: number, id?: UUIDV4, velocity?: Vector2, acceleration?: Vector2) {
+    super(position, radius, mass * Settings.planetWeightScaling, velocity, acceleration);
     this.id = id ?? uuidv4();
   }
 
-  clone(): CelestialBody {
+  public get mu(): number {
+    return Settings.G * this.mass;
+  }
+
+  public orbitalVelocity(radius: number): number {
+    return Math.sqrt(this.mu / radius);
+  }
+
+  public clone(): CelestialBody {
     return new CelestialBody(
       copy([0, 0], this.position),
       this.radius,
       this.mass,
       this.id,
+      this.velocity,
+      this.acceleration,
     );
   }
 }

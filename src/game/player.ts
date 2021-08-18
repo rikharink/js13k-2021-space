@@ -1,12 +1,12 @@
 import { Settings } from './../settings';
 import { ITickable } from './../interfaces/tickable';
 import { PointerManager } from './../managers/pointer-manager';
-import { Vector2, subtract, negate, normalize, copy, scale } from './../math/vector2';
+import { Vector2, subtract, negate, copy, normalize, scale, distance } from './../math/vector2';
 import { Point2D, RgbColor } from './../types';
 import { Circle } from './circle';
 import { palette } from '../palette';
 import { splitRgb } from '../math/color';
-import { rotateVector } from '../util/util';
+import { clamp } from '../math/math';
 
 export class Player extends Circle implements ITickable<void> {
   public readonly color: RgbColor = splitRgb(palette[2]);
@@ -18,7 +18,8 @@ export class Player extends Circle implements ITickable<void> {
   public previousPosition: Vector2;
   public launches: number = 0;
 
-  private _launchVector: Vector2 = [0, 0];
+  public launchVector?: Vector2;
+  public launchPower?: number;
   private _startPos?: Point2D;
 
   private _pm: PointerManager;
@@ -37,23 +38,24 @@ export class Player extends Circle implements ITickable<void> {
     const active = this._pm.hasInput();
     //START
     if (!this.isInputting && active) {
+      this.launchVector = [0, 0];
       this._startPos = this._pm.position;
     }
     //RELEASE
     else if (this.isInputting && !active) {
       this.launches++;
+      scale(this.velocity, this.launchVector!, 1200 * this.launchPower!);
       this._startPos = undefined;
-      scale(this.velocity, this._launchVector, 1200);
+      this.launchVector = undefined;
+      this.launchPower = undefined;
     }
     //MOVE
     else if (this._pm.position && this._startPos) {
       negate(
-        this._launchVector,
-        normalize(
-          this._launchVector,
-          subtract(this._launchVector, this._pm.position, this._startPos),
-        ),
+        this.launchVector!,
+        normalize(this.launchVector!, subtract(this.launchVector!, this._pm.position, this._startPos))
       );
+      this.launchPower = clamp(0, 100, distance(this._startPos, this._pm.position)) / 100;
     }
     this.isInputting = active;
   }
@@ -64,7 +66,8 @@ export class Player extends Circle implements ITickable<void> {
     player.velocity = copy([0, 0], this.velocity);
     player.acceleration = copy([0, 0], this.acceleration);
     player.isInputting = this.isInputting;
-    player._launchVector = copy([0, 0], this._launchVector);
+    player.launchVector = this.launchVector ? copy([0, 0], this.launchVector) : undefined;
+    player.launchPower = this.launchPower;
     player._startPos = this._startPos
       ? copy([0, 0], this._startPos)
       : undefined;

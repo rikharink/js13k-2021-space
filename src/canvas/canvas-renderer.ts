@@ -8,6 +8,7 @@ import { drawCircle, drawLine } from './util';
 import { renderBackground } from '../game/background';
 import { F, Random } from '../types';
 import { DEGREE_TO_RADIAN } from '../math/math';
+import { add, scale, Vector2 } from '../math/vector2';
 export class CanvasRenderer implements IRenderer {
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
@@ -52,6 +53,12 @@ export class CanvasRenderer implements IRenderer {
 
   private _renderPlayer(ctx: CanvasRenderingContext2D, state: State) {
     drawCircle(ctx, state.player, state.player.color);
+    if (state.player.launchVector && state.player.launchPower) {
+      let tmp: Vector2 = [0, 0];
+      let start = state.player.position;
+      let end = add(tmp, start, scale(tmp, state.player.launchVector, 75 * state.player.launchPower));
+      drawLine(ctx, state.player.position, end, splitRgb(palette[2]));
+    }
   }
 
   private _renderDebug(ctx: CanvasRenderingContext2D, state: State) {
