@@ -3253,11 +3253,6 @@ rimraf@^3.0.2:
   dependencies:
     glob "^7.1.3"
 
-roadroller@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/roadroller/-/roadroller-1.0.0.tgz#cb3b8311fe07cc9484b66bec5b6dd7758dd1bc6a"
-  integrity sha512-XcM47cY+Tx7ngFVWY/3p7Itdvq4AeKGsnas/c+i98FSveAfwYR6HDfel0FVFDm34Sn96/Rzj8x4Tfm7czl5skQ==
-
 rollup-plugin-dev@^1.1.3:
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/rollup-plugin-dev/-/rollup-plugin-dev-1.1.3.tgz#85c2e9ba2d82e349d3d644b72723085c1110369e"
