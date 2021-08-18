@@ -9,4 +9,5 @@ export const Settings = {
   nrOfBackgroundStars: 2000,
   playerMass: 0,
   playerDampening: 0.9,
+  launchForceMultiplier: 1300,
 };

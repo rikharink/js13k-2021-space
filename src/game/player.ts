@@ -12,8 +12,6 @@ export class Player extends Circle implements ITickable<void> {
   public readonly color: RgbColor = splitRgb(palette[2]);
   public readonly dampening: number = Settings.playerDampening;
 
-  public velocity: Vector2 = [0, 0];
-  public acceleration: Vector2 = [0, 0];
   public isInputting: boolean = false;
   public previousPosition: Vector2;
   public launches: number = 0;
@@ -44,7 +42,7 @@ export class Player extends Circle implements ITickable<void> {
     //RELEASE
     else if (this.isInputting && !active) {
       this.launches++;
-      scale(this.velocity, this.launchVector!, 1200 * this.launchPower!);
+      scale(this.velocity, this.launchVector!, Settings.launchForceMultiplier * this.launchPower!);
       this._startPos = undefined;
       this.launchVector = undefined;
       this.launchPower = undefined;

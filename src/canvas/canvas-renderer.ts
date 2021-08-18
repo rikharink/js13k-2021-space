@@ -71,9 +71,11 @@ export class CanvasRenderer implements IRenderer {
       );
     }
     ctx.fillStyle = rgbaString(splitRgb(palette[0]), 1);
-    ctx.fillRect(10, 10, 45, 13);
+    ctx.fillRect(8, 8, 100, 48);
     ctx.fillStyle = rgbaString(splitRgb(palette[5]), 1);
     ctx.fillText(`FPS: ${this._fps}`, 12, 20);
+    ctx.fillText(`V: [${~~state.player.velocity[0]}, ${~~state.player.velocity[1]}]`, 12, 33);
+    ctx.fillText(`A: [${~~state.player.acceleration[0]}, ${~~state.player.acceleration[1]}]`, 12, 46);
   }
 
   public render(state: State) {
