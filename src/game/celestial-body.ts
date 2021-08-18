@@ -13,14 +13,17 @@ export interface ICelestialBody {
   position: Point2D;
   radius: number;
   mass: number;
+  velocity?: Vector2;
+  acceleration?: Vector2;
+  bounceDampening?: number;
 }
 
 export class CelestialBody extends Circle implements IIdentifiable, ICelestialBody {
   public id;
   public readonly color: RgbColor = splitRgb(accent);
 
-  constructor(position: Point2D, radius: number, mass: number, id?: UUIDV4, velocity?: Vector2, acceleration?: Vector2) {
-    super(position, radius, mass * Settings.planetWeightScaling, velocity, acceleration);
+  constructor(position: Point2D, radius: number, mass: number, id?: UUIDV4, velocity?: Vector2, acceleration?: Vector2, bounceDampening?: number) {
+    super(position, radius, mass * Settings.planetWeightScaling, velocity, acceleration, bounceDampening);
     this.id = id ?? uuidv4();
   }
 
@@ -33,13 +36,15 @@ export class CelestialBody extends Circle implements IIdentifiable, ICelestialBo
   }
 
   public clone(): CelestialBody {
-    return new CelestialBody(
-      copy([0, 0], this.position),
+    let cb = new CelestialBody(
+      copy([0, 0], this.position)!,
       this.radius,
       this.mass,
       this.id,
       this.velocity,
       this.acceleration,
     );
+    cb.attraction = this.attraction;
+    return cb;
   }
 }

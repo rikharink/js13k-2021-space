@@ -45,6 +45,7 @@ class GameObject {
 
   public loadLevel(level: Level) {
     this._currentState = State.fromLevel(this._pointerManager, level);
+    this._previousState = this._currentState;
   }
 
   public start() {

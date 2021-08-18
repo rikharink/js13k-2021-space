@@ -16,9 +16,16 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+import { nearlyEqual as ne } from './math';
+
 export type Vector2 = [x: number, y: number];
 
-export function copy(out: Vector2, a: Vector2): Vector2 {
+export function nearlyEqual(a: Vector2, b: Vector2, epsilon?: number): boolean {
+  return !!(ne(a[0], b[0], epsilon) && ne(a[1], b[1], epsilon));
+}
+
+export function copy(out: Vector2, a?: Vector2): Vector2 | undefined {
+  if (!a) return;
   out[0] = a[0];
   out[1] = a[1];
   return out;

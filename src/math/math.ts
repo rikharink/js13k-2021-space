@@ -21,3 +21,18 @@ export function clamp(min: number, max: number, n: number) {
 export function normalize(value: number, min: number, max: number): number {
   return (value - min) / (max - min);
 }
+
+const DEFAULT_EPSILON = 1e-5;
+const MIN_NORMAL = Math.pow(2, -1022);
+export function nearlyEqual(a: number, b: number, epsilon: number = DEFAULT_EPSILON) {
+  let diff;
+  if (a === b) {
+    return true;
+  }
+  diff = Math.abs(a - b);
+  if (a === 0 || b === 0 || diff < MIN_NORMAL) {
+    return diff < epsilon * MIN_NORMAL;
+  } else {
+    return diff / (Math.abs(a) + Math.abs(b)) < epsilon;
+  }
+}

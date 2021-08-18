@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import { Settings } from '../settings';
+import { DEBUG } from '../settings';
 import { IDictionary } from '../types';
 import { hasOwnKey } from '../util/util';
 import { GL_CONSTANTS } from './gl-constants';
@@ -105,7 +105,7 @@ export class GLProgram {
       }
     }
 
-    if (Settings.debug && !gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    if (DEBUG && !gl.getProgramParameter(program, gl.LINK_STATUS)) {
       const errLog = gl.getProgramInfoLog(program);
       gl.deleteProgram(program);
       gl.deleteShader(vs);
@@ -130,7 +130,7 @@ export class GLProgram {
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
 
-    if (Settings.debug && !gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+    if (DEBUG && !gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
       const errLog = gl.getShaderInfoLog(shader);
       gl.deleteShader(shader);
       throw new Error(`Failed to compile shader. Log:\n${errLog}`);

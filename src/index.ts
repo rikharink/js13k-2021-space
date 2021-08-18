@@ -1,13 +1,13 @@
 import './style/main.css';
 import { Game } from './game';
-import { Settings } from './settings';
+import { DEBUG, Settings } from './settings';
 import { CanvasRecorder } from './debug/canvas-recorder';
 //@ts-ignore
 import level1 from './game/levels/level1.lvl.json';
 
 Game.start();
 
-if (Settings.debug) {
+if (DEBUG) {
     const w = <any>window;
     w.recorder = () => new CanvasRecorder(<HTMLCanvasElement>document.getElementById('g'));
     document.addEventListener('keypress', (e: KeyboardEvent) => {
@@ -28,6 +28,9 @@ if (Settings.debug) {
                 w.vcr.download('IPTS-demo.webm');
                 delete w.vcr;
             }
+        }
+        else if (e.key === 's') {
+            Settings.speedScale = Settings.speedScale < 1 ? 1 : 0.05;
         }
     });
 }

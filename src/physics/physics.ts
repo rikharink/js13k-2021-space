@@ -12,34 +12,63 @@ import {
 import { Settings } from '../settings';
 import { Milliseconds } from '../types';
 
-function semiImplicitEuler(dt: Milliseconds, state: State) {
-  const tmp: Vector2 = [0, 0];
-  copy(state.player.previousPosition, state.player.position);
-  scale(
-    state.player.acceleration,
-    normalize(
-      tmp,
-      subtract(tmp, state.attraction.position, state.player.position),
-    ),
-    getGravitationalForce(state.player, state.attraction),
-  );
-  add(
-    state.player.velocity,
-    state.player.velocity,
-    scale(tmp, state.player.acceleration, dt),
-  );
-  add(
-    state.player.position,
-    state.player.position,
-    scale(tmp, state.player.velocity, dt),
-  );
-}
-
-export function applyPhysics(dt: Milliseconds, state: State) {
-  semiImplicitEuler(dt, state);
-}
-
 export function getGravitationalForce(a: Circle, b: Circle): number {
   const ds = distance_squared(b.position, a.position);
   return ds !== 0 ? Settings.G * (b.mass / ds) : 0;
 }
+
+function updateAttractions(state: State): void {
+  let mostAttractive: Circle | undefined = undefined;
+  let c1: Circle;
+  let c2: Circle;
+  let checks = [state.player, ...state.celestialBodies];
+  for (c1 of checks) {
+    let maxF = Number.NEGATIVE_INFINITY;
+    for (c2 of state.celestialBodies) {
+      if (c1 === c2) continue;
+
+      let f = getGravitationalForce(c1, c2);
+      if (f >= maxF) {
+        maxF = f;
+        mostAttractive = c2;
+      }
+    }
+    c1.attraction = mostAttractive;
+  }
+}
+
+function semiImplicitEuler(c: Circle, dt: Milliseconds) {
+  if (!c.attraction || !c.acceleration) return;
+
+  const tmp: Vector2 = [0, 0];
+  copy(c.previousPosition, c.position);
+  scale(
+    c.acceleration,
+    normalize(
+      tmp,
+      subtract(tmp, c.attraction.position, c.position),
+    ),
+    getGravitationalForce(c, c.attraction),
+  );
+  if (!c.velocity) c.velocity = [0, 0];
+  add(
+    c.velocity,
+    c.velocity,
+    scale(tmp, c.acceleration, dt),
+  );
+  add(
+    c.position,
+    c.position,
+    scale(tmp, c.velocity, dt),
+  );
+}
+
+export function applyPhysics(dt: Milliseconds, state: State) {
+  updateAttractions(state);
+  let objects = [state.player, ...state.celestialBodies];
+  for (let o of objects) {
+    semiImplicitEuler(o, dt * Settings.speedScale);
+  }
+}
+
+
