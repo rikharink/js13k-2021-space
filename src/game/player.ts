@@ -2,15 +2,16 @@ import { Settings } from './../settings';
 import { ITickable } from './../interfaces/tickable';
 import { PointerManager } from './../managers/pointer-manager';
 import { Vector2, subtract, negate, copy, normalize, scale, distance, nearlyEqual } from './../math/vector2';
-import { Point2D, RgbColor } from './../types';
+import { Point2D, RgbColor, UUIDV4 } from './../types';
 import { Circle } from './circle';
 import { palette } from '../palette';
 import { splitRgb } from '../math/color';
 import { clamp } from '../math/math';
+import { uuidv4 } from '../util/util';
 
 export class Player extends Circle implements ITickable<void> {
   public readonly color: RgbColor = splitRgb(palette[2]);
-
+  public id: UUIDV4;
   public isInputting: boolean = false;
   public launches: number = 0;
   public totalLaunches: number = 0;
@@ -22,8 +23,9 @@ export class Player extends Circle implements ITickable<void> {
 
   private _pm: PointerManager;
 
-  constructor(pm: PointerManager) {
+  constructor(pm: PointerManager, id?: UUIDV4) {
     super([10, 10], 5, Settings.playerMass, [0, 0], [0, 0]);
+    this.id = id ?? uuidv4();
     this._pm = pm;
   }
 
@@ -83,6 +85,7 @@ export class Player extends Circle implements ITickable<void> {
 
   clone(): Player {
     let player = new Player(this._pm);
+    player.id = this.id;
     player.attraction = this.attraction?.clone();;
     player.position = copy([0, 0], this.position)!;
     player.previousPosition = copy([0, 0], this.previousPosition)!;

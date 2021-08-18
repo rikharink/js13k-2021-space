@@ -26,7 +26,6 @@ export class State implements IStepable<void> {
   }
 
   public static fromLevel(pm: PointerManager, level: Level): State {
-    console.debug('loading', level);
     let player = new Player(pm);
     copy(player.position, level.spawn);
     return new State({

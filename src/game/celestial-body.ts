@@ -19,7 +19,7 @@ export interface ICelestialBody {
 }
 
 export class CelestialBody extends Circle implements IIdentifiable, ICelestialBody {
-  public id;
+  public id: UUIDV4;
   public readonly color: RgbColor = splitRgb(accent);
 
   constructor(position: Point2D, radius: number, mass: number, id?: UUIDV4, velocity?: Vector2, acceleration?: Vector2, bounceDampening?: number) {

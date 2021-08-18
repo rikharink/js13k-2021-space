@@ -11,3 +11,4 @@
 - <https://github.com/burntcustard/burntcustard.github.io/tree/master/meteoroid>
 - <https://perso.liris.cnrs.fr/nicolas.pronost/UUCourses/GamePhysics/lectures/lecture%207%20Collision%20Resolution.pdf>
 - <https://www.toptal.com/game/video-game-physics-part-iii-constrained-rigid-body-simulation>
+- <https://www.reddit.com/r/gamedev/comments/5qvh0v/good_approaches_for_drawing_2d_orbits/>

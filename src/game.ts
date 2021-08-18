@@ -29,7 +29,7 @@ class GameObject {
   private _raf?: number;
 
   private _previousState!: State;
-  private _currentState!: State;
+  public currentState!: State;
 
   public constructor() {
     this.cnvs = <HTMLCanvasElement>document.getElementById(Settings.canvasId);
@@ -44,8 +44,8 @@ class GameObject {
   }
 
   public loadLevel(level: Level) {
-    this._currentState = State.fromLevel(this._pointerManager, level);
-    this._previousState = this._currentState;
+    this.currentState = State.fromLevel(this._pointerManager, level);
+    this._previousState = this.currentState;
   }
 
   public start() {
@@ -88,15 +88,15 @@ class GameObject {
     this._accumulator += this._dt;
     this._accumulator += this._dt;
     while (this._accumulator >= 1 / Settings.tps) {
-      this._previousState = this._currentState.clone();
-      this._currentState.step(1 / Settings.tps);
+      this._previousState = this.currentState.clone();
+      this.currentState.step(1 / Settings.tps);
       this._accumulator -= 1 / Settings.tps;
       t += this._dt;
     }
     this._renderer.render(
       blend(
         this._previousState,
-        this._currentState,
+        this.currentState,
         this._accumulator / this._dt,
       ),
     );
