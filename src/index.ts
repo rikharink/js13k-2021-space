@@ -32,7 +32,10 @@ if (DEBUG) {
         else if (e.key === 's') {
             Settings.speedScale = Settings.speedScale < 1 ? 1 : 0.05;
         } else if (e.key === 'b') {
-            Game.currentState.celestialBodies.forEach(cb => cb.acceleration = [0, 0]);
+            Game.currentState.celestialBodies.forEach(cb => {
+                cb.mass = -(cb.mass * 10);
+                cb.acceleration = [0, 0]
+            });
         }
     });
 }

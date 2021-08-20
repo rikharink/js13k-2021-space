@@ -2,14 +2,15 @@ import { Settings } from './../settings';
 import { ITickable } from './../interfaces/tickable';
 import { PointerManager } from './../managers/pointer-manager';
 import { Vector2, subtract, negate, copy, normalize, scale, distance, nearlyEqual } from './../math/vector2';
-import { Point2D, RgbColor, UUIDV4 } from './../types';
-import { Circle } from './circle';
+import { Percentage, Point2D, RgbColor, UUIDV4 } from './../types';
+import { PhysicsCircle } from './physics-circle';
 import { palette } from '../palette';
 import { splitRgb } from '../math/color';
 import { clamp } from '../math/math';
 import { uuidv4 } from '../util/util';
+import { IStepable } from '../interfaces/stepable';
 
-export class Player extends Circle implements ITickable<void> {
+export class Player extends PhysicsCircle implements ITickable<void>, IStepable<void> {
   public readonly color: RgbColor = splitRgb(palette[2]);
   public id: UUIDV4;
   public isInputting: boolean = false;
@@ -17,10 +18,13 @@ export class Player extends Circle implements ITickable<void> {
   public totalLaunches: number = 0;
   public launchVector?: Vector2;
   public launchPower?: number;
+  public maxLaunches: number = 2;
+  public readonly maxSp: number = Settings.tps * 2;
+  public sp: number = Settings.tps * 2;
+  public hasSlowmotion = false;
 
   private _sc: number = 0;
   private _startPos?: Point2D;
-
   private _pm: PointerManager;
 
   constructor(pm: PointerManager, id?: UUIDV4) {
@@ -31,6 +35,9 @@ export class Player extends Circle implements ITickable<void> {
 
   public tick(): void {
     this.handleInput();
+  }
+
+  public step(): void {
     if (this.stationary) {
       this._sc++;
     }
@@ -38,6 +45,22 @@ export class Player extends Circle implements ITickable<void> {
       this._sc = 0;
       this.launches = 0;
     }
+
+    if (this.hasSlowmotion) {
+      if (this.sp <= 0) {
+        this.hasSlowmotion = false;
+        Settings.speedScale = 1;
+      }
+      this.sp--;
+    } else {
+      if (this.sp < this.maxSp) {
+        this.sp += 0.1;
+      }
+    }
+  }
+
+  public get spp(): Percentage {
+    return ~~(this.sp / this.maxSp * 100);
   }
 
   public get stationary(): boolean {
@@ -45,7 +68,7 @@ export class Player extends Circle implements ITickable<void> {
   }
 
   public get canLaunch(): boolean {
-    return this.launches < 2;
+    return this.launches < this.maxLaunches;
   }
 
   private handleInput() {
@@ -60,6 +83,7 @@ export class Player extends Circle implements ITickable<void> {
       this._startPos = this._pm.position;
       if (this.launches >= 1) {
         Settings.speedScale = 0.1;
+        this.hasSlowmotion = true;
       }
     }
     //RELEASE
@@ -71,6 +95,7 @@ export class Player extends Circle implements ITickable<void> {
       this.launches++;
       this.totalLaunches++;
       Settings.speedScale = 1;
+      this.hasSlowmotion = false;
     }
     //MOVE
     else if (this._pm.position && this._startPos) {
@@ -97,6 +122,8 @@ export class Player extends Circle implements ITickable<void> {
     player.totalLaunches = this.totalLaunches;
     player.launches = this.launches;
     player._startPos = copy([0, 0], this._startPos)
+    player.maxLaunches = this.maxLaunches;
+    player.sp = this.sp;
     return player;
   }
 }

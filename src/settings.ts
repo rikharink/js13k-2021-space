@@ -11,4 +11,6 @@ export const Settings = {
   playerMass: 0,
   launchForceMultiplier: 1300,
   speedScale: 1,
+  flagmastLength: 35,
+  flagLength: 12,
 };

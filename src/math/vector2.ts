@@ -16,6 +16,7 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+import { Point2D } from '../types';
 import { nearlyEqual as ne } from './math';
 
 export type Vector2 = [x: number, y: number];
@@ -118,4 +119,12 @@ export function bezier(
   lerp(_d, _a, _b, t);
   lerp(_e, _b, _c, t);
   lerp(out, _d, _e, t);
+}
+
+
+export function perpendicular(out: Vector2, a: Vector2, clockwise: boolean = true): Vector2 {
+  out[0] = a[1];
+  out[1] = a[0];
+  clockwise ? out[1] = -out[1] : out[0] = -out[0];
+  return out;
 }

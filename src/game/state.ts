@@ -31,12 +31,12 @@ export class State implements IStepable<void> {
     return new State({
       size: level.size,
       player: player,
-      celestialBodies: level.bodies.map(c => new CelestialBody(copy([0, 0], c.position)!, c.radius, c.mass, c.id, copy([0, 0], c.velocity)!, copy([0, 0], c.acceleration)!, c.bounceDampening))
+      celestialBodies: level.bodies.map(c => new CelestialBody(copy([0, 0], c.position)!, c.radius, c.mass, c.id, copy([0, 0], c.velocity)!, copy([0, 0], c.acceleration)!, c.bounceDampening, c.goal))
     });
   }
 
   public step(dt: Seconds) {
-    this.player.tick();
+    this.player.step();
     applyPhysics(dt, this);
     handleCollisions(dt, this);
   }

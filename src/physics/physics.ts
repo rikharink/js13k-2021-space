@@ -1,4 +1,4 @@
-import { Circle } from '../game/circle';
+import { PhysicsCircle } from '../game/physics-circle';
 import { State } from '../game/state';
 import {
   add,
@@ -12,15 +12,15 @@ import {
 import { Settings } from '../settings';
 import { Milliseconds } from '../types';
 
-export function getGravitationalForce(a: Circle, b: Circle): number {
+export function getGravitationalForce(a: PhysicsCircle, b: PhysicsCircle): number {
   const ds = distance_squared(b.position, a.position);
   return ds !== 0 ? Settings.G * (b.mass / ds) : 0;
 }
 
 function updateAttractions(state: State): void {
-  let mostAttractive: Circle | undefined = undefined;
-  let c1: Circle;
-  let c2: Circle;
+  let mostAttractive: PhysicsCircle | undefined = undefined;
+  let c1: PhysicsCircle;
+  let c2: PhysicsCircle;
   let checks = [state.player, ...state.celestialBodies];
   for (c1 of checks) {
     let maxF = Number.NEGATIVE_INFINITY;
@@ -37,7 +37,7 @@ function updateAttractions(state: State): void {
   }
 }
 
-function semiImplicitEuler(c: Circle, dt: Milliseconds) {
+function semiImplicitEuler(c: PhysicsCircle, dt: Milliseconds) {
   if (!c.attraction || !c.acceleration) return;
 
   const tmp: Vector2 = [0, 0];

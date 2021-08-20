@@ -4,10 +4,11 @@ import { DEBUG, Settings } from '../settings';
 import { IRenderer } from '../interfaces/renderer';
 import { splitRgb } from '../math/color';
 import { rgbaString } from '../util/util';
-import { drawCircle, drawLine } from './util';
+import { drawArrow, drawCircle, drawFlag, drawLine } from './util';
 import { renderBackground } from '../game/background';
 import { Random } from '../types';
-import { add, scale, Vector2 } from '../math/vector2';
+import { add, scale, subtract, Vector2, normalize } from '../math/vector2';
+import { Line } from '../geometry/line';
 export class CanvasRenderer implements IRenderer {
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
@@ -45,18 +46,24 @@ export class CanvasRenderer implements IRenderer {
   }
 
   private _renderCelestialBodies(ctx: CanvasRenderingContext2D, state: State) {
+    let tmp: Vector2 = [0, 0];
     for (let body of state.celestialBodies ?? []) {
       drawCircle(ctx, body, body.color);
+      if (body.goal !== undefined) {
+        const start = body.getPoint(body.goal);
+        const end = add([0, 0], start, scale(tmp, normalize(tmp, subtract(tmp, start, body.position)), Settings.flagmastLength));
+        drawFlag(ctx, new Line(start, end), splitRgb(palette[2]));
+      }
     }
   }
 
   private _renderPlayer(ctx: CanvasRenderingContext2D, state: State) {
     drawCircle(ctx, state.player, state.player.color);
-    if (state.player.launchVector && state.player.launchPower && state.player.canLaunch) {
+    if (state.player.canLaunch && state.player.launchVector && state.player.launchPower) {
       let tmp: Vector2 = [0, 0];
-      let start = state.player.position;
-      let end = add(tmp, start, scale(tmp, state.player.launchVector, 75 * state.player.launchPower));
-      drawLine(ctx, state.player.position, end, splitRgb(palette[2]));
+      const start = state.player.position;
+      const end = add(tmp, start, scale(tmp, state.player.launchVector, 75 * state.player.launchPower));
+      drawArrow(ctx, state.player.position, end, splitRgb(palette[2]));
     }
   }
 
@@ -73,8 +80,8 @@ export class CanvasRenderer implements IRenderer {
     ctx.fillRect(8, 8, 100, 48);
     ctx.fillStyle = rgbaString(splitRgb(palette[5]), 1);
     ctx.fillText(`FPS: ${this._fps}`, 12, 20);
-    ctx.fillText(`L: ${state.player.totalLaunches}`, 12, 46);
-    ctx.fillText(`LC: ${state.player.launches}`, 12, 33);
+    ctx.fillText(`TLC: ${state.player.totalLaunches}`, 12, 46);
+    ctx.fillText(`SPP: ${state.player.spp}%`, 12, 33);
   }
 
   public render(state: State) {

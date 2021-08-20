@@ -7,7 +7,7 @@ import {
 } from '../math/vector2';
 import { State } from './../game/state';
 import { Point2D, Seconds } from './../types';
-import { hasCollision } from './collision/circle-collider';
+import { hasCircleCircleCollision, hasCircleOrientedRectangleCollision } from './collision/collision-checks';
 
 export function handleCollisions(dt: Seconds, state: State): void {
   let tmp: Vector2 = [0, 0];
@@ -16,7 +16,7 @@ export function handleCollisions(dt: Seconds, state: State): void {
     for (let o2 of check) {
       if (o1 === o2) continue;
 
-      if (hasCollision(o1, o2)) {
+      if (hasCircleCircleCollision(o1, o2)) {
         copy(o1.position, o1.previousPosition);
         const pc: Point2D = [
           (o1.position[0] * o2.radius + o2.position[1] * o1.radius) / (o1.radius + o2.radius),
@@ -35,6 +35,11 @@ export function handleCollisions(dt: Seconds, state: State): void {
 
         o1.velocity = scale(o1.velocity!, [w_x, w_y], o2.bounceDampening);
       }
+    }
+  }
+  let goalBodies = state.celestialBodies.filter(cb => cb.goal !== undefined);
+  for (let gb of goalBodies) {
+    if (hasCircleOrientedRectangleCollision(state.player, gb.goalRect!)) {
     }
   }
 }

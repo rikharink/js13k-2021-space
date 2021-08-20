@@ -85,6 +85,7 @@ class GameObject {
     if (this._dt > 1) {
       return;
     }
+    this.currentState.player.tick();
     this._accumulator += this._dt;
     this._accumulator += this._dt;
     while (this._accumulator >= 1 / Settings.tps) {
@@ -93,6 +94,7 @@ class GameObject {
       this._accumulator -= 1 / Settings.tps;
       t += this._dt;
     }
+    
     this._renderer.render(
       blend(
         this._previousState,
