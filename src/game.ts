@@ -17,6 +17,7 @@ const ALPHA = 0.9;
 class GameObject {
   public fps: number = 60;
   public isActive: boolean = false;
+  public _sctx?: AudioContext;
   private readonly _pointerManager;
   private readonly _monetizationManager;
   private _dt: number = 0;
@@ -94,7 +95,7 @@ class GameObject {
       this._accumulator -= 1 / Settings.tps;
       t += this._dt;
     }
-    
+
     this._renderer.render(
       blend(
         this._previousState,

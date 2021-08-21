@@ -1,7 +1,16 @@
 import { Settings } from './../settings';
 import { ITickable } from './../interfaces/tickable';
 import { PointerManager } from './../managers/pointer-manager';
-import { Vector2, subtract, negate, copy, normalize, scale, distance, nearlyEqual } from './../math/vector2';
+import {
+  Vector2,
+  subtract,
+  negate,
+  copy,
+  normalize,
+  scale,
+  distance,
+  nearlyEqual,
+} from './../math/vector2';
 import { Percentage, Point2D, RgbColor, UUIDV4 } from './../types';
 import { PhysicsCircle } from './physics-circle';
 import { palette } from '../palette';
@@ -10,7 +19,10 @@ import { clamp } from '../math/math';
 import { uuidv4 } from '../util/util';
 import { IStepable } from '../interfaces/stepable';
 
-export class Player extends PhysicsCircle implements ITickable<void>, IStepable<void> {
+export class Player
+  extends PhysicsCircle
+  implements ITickable<void>, IStepable<void>
+{
   public readonly color: RgbColor = splitRgb(palette[2]);
   public id: UUIDV4;
   public isInputting: boolean = false;
@@ -60,11 +72,11 @@ export class Player extends PhysicsCircle implements ITickable<void>, IStepable<
   }
 
   public get spp(): Percentage {
-    return ~~(this.sp / this.maxSp * 100);
+    return ~~((this.sp / this.maxSp) * 100);
   }
 
   public get stationary(): boolean {
-    return nearlyEqual(this.position, this.previousPosition)
+    return nearlyEqual(this.position, this.previousPosition);
   }
 
   public get canLaunch(): boolean {
@@ -88,7 +100,11 @@ export class Player extends PhysicsCircle implements ITickable<void>, IStepable<
     }
     //RELEASE
     else if (this.isInputting && !active) {
-      scale(this.velocity!, this.launchVector!, Settings.launchForceMultiplier * this.launchPower!);
+      scale(
+        this.velocity!,
+        this.launchVector!,
+        Settings.launchForceMultiplier * this.launchPower!,
+      );
       this._startPos = undefined;
       this.launchVector = undefined;
       this.launchPower = undefined;
@@ -101,9 +117,13 @@ export class Player extends PhysicsCircle implements ITickable<void>, IStepable<
     else if (this._pm.position && this._startPos) {
       negate(
         this.launchVector!,
-        normalize(this.launchVector!, subtract(this.launchVector!, this._pm.position, this._startPos))
+        normalize(
+          this.launchVector!,
+          subtract(this.launchVector!, this._pm.position, this._startPos),
+        ),
       );
-      this.launchPower = clamp(0, 100, distance(this._startPos, this._pm.position)) / 100;
+      this.launchPower =
+        clamp(0, 100, distance(this._startPos, this._pm.position)) / 100;
     }
     this.isInputting = active;
   }
@@ -111,7 +131,7 @@ export class Player extends PhysicsCircle implements ITickable<void>, IStepable<
   clone(): Player {
     let player = new Player(this._pm);
     player.id = this.id;
-    player.attraction = this.attraction?.clone();;
+    player.attraction = this.attraction?.clone();
     player.position = copy([0, 0], this.position)!;
     player.previousPosition = copy([0, 0], this.previousPosition)!;
     player.velocity = copy([0, 0], this.velocity!);
@@ -121,7 +141,7 @@ export class Player extends PhysicsCircle implements ITickable<void>, IStepable<
     player.launchPower = this.launchPower;
     player.totalLaunches = this.totalLaunches;
     player.launches = this.launches;
-    player._startPos = copy([0, 0], this._startPos)
+    player._startPos = copy([0, 0], this._startPos);
     player.maxLaunches = this.maxLaunches;
     player.sp = this.sp;
     return player;

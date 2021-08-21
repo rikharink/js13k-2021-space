@@ -33,6 +33,6 @@ export function hasCircleOrientedRectangleCollision(circle: Circle, rect: Orient
   transform_point(r, r, rotation);
   const lCircle = new Circle(add([0, 0], r, rect.halfExtends), circle.radius);
   const lRect = new Rectangle(rect.position, scale([0, 0], rect.halfExtends, 2));
-  debugger;
+  // debugger;
   return hasCircleRectangleCollision(lCircle, lRect);
 }

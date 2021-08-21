@@ -6,7 +6,7 @@ import {
   Octave,
   SoundContext,
   Tone,
-} from '../types';
+} from './types';
 
 export async function loadAudioWorklet(ctx: SoundContext, source: string) {
   await ctx.audioWorklet.addModule(
@@ -54,7 +54,7 @@ export function addSemitones(note: Tone, semitones: number): Tone {
 export function getTriad(note: Tone, mode: Mode): Chord {
   const chord: Chord = [];
   chord.push(note);
-  chord.push(addSemitones(note, mode == 'minor' ? 3 : 4));
+  chord.push(addSemitones(note, mode === Mode.Minor ? 3 : 4));
   chord.push(addSemitones(note, 7));
   return chord;
 }
