@@ -111,7 +111,9 @@ export class Player
       scale(
         this.velocity!,
         this.launchVector!,
-        Settings.launchForceMultiplier * this.launchPower!,
+        Settings.launchForceMultiplier *
+          this.launchPower! *
+          (this.hasSlowmotion ? 0.5 : 1),
       );
       this._startPos = undefined;
       this.launchVector = undefined;
