@@ -25,13 +25,12 @@ export class CanvasRenderer implements IRenderer {
     this._ctx = this._canvas.getContext('2d')!;
     this._rng = rng;
 
-    this._background =
-      renderBackground(
-        Settings.resolution[0],
-        Settings.resolution[1],
-        this._rng,
-        Settings.nrOfBackgroundStars,
-      );
+    this._background = renderBackground(
+      Settings.resolution[0],
+      Settings.resolution[1],
+      this._rng,
+      Settings.nrOfBackgroundStars,
+    );
   }
 
   set fps(fps: number) {
@@ -51,7 +50,15 @@ export class CanvasRenderer implements IRenderer {
       drawCircle(ctx, body, body.color);
       if (body.goal !== undefined) {
         const start = body.getPoint(body.goal);
-        const end = add([0, 0], start, scale(tmp, normalize(tmp, subtract(tmp, start, body.position)), Settings.flagmastLength));
+        const end = add(
+          [0, 0],
+          start,
+          scale(
+            tmp,
+            normalize(tmp, subtract(tmp, start, body.position)),
+            Settings.flagmastLength,
+          ),
+        );
         drawFlag(ctx, new Line(start, end), splitRgb(palette[2]));
       }
     }
@@ -59,10 +66,18 @@ export class CanvasRenderer implements IRenderer {
 
   private _renderPlayer(ctx: CanvasRenderingContext2D, state: State) {
     drawCircle(ctx, state.player, state.player.color);
-    if (state.player.canLaunch && state.player.launchVector && state.player.launchPower) {
+    if (
+      state.player.canLaunch &&
+      state.player.launchVector &&
+      state.player.launchPower
+    ) {
       let tmp: Vector2 = [0, 0];
       const start = state.player.position;
-      const end = add(tmp, start, scale(tmp, state.player.launchVector, 75 * state.player.launchPower));
+      const end = add(
+        tmp,
+        start,
+        scale(tmp, state.player.launchVector, 75 * state.player.launchPower),
+      );
       drawArrow(ctx, state.player.position, end, splitRgb(palette[2]));
     }
   }

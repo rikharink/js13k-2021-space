@@ -4,11 +4,9 @@ import { Milliseconds, Random, Seconds } from './types';
 import { CanvasRenderer } from './canvas/canvas-renderer';
 import { IRenderer } from './interfaces/renderer';
 import { Settings } from './settings';
-import { Player } from './game/player';
 import { seedRand } from './math/random';
 import { WebmonetizationManger } from './managers/webmonetization-manager';
 import { Level } from './game/level';
-
 //@ts-ignore
 import level1 from './game/levels/level1.lvl.json';
 
@@ -17,7 +15,7 @@ const ALPHA = 0.9;
 class GameObject {
   public fps: number = 60;
   public isActive: boolean = false;
-  public _sctx?: AudioContext;
+  public sctx!: AudioContext;
   private readonly _pointerManager;
   private readonly _monetizationManager;
   private _dt: number = 0;
@@ -35,6 +33,9 @@ class GameObject {
   public constructor() {
     this.cnvs = <HTMLCanvasElement>document.getElementById(Settings.canvasId);
     this._pointerManager = new PointerManager(this.cnvs);
+    this._pointerManager.once(
+      (() => (this.sctx = new AudioContext())).bind(this),
+    );
     this._monetizationManager = new WebmonetizationManger();
     this._rng = seedRand(Settings.seed);
     this._renderer = new CanvasRenderer(this.cnvs, this._rng);
@@ -50,6 +51,7 @@ class GameObject {
   }
 
   public start() {
+    if (this._raf !== undefined) return;
     this._raf = requestAnimationFrame(this._loop.bind(this));
     this.isActive = true;
   }
@@ -58,6 +60,7 @@ class GameObject {
     if (this._raf) {
       cancelAnimationFrame(this._raf);
     }
+    this._raf = undefined;
     this.isActive = false;
   }
 
@@ -66,23 +69,17 @@ class GameObject {
     this._dt = r - this._then;
     this._then = r;
     this._adt += this._dt;
-    return r;
-  }
-
-  private _updateFPS(t: Seconds) {
-    this._then = t;
-    this._adt += this._dt;
     this.fps = ALPHA * this.fps + (1.0 - ALPHA) * (1 / this._dt);
     this._renderer.fps = ~~this.fps;
     if (this._adt >= 1) {
       this._adt = 0;
     }
+    return r;
   }
 
   private _loop(t: Milliseconds): void {
     this._raf = requestAnimationFrame(this._loop.bind(this));
     t = this._updateTimes(t);
-    this._updateFPS(t);
     if (this._dt > 1) {
       return;
     }

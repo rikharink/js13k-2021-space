@@ -1,10 +1,12 @@
+import { EventEmitter } from './../util/event-emitter';
 import { Point2D } from './../types';
-export class PointerManager {
+export class PointerManager extends EventEmitter<boolean> {
   private _canvas: HTMLCanvasElement;
   public position?: Point2D;
   private _state: boolean = false;
 
   constructor(canvas: HTMLCanvasElement) {
+    super();
     this._canvas = canvas;
     window.addEventListener('pointerdown', this._handlePointerEvent.bind(this));
     window.addEventListener('pointermove', this._handlePointerEvent.bind(this));
@@ -19,6 +21,7 @@ export class PointerManager {
   private _handlePointerEvent(ev: PointerEvent) {
     this.position = this.scalePosition(this._canvas, [ev.clientX, ev.clientY]);
     this._state = !!ev.buttons;
+    this.emit(this._state);
   }
 
   private scalePosition(canvas: HTMLCanvasElement, pos: Point2D): Point2D {
