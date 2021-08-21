@@ -21,24 +21,38 @@ export interface ICelestialBody {
   goal?: Radian;
 }
 
-export class CelestialBody extends PhysicsCircle implements IIdentifiable, ICelestialBody {
+export class CelestialBody
+  extends PhysicsCircle
+  implements IIdentifiable, ICelestialBody
+{
   public id: UUIDV4;
   public readonly color: RgbColor = splitRgb(accent);
   public goal?: Radian;
 
-  constructor(position: Point2D, radius: number, mass: number, id?: UUIDV4, velocity?: Vector2, acceleration?: Vector2, bounceDampening?: number, goal?: Radian) {
-    super(position, radius, mass * Settings.planetWeightScaling, velocity, acceleration, bounceDampening);
+  constructor(
+    position: Point2D,
+    radius: number,
+    mass: number,
+    id?: UUIDV4,
+    velocity?: Vector2,
+    acceleration?: Vector2,
+    bounceDampening?: number,
+    goal?: Radian,
+  ) {
+    super(
+      position,
+      radius,
+      mass * Settings.planetWeightScaling,
+      velocity,
+      acceleration,
+      bounceDampening,
+    );
     this.id = id ?? uuidv4();
     this.goal = goal;
   }
 
   public get mu(): number {
     return Settings.G * this.mass;
-  }
-
-  public get goalRect(): OrientedRectangle | undefined {
-    if (this.goal === undefined) return;
-    return new OrientedRectangle(this.getPoint(this.goal), [Settings.flagLength, Settings.flagmastLength / 2], this.goal);
   }
 
   public orbitalVelocity(radius: number): number {

@@ -2,21 +2,19 @@
 
 ## Should Have
 
-- [ ] fix goal collision detection
 - [ ] Add moons
 - [ ] Draw UI
   - [ ] number of launches
   - [ ] amount of slowmotion power left
   - [ ] reset level button
   - [ ] quit level button
-- [ ] Couple of levels
+- [ ] Couple of levels / or maybe just infinite mode?
 - [ ] sfx
 
 ## Nice to have
 
-- [ ] Add ball trail
-- [ ] Music
 - [ ] Add stars that kill you
+- [ ] Music
 - [ ] Infinite mode (maybe only for coil subscribers?)
 - [ ] Better GFX
 - [ ] Restructure gamestate

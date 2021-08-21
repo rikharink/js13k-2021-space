@@ -4,7 +4,10 @@ import { Player } from './player';
 import { CelestialBody } from './celestial-body';
 import { applyPhysics } from '../physics/physics';
 import { add as vadd, copy, scale, Vector2 } from '../math/vector2';
-import { handleCollisions } from '../physics/collision-handler';
+import {
+  CollisionResult,
+  handleCollisions,
+} from '../physics/collision-handler';
 import { Level } from './level';
 import { PointerManager } from '../managers/pointer-manager';
 
@@ -14,7 +17,7 @@ interface StateOptions {
   celestialBodies: CelestialBody[];
 }
 
-export class State implements IStepable<void> {
+export class State implements IStepable<CollisionResult> {
   public celestialBodies: CelestialBody[];
   public player: Player;
   public size: Vector2;
@@ -31,14 +34,28 @@ export class State implements IStepable<void> {
     return new State({
       size: level.size,
       player: player,
-      celestialBodies: level.bodies.map(c => new CelestialBody(copy([0, 0], c.position)!, c.radius, c.mass, c.id, copy([0, 0], c.velocity)!, copy([0, 0], c.acceleration)!, c.bounceDampening, c.goal))
+      celestialBodies: level.bodies.map(
+        (c) =>
+          new CelestialBody(
+            copy([0, 0], c.position)!,
+            c.radius,
+            c.mass,
+            c.id,
+            copy([0, 0], c.velocity)!,
+            copy([0, 0], c.acceleration)!,
+            c.bounceDampening,
+            c.goal,
+          ),
+      ),
     });
   }
 
-  public step(dt: Seconds) {
+  public step(dt: Seconds): CollisionResult {
     this.player.step();
     applyPhysics(dt, this);
-    handleCollisions(dt, this);
+    const result = handleCollisions(dt, this);
+    this.player.saveCurrentPosition();
+    return result;
   }
 
   public clone(): State {

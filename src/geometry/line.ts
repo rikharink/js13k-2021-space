@@ -25,7 +25,7 @@ export class Line {
         return this;
     }
 
-    public midpoint(): Point2D {
+    public get midpoint(): Point2D {
         return [(this.start[0] + this.end[0]) / 2, (this.start[1] + this.end[1]) / 2];
     }
 

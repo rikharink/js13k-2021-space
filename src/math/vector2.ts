@@ -121,10 +121,13 @@ export function bezier(
   lerp(out, _d, _e, t);
 }
 
-
-export function perpendicular(out: Vector2, a: Vector2, clockwise: boolean = true): Vector2 {
+export function perpendicular(
+  out: Vector2,
+  a: Vector2,
+  clockwise: boolean = true,
+): Vector2 {
   out[0] = a[1];
   out[1] = a[0];
-  clockwise ? out[1] = -out[1] : out[0] = -out[0];
-  return out;
+  clockwise ? (out[1] = -out[1]) : (out[0] = -out[0]);
+  return normalize(out, out);
 }

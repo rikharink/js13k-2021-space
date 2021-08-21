@@ -1,14 +1,15 @@
-import { PointerManager } from './managers/pointer-manager';
-import { blend, State } from './game/state';
-import { Milliseconds, Random, Seconds } from './types';
-import { CanvasRenderer } from './canvas/canvas-renderer';
-import { IRenderer } from './interfaces/renderer';
-import { Settings } from './settings';
-import { seedRand } from './math/random';
-import { WebmonetizationManger } from './managers/webmonetization-manager';
-import { Level } from './game/level';
+import { PointerManager } from '../managers/pointer-manager';
+import { blend, State } from './state';
+import { Milliseconds, Random, Seconds } from '../types';
+import { CanvasRenderer } from '../canvas/canvas-renderer';
+import { IRenderer } from '../interfaces/renderer';
+import { Settings } from '../settings';
+import { seedRand } from '../math/random';
+import { WebmonetizationManger } from '../managers/webmonetization-manager';
+import { Level } from './level';
 //@ts-ignore
-import level1 from './game/levels/level1.lvl.json';
+import level1 from './levels/level1.lvl.json';
+import { copy } from '../math/vector2';
 
 const ALPHA = 0.9;
 
@@ -88,7 +89,11 @@ class GameObject {
     this._accumulator += this._dt;
     while (this._accumulator >= 1 / Settings.tps) {
       this._previousState = this.currentState.clone();
-      this.currentState.step(1 / Settings.tps);
+      const result = this.currentState.step(1 / Settings.tps);
+      if (result.hitGoal) {
+        //GOAL GOAL GOAL
+        this.currentState.player.position = copy([0, 0], level1.spawn)!;
+      }
       this._accumulator -= 1 / Settings.tps;
       t += this._dt;
     }

@@ -34,6 +34,7 @@ export class Player
   public readonly maxSp: number = Settings.tps * 2;
   public sp: number = Settings.tps * 2;
   public hasSlowmotion = false;
+  public positions: Vector2[] = [];
 
   private _sc: number = 0;
   private _startPos?: Point2D;
@@ -81,6 +82,13 @@ export class Player
 
   public get canLaunch(): boolean {
     return this.launches < this.maxLaunches;
+  }
+
+  public saveCurrentPosition() {
+    this.positions.push(copy([0, 0], this.position)!);
+    if (this.positions.length > Settings.trailSize) {
+      this.positions.shift();
+    }
   }
 
   private handleInput() {
@@ -144,6 +152,7 @@ export class Player
     player._startPos = copy([0, 0], this._startPos);
     player.maxLaunches = this.maxLaunches;
     player.sp = this.sp;
+    player.positions = this.positions.map((op) => copy([0, 0], op)!);
     return player;
   }
 }

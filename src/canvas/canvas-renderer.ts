@@ -4,11 +4,19 @@ import { DEBUG, Settings } from '../settings';
 import { IRenderer } from '../interfaces/renderer';
 import { splitRgb } from '../math/color';
 import { rgbaString } from '../util/util';
-import { drawArrow, drawCircle, drawFlag, drawLine } from './util';
+import {
+  drawArrow,
+  drawCircle,
+  drawFlag,
+  drawOrientedRectangle,
+  drawLine,
+} from './util';
 import { renderBackground } from '../game/background';
 import { Random } from '../types';
 import { add, scale, subtract, Vector2, normalize } from '../math/vector2';
 import { Line } from '../geometry/line';
+import { getGoalHitbox } from '../game/goal';
+import { Circle } from '../geometry/circle';
 export class CanvasRenderer implements IRenderer {
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
@@ -65,7 +73,15 @@ export class CanvasRenderer implements IRenderer {
   }
 
   private _renderPlayer(ctx: CanvasRenderingContext2D, state: State) {
-    drawCircle(ctx, state.player, state.player.color);
+    for (let i = state.player.positions.length - 1; i > 0; i--) {
+      const p = i / (state.player.positions.length - 1);
+      drawCircle(
+        ctx,
+        new Circle(state.player.positions[i], state.player.radius),
+        state.player.color,
+        p,
+      );
+    }
     if (
       state.player.canLaunch &&
       state.player.launchVector &&
@@ -78,7 +94,11 @@ export class CanvasRenderer implements IRenderer {
         start,
         scale(tmp, state.player.launchVector, 75 * state.player.launchPower),
       );
-      drawArrow(ctx, state.player.position, end, splitRgb(palette[2]));
+      drawArrow(
+        ctx,
+        new Line(state.player.position, end),
+        splitRgb(palette[2]),
+      );
     }
   }
 
@@ -86,8 +106,7 @@ export class CanvasRenderer implements IRenderer {
     if (state.player.attraction) {
       drawLine(
         ctx,
-        state.player.position,
-        state.player.attraction.position,
+        new Line(state.player.position, state.player.attraction.position),
         splitRgb(palette[1]),
       );
     }
