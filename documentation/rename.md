@@ -4,3 +4,7 @@
 - acceleration
 - size
 - color
+- isActive
+- length
+- start
+- end

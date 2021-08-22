@@ -3,7 +3,8 @@
 ## Should Have
 
 - [ ] bounce physics (prevent "weird" backwards bounce)
-- [ ] OOB reset || follow cam?
+- [ ] try decoupling launch vector from player position
+- [ ] visualize ball position when OOB
 - [ ] Add moons
 - [ ] Draw UI
   - [ ] current hole
@@ -25,6 +26,7 @@
 - [ ] hole editor
 - [ ] decentralization
 - [ ] achievements
+- [ ] shareable hole replay
 - [ ] Restructure gamestate
   - [ ] model player as a celestial body and specifiy id(s) that can be controlled?
   - [ ] move player input to input manager and apply impulse to controlled bodies?
