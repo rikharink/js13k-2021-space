@@ -10,6 +10,7 @@ import {
   scale,
   distance,
   nearlyEqual,
+  dot,
 } from './../math/vector2';
 import { Percentage, Point2D, RgbColor, UUIDV4 } from './../types';
 import { PhysicsCircle } from './physics-circle';
@@ -18,6 +19,8 @@ import { splitRgb } from '../math/color';
 import { clamp } from '../math/math';
 import { uuidv4 } from '../util/util';
 import { IStepable } from '../interfaces/stepable';
+import { hasCircleRectangleCollision } from '../physics/collision/collision-checks';
+import { Rectangle } from '../geometry/rectangle';
 
 export class Player
   extends PhysicsCircle
@@ -35,6 +38,8 @@ export class Player
   public sp: number = Settings.tps * 2;
   public hasSlowmotion = false;
   public positions: Vector2[] = [];
+  public lastStationaryPosition?: Point2D;
+  public awayCount: number = 0;
 
   private _sc: number = 0;
   private _startPos?: Point2D;
@@ -54,9 +59,11 @@ export class Player
     if (this.stationary) {
       this._sc++;
     }
+
     if (this._sc > 30) {
       this._sc = 0;
       this.launches = 0;
+      this.lastStationaryPosition = copy([0, 0], this.position)!;
     }
 
     if (this.hasSlowmotion) {
@@ -70,6 +77,29 @@ export class Player
       if (this.sp < this.maxSp) {
         this.sp += 0.1;
       }
+    }
+
+    if (
+      !hasCircleRectangleCollision(
+        this,
+        new Rectangle([0, 0], Settings.resolution as Vector2),
+      )
+    ) {
+      const vec = normalize(
+        [0, 0],
+        subtract([0, 0], this.position, this.attraction!.position),
+      );
+
+      if (dot(normalize([0, 0], this.velocity!), vec) > 0) {
+        this.awayCount++;
+      } else {
+        this.awayCount = 0;
+      }
+    }
+    if (this.awayCount > Settings.maxAwayCount) {
+      this.awayCount = 0;
+      copy(this.position, this.lastStationaryPosition);
+      this.velocity = [0, 0];
     }
   }
 
@@ -159,6 +189,7 @@ export class Player
     player.maxLaunches = this.maxLaunches;
     player.sp = this.sp;
     player.positions = this.positions.map((op) => copy([0, 0], op)!);
+    player.awayCount = this.awayCount;
     return player;
   }
 }

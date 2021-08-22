@@ -11,6 +11,7 @@
   - [ ] average launches per hole
   - [ ] amount of slowmotion power left
 - [ ] level generation
+- [ ] bounce particles
 - [ ] sfx
 
 ## Nice to have

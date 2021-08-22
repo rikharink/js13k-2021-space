@@ -102,11 +102,12 @@ export class CanvasRenderer implements IRenderer {
 
   private _renderDebug(ctx: CanvasRenderingContext2D, state: State) {
     ctx.fillStyle = rgbaString(splitRgb(palette[0]), 1);
-    ctx.fillRect(8, 8, 100, 48);
+    ctx.fillRect(8, 8, 100, 61);
     ctx.fillStyle = rgbaString(splitRgb(palette[5]), 1);
     ctx.fillText(`FPS: ${this._fps}`, 12, 20);
-    ctx.fillText(`TLC: ${state.player.totalLaunches}`, 12, 46);
     ctx.fillText(`SPP: ${state.player.spp}%`, 12, 33);
+    ctx.fillText(`TLC: ${state.player.totalLaunches}`, 12, 46);
+    ctx.fillText(`OOB: ${state.player.awayCount}`, 12, 59);
   }
 
   public render(state: State) {

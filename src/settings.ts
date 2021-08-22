@@ -15,4 +15,5 @@ export const Settings = {
   flagLength: 18,
   trailSize: 50,
   futureSize: 125,
+  maxAwayCount: 1000,
 };
