@@ -19,6 +19,7 @@ const isDev = env === 'development';
 let plugins = [
   replace({
     'process.env.NODE_ENV': JSON.stringify(env),
+    preventAssignment: true,
   }),
   image(),
   postcss({
