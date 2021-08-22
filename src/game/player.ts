@@ -66,6 +66,7 @@ export class Player
       }
       this.sp--;
     } else {
+      Settings.speedScale = 1;
       if (this.sp < this.maxSp) {
         this.sp += 0.1;
       }
@@ -108,20 +109,7 @@ export class Player
     }
     //RELEASE
     else if (this.isInputting && !active) {
-      scale(
-        this.velocity!,
-        this.launchVector!,
-        Settings.launchForceMultiplier *
-          this.launchPower! *
-          (this.hasSlowmotion ? 0.5 : 1),
-      );
-      this._startPos = undefined;
-      this.launchVector = undefined;
-      this.launchPower = undefined;
-      this.launches++;
-      this.totalLaunches++;
-      Settings.speedScale = 1;
-      this.hasSlowmotion = false;
+      this.launch();
     }
     //MOVE
     else if (this._pm.position && this._startPos) {
@@ -138,7 +126,23 @@ export class Player
     this.isInputting = active;
   }
 
-  clone(): Player {
+  public launch(): void {
+    scale(
+      this.velocity!,
+      this.launchVector!,
+      Settings.launchForceMultiplier *
+        this.launchPower! *
+        (this.hasSlowmotion ? 0.5 : 1),
+    );
+    this._startPos = undefined;
+    this.launchVector = undefined;
+    this.launchPower = undefined;
+    this.launches++;
+    this.totalLaunches++;
+    this.hasSlowmotion = false;
+  }
+
+  public clone(): Player {
     let player = new Player(this._pm);
     player.id = this.id;
     player.attraction = this.attraction?.clone();

@@ -1,8 +1,8 @@
 import { IStepable } from './../interfaces/stepable';
-import { Seconds } from '../types';
+import { Point2D, Seconds } from '../types';
 import { Player } from './player';
 import { CelestialBody } from './celestial-body';
-import { applyPhysics } from '../physics/physics';
+import { applyPhysics, predictFuture } from '../physics/physics';
 import { add as vadd, copy, scale, Vector2 } from '../math/vector2';
 import {
   CollisionResult,
@@ -21,6 +21,7 @@ export class State implements IStepable<CollisionResult> {
   public celestialBodies: CelestialBody[];
   public player: Player;
   public size: Vector2;
+  public future: Point2D[] = [];
 
   constructor({ size, player, celestialBodies }: StateOptions) {
     this.size = size;
@@ -53,8 +54,9 @@ export class State implements IStepable<CollisionResult> {
   public step(dt: Seconds): CollisionResult {
     this.player.step();
     applyPhysics(dt, this);
-    const result = handleCollisions(dt, this);
+    const result = handleCollisions(this);
     this.player.saveCurrentPosition();
+    this.future = predictFuture(this, dt);
     return result;
   }
 
@@ -64,6 +66,7 @@ export class State implements IStepable<CollisionResult> {
       player: this.player.clone(),
       celestialBodies: this.celestialBodies.map((cb) => cb.clone()),
     });
+    state.future = [...this.future.map((f) => copy([0, 0], f)!)];
     return state;
   }
 }

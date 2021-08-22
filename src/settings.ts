@@ -14,4 +14,5 @@ export const Settings = {
   flagmastLength: 45,
   flagLength: 18,
   trailSize: 50,
+  futureSize: 125,
 };

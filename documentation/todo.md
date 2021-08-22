@@ -4,11 +4,11 @@
 
 - [ ] Add moons
 - [ ] Draw UI
-  - [ ] number of launches
+  - [ ] current hole
+  - [ ] total number of launches
+  - [ ] average launches per hole
   - [ ] amount of slowmotion power left
-  - [ ] reset level button
-  - [ ] quit level button
-- [ ] Couple of levels / or maybe just infinite mode?
+- [ ] level generation
 - [ ] sfx
 
 ## Nice to have
@@ -23,5 +23,6 @@
 
 ## Stretch goals
 
-- [ ] Level editor
-- [ ] Something with decentralization
+- [ ] hole editor
+- [ ] decentralization
+- [ ] achievements
