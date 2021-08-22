@@ -44,5 +44,8 @@
     "tslib": "^2.3.1",
     "typescript": "^4.3.5",
     "zipstats": "^1.1.0"
+  },
+  "dependencies": {
+    "@rollup/plugin-replace": "^3.0.0"
   }
 }

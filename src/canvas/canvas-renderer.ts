@@ -101,13 +101,6 @@ export class CanvasRenderer implements IRenderer {
   }
 
   private _renderDebug(ctx: CanvasRenderingContext2D, state: State) {
-    if (state.player.attraction) {
-      drawLine(
-        ctx,
-        new Line(state.player.position, state.player.attraction.position),
-        splitRgb(palette[1]),
-      );
-    }
     ctx.fillStyle = rgbaString(splitRgb(palette[0]), 1);
     ctx.fillRect(8, 8, 100, 48);
     ctx.fillStyle = rgbaString(splitRgb(palette[5]), 1);

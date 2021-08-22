@@ -2,6 +2,8 @@
 
 ## Should Have
 
+- [ ] bounce physics (prevent "weird" backwards bounce)
+- [ ] OOB reset || follow cam?
 - [ ] Add moons
 - [ ] Draw UI
   - [ ] current hole
@@ -15,14 +17,13 @@
 
 - [ ] Add stars that kill you
 - [ ] Music
-- [ ] Infinite mode (maybe only for coil subscribers?)
 - [ ] Better GFX
-- [ ] Restructure gamestate
-  - [ ] model player as a celestial body and specifiy id(s) that can be controlled?
-  - [ ] move player input to input manager and apply impulse to controlled bodies?
 
 ## Stretch goals
 
 - [ ] hole editor
 - [ ] decentralization
 - [ ] achievements
+- [ ] Restructure gamestate
+  - [ ] model player as a celestial body and specifiy id(s) that can be controlled?
+  - [ ] move player input to input manager and apply impulse to controlled bodies?

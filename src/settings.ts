@@ -1,4 +1,4 @@
-export const DEBUG = true;
+export const DEBUG = process.env.NODE_ENV;
 
 export const Settings = {
   resolution: [1334, 750],

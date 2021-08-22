@@ -7,6 +7,7 @@ import livereload from 'rollup-plugin-livereload';
 import dev from 'rollup-plugin-dev';
 import postcss from 'rollup-plugin-postcss';
 import image from '@rollup/plugin-image';
+import replace from '@rollup/plugin-replace';
 import inline, {
   defaultTemplate,
 } from './plugins/rollup-plugin-html-inline.js';
@@ -16,6 +17,9 @@ const env = process.env.NODE_ENV || 'production';
 const isDev = env === 'development';
 
 let plugins = [
+  replace({
+    'process.env.NODE_ENV': JSON.stringify(env),
+  }),
   image(),
   postcss({
     extract: true,
