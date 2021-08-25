@@ -6,7 +6,6 @@
 - [ ] Add moons
 - [ ] bounce particles
 - [ ] visualize ball position when OOB
-- [ ] Fix android touch bug (can't launch drag screen instead)
 - [ ] bounce physics (prevent "weird" backwards bounce)
 - [ ] sfx
 
