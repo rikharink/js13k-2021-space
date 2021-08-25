@@ -86,20 +86,17 @@ export class CanvasRenderer implements IRenderer {
     if (
       state.player.canLaunch &&
       state.player.launchVector &&
-      state.player.launchPower
+      state.player.launchPower &&
+      state.player.startPos
     ) {
       let tmp: Vector2 = [0, 0];
-      const start = state.player.position;
+      const start = state.player.startPos;
       const end = add(
         tmp,
         start,
-        scale(tmp, state.player.launchVector, 100 * state.player.launchPower),
+        scale(tmp, state.player.launchVector, 200 * state.player.launchPower),
       );
-      drawArrow(
-        ctx,
-        new Line(state.player.position, end),
-        splitRgb(palette[2]),
-      );
+      drawArrow(ctx, new Line(start, end), splitRgb(palette[0]), 3);
       this._renderFuture(ctx, state);
     }
   }

@@ -33,6 +33,7 @@ export class Player
   public totalLaunches: number = 0;
   public holeLaunches: number = 0;
   public launchVector?: Vector2;
+  public startPos?: Point2D;
   public launchPower?: number;
   public maxLaunches: number = 2;
   public readonly maxSp: number = Settings.tps * 2;
@@ -44,7 +45,6 @@ export class Player
   public oob: boolean = false;
 
   private _sc: number = 0;
-  private _startPos?: Point2D;
   private _pm: PointerManager;
 
   constructor(pm: PointerManager, id?: UUIDV4) {
@@ -142,7 +142,9 @@ export class Player
     //START
     if (!this.isInputting && active) {
       this.launchVector = [0, 0];
-      this._startPos = this._pm.position;
+      console.debug('PM', this._pm.position);
+      this.startPos = copy([0, 0], this._pm.position);
+      console.debug('SP', this.startPos);
       if (this.launches >= 1) {
         Settings.speedScale = 0.1;
         this.hasSlowmotion = true;
@@ -153,16 +155,16 @@ export class Player
       this.launch();
     }
     //MOVE
-    else if (this._pm.position && this._startPos) {
+    else if (this._pm.position && this.startPos) {
       negate(
         this.launchVector!,
         normalize(
           this.launchVector!,
-          subtract(this.launchVector!, this._pm.position, this._startPos),
+          subtract(this.launchVector!, this._pm.position, this.startPos),
         ),
       );
       this.launchPower =
-        clamp(0, 100, distance(this._startPos, this._pm.position)) / 100;
+        clamp(0, 100, distance(this.startPos, this._pm.position)) / 100;
     }
     this.isInputting = active;
   }
@@ -175,7 +177,7 @@ export class Player
         this.launchPower! *
         (this.hasSlowmotion ? 0.5 : 1),
     );
-    this._startPos = undefined;
+    this.startPos = undefined;
     this.launchVector = undefined;
     this.launchPower = undefined;
     this.launches++;
@@ -197,7 +199,7 @@ export class Player
     player.totalLaunches = this.totalLaunches;
     player.holeLaunches = this.holeLaunches;
     player.launches = this.launches;
-    player._startPos = copy([0, 0], this._startPos);
+    player.startPos = copy([0, 0], this.startPos);
     player.maxLaunches = this.maxLaunches;
     player.sp = this.sp;
     player.positions = this.positions.map((op) => copy([0, 0], op)!);

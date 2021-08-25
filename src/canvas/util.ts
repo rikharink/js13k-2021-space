@@ -1,5 +1,5 @@
 import { foreground } from './../palette';
-import { RADIAN_TO_DEGREE } from './../math/math';
+import { RADIAN_TO_DEGREE, DEGREE_TO_RADIAN } from './../math/math';
 import { CelestialBody } from './../game/celestial-body';
 import { Point2D, RgbColor } from './../types';
 import { OrientedRectangle } from './../geometry/oriented-rectangle';
@@ -37,8 +37,9 @@ export function drawLine(
   ctx: CanvasRenderingContext2D,
   line: Line,
   color: RgbColor,
+  lineWidth: number = 1,
 ): void {
-  ctx.lineWidth = 1;
+  ctx.lineWidth = lineWidth;
   ctx.lineCap = 'round';
   ctx.strokeStyle = rgbaString(color, 1);
   ctx.beginPath();
@@ -52,8 +53,21 @@ export function drawArrow(
   ctx: CanvasRenderingContext2D,
   line: Line,
   color: RgbColor,
+  lineWidth: number,
 ) {
-  drawLine(ctx, line, color);
+  drawCircle(ctx, new Circle(line.start, lineWidth), color);
+  const v = normalize([0, 0], subtract([0, 0], line.end, line.start));
+  const rot1 = from_rotation(create(), 135 * DEGREE_TO_RADIAN);
+  const rot2 = from_rotation(create(), -135 * DEGREE_TO_RADIAN);
+  const v1 = transform_point([0, 0], v, rot1);
+  const v2 = transform_point([0, 0], v, rot2);
+  scale(v1, v1, 10);
+  scale(v2, v2, 10);
+  const arrowOne = new Line(line.end, add([0, 0], line.end, v1));
+  const arrowTwo = new Line(line.end, add([0, 0], line.end, v2));
+  drawLine(ctx, line, color, lineWidth);
+  drawLine(ctx, arrowOne, color, lineWidth);
+  drawLine(ctx, arrowTwo, color, lineWidth);
 }
 
 export function drawFlag(

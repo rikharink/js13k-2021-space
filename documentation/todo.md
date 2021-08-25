@@ -9,6 +9,7 @@
 - [ ] visualize ball position when OOB
 - [ ] bounce particles
 - [ ] sfx
+- [ ] Fix android touch bug (can't launch drag screen instead)
 
 ## Nice to have
 
