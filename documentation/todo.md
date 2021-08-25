@@ -2,11 +2,6 @@
 
 ## Should Have
 
-- [ ] Draw UI
-  - [ ] current hole
-  - [ ] total number of launches
-  - [ ] average launches per hole
-  - [ ] amount of slowmotion power left
 - [ ] level generation
 - [ ] Add moons
 - [ ] bounce physics (prevent "weird" backwards bounce)
@@ -20,6 +15,10 @@
 - [ ] Add stars that kill you
 - [ ] Music
 - [ ] Better GFX
+- [ ] Pimp UI
+  - [ ] General looks
+  - [ ] current hole
+  - [ ] average launches per hole
 
 ## Stretch goals
 
