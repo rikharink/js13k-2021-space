@@ -1,6 +1,7 @@
+import { foreground } from './../palette';
 import { RADIAN_TO_DEGREE } from './../math/math';
 import { CelestialBody } from './../game/celestial-body';
-import { RgbColor } from './../types';
+import { Point2D, RgbColor } from './../types';
 import { OrientedRectangle } from './../geometry/oriented-rectangle';
 import { Circle } from '../geometry/circle';
 import { Line } from '../geometry/line';
@@ -121,4 +122,29 @@ export function drawOrientedRectangle(
   ctx.lineTo(p4[0], p4[1]);
   ctx.closePath();
   ctx.stroke();
+}
+
+interface ColorSettings {
+  background: RgbColor;
+  foreground: RgbColor;
+  text: RgbColor;
+}
+
+export function drawPercentagebar(
+  ctx: CanvasRenderingContext2D,
+  percentage: number,
+  label: string,
+  position: Point2D,
+  { foreground, background, text }: ColorSettings,
+) {
+  ctx.font = 'normal 12px sans-serif';
+  ctx.fillStyle = rgbaString(background, 1);
+  ctx.fillRect(position[0], position[1], 100, 20);
+  ctx.fillStyle = rgbaString(foreground, 1);
+  ctx.fillRect(position[0], position[1], percentage, 20);
+  ctx.fillStyle = rgbaString(text, 1);
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 2;
+  ctx.strokeText(label, position[0] + 108, position[1] + 14);
+  ctx.fillText(label, position[0] + 108, position[1] + 14);
 }

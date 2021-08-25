@@ -2,16 +2,16 @@
 
 ## Should Have
 
-- [ ] bounce physics (prevent "weird" backwards bounce)
-- [ ] try decoupling launch vector from player position
-- [ ] visualize ball position when OOB
-- [ ] Add moons
 - [ ] Draw UI
   - [ ] current hole
   - [ ] total number of launches
   - [ ] average launches per hole
   - [ ] amount of slowmotion power left
 - [ ] level generation
+- [ ] Add moons
+- [ ] bounce physics (prevent "weird" backwards bounce)
+- [ ] try decoupling launch vector from player position
+- [ ] visualize ball position when OOB
 - [ ] bounce particles
 - [ ] sfx
 
