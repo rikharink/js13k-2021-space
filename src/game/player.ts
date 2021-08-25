@@ -142,9 +142,7 @@ export class Player
     //START
     if (!this.isInputting && active) {
       this.launchVector = [0, 0];
-      console.debug('PM', this._pm.position);
       this.startPos = copy([0, 0], this._pm.position);
-      console.debug('SP', this.startPos);
       if (this.launches >= 1) {
         Settings.speedScale = 0.1;
         this.hasSlowmotion = true;

@@ -4,12 +4,11 @@
 
 - [ ] level generation
 - [ ] Add moons
-- [ ] bounce physics (prevent "weird" backwards bounce)
-- [ ] try decoupling launch vector from player position
-- [ ] visualize ball position when OOB
 - [ ] bounce particles
-- [ ] sfx
+- [ ] visualize ball position when OOB
 - [ ] Fix android touch bug (can't launch drag screen instead)
+- [ ] bounce physics (prevent "weird" backwards bounce)
+- [ ] sfx
 
 ## Nice to have
 
