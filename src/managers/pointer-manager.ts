@@ -8,9 +8,19 @@ export class PointerManager extends EventEmitter<boolean> {
   constructor(canvas: HTMLCanvasElement) {
     super();
     this._canvas = canvas;
-    window.addEventListener('pointerdown', this._handlePointerEvent.bind(this));
-    window.addEventListener('pointermove', this._handlePointerEvent.bind(this));
-    window.addEventListener('pointerup', this._handlePointerEvent.bind(this));
+    window.addEventListener(
+      'pointerdown',
+      this._handlePointerEvent.bind(this),
+      { passive: false },
+    );
+    window.addEventListener(
+      'pointermove',
+      this._handlePointerEvent.bind(this),
+      { passive: false },
+    );
+    window.addEventListener('pointerup', this._handlePointerEvent.bind(this), {
+      passive: false,
+    });
     window.addEventListener('blur', this._clearState.bind(this));
   }
 
@@ -22,6 +32,7 @@ export class PointerManager extends EventEmitter<boolean> {
     this.position = this.scalePosition(this._canvas, [ev.clientX, ev.clientY]);
     this._state = !!ev.buttons;
     this.emit(this._state);
+    ev.preventDefault();
   }
 
   private scalePosition(canvas: HTMLCanvasElement, pos: Point2D): Point2D {
