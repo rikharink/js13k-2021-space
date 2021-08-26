@@ -55,8 +55,8 @@ export default function inline(
       let source = '';
 
       if (options.roadroller) {
-        src += `document.write("<style>${css}</style>");`;
-        css = '';
+        // src += `document.write("<style>${css}</style>");`;
+        // css = '';
         const inputs = [
           {
             data: src,
@@ -73,7 +73,16 @@ export default function inline(
         const { firstLine, secondLine } = packer.makeDecoder();
         src = firstLine + '\n' + secondLine;
 
-        source = minify(roadrollerTemplate(options, src));
+        source = minify(renderTemplate(options, src, options.sourcemap, css), {
+          collapseWhitespace: true,
+          collapseBooleanAttributes: true,
+          removeAttributeQuotes: true,
+          removeComments: true,
+          removeEmptyAttributes: true,
+          removeOptionalTags: true,
+          removeRedundantAttributes: true,
+          html5: true,
+        });
       } else {
         source = minify(renderTemplate(options, src, options.sourcemap, css), {
           collapseWhitespace: true,
