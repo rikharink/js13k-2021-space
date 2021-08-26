@@ -1,10 +1,17 @@
+import { Player } from './../game/player';
 import { palette } from '../palette';
 import { State } from '../game/state';
 import { DEBUG, Settings } from '../settings';
 import { IRenderer } from '../interfaces/renderer';
 import { splitRgb } from '../math/color';
 import { rgbaString } from '../util/util';
-import { drawArrow, drawCircle, drawFlag, drawLine } from './util';
+import {
+  drawArrow,
+  drawCircle,
+  drawFlag,
+  drawLine,
+  drawPercentagebar,
+} from './util';
 import { renderBackground } from '../game/background';
 import { Random } from '../types';
 import { add, scale, subtract, Vector2, normalize } from '../math/vector2';
@@ -79,35 +86,72 @@ export class CanvasRenderer implements IRenderer {
     if (
       state.player.canLaunch &&
       state.player.launchVector &&
-      state.player.launchPower
+      state.player.launchPower &&
+      state.player.startPos
     ) {
       let tmp: Vector2 = [0, 0];
-      const start = state.player.position;
+      const start = state.player.startPos;
       const end = add(
         tmp,
         start,
-        scale(tmp, state.player.launchVector, 100 * state.player.launchPower),
+        scale(tmp, state.player.launchVector, 200 * state.player.launchPower),
       );
-      drawArrow(
-        ctx,
-        new Line(state.player.position, end),
-        splitRgb(palette[2]),
-      );
-
-      for (let pos of state.future) {
-        drawCircle(ctx, new Circle(pos, 1), splitRgb(palette[0]));
-      }
+      drawArrow(ctx, new Line(start, end), splitRgb(palette[0]), 3);
+      this._renderFuture(ctx, state);
     }
   }
 
-  private _renderDebug(ctx: CanvasRenderingContext2D, state: State) {
-    ctx.fillStyle = rgbaString(splitRgb(palette[0]), 1);
-    ctx.fillRect(8, 8, 100, 61);
-    ctx.fillStyle = rgbaString(splitRgb(palette[5]), 1);
-    ctx.fillText(`FPS: ${this._fps}`, 12, 20);
-    ctx.fillText(`SPP: ${state.player.spp}%`, 12, 33);
-    ctx.fillText(`TLC: ${state.player.totalLaunches}`, 12, 46);
-    ctx.fillText(`OOB: ${state.player.awayCount}`, 12, 59);
+  private _renderFuture(ctx: CanvasRenderingContext2D, state: State) {
+    for (let pos of state.future) {
+      drawCircle(ctx, new Circle(pos, 1), splitRgb(palette[0]));
+    }
+  }
+
+  private _renderUi(ctx: CanvasRenderingContext2D, state: State) {
+    const txt = splitRgb(palette[0]);
+    const colors = {
+      foreground: splitRgb(palette[1]),
+      background: splitRgb(palette[3]),
+      text: txt,
+    };
+
+    ctx.font = 'normal 32px sans-serif';
+    ctx.fillStyle = rgbaString(txt, 1);
+    const totalLaunchesText = `${state.player.totalLaunches}`;
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 4;
+    ctx.strokeText(totalLaunchesText, 8, 32);
+    ctx.fillText(totalLaunchesText, 8, 32);
+
+    if (state.player.holeLaunches > 0) {
+      const m = ctx.measureText(totalLaunchesText);
+      const holeLaunchesText = `${state.player.holeLaunches > 0 ? '+' : ''}${
+        state.player.holeLaunches
+      }`;
+      ctx.strokeText(holeLaunchesText, m.width + 24, 32);
+      ctx.fillText(holeLaunchesText, m.width + 24, 32);
+    }
+    let x = 8;
+    let y = Settings.resolution[1] - 28;
+    drawPercentagebar(ctx, state.player.spp, 'slo-mo', [x, y], colors);
+    y -= 26;
+
+    drawPercentagebar(
+      ctx,
+      100 - (state.player.launches / state.player.maxLaunches) * 100,
+      'launches',
+      [x, y],
+      colors,
+    );
+    y -= 26;
+
+    const awayPercentage = ~~(
+      100 -
+      (state.player.awayCount / Settings.maxAwayCount) * 100
+    );
+    if (awayPercentage < 100) {
+      drawPercentagebar(ctx, awayPercentage, 'respawn', [x, y], colors);
+    }
   }
 
   public render(state: State) {
@@ -115,9 +159,7 @@ export class CanvasRenderer implements IRenderer {
     ctx.drawImage(this._background, 0, 0);
     this._renderCelestialBodies(ctx, state);
     this._renderPlayer(ctx, state);
-    if (DEBUG) {
-      this._renderDebug(ctx, state);
-    }
+    this._renderUi(ctx, state);
     this._ctx.drawImage(this._bufferContext.canvas, 0, 0);
   }
 }

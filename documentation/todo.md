@@ -12,7 +12,10 @@
 - [ ] visualize ball position when OOB
 - [ ] debug collisions (seems it might be possible to kill moon speed with collision and it seems to be possible to pass through the moon without colliding)
 - [ ] level generation
+- [ ] Add moons
 - [ ] bounce particles
+- [ ] visualize ball position when OOB
+- [ ] bounce physics (prevent "weird" backwards bounce)
 - [ ] sfx
 
 ## Nice to have
@@ -20,6 +23,10 @@
 - [ ] Add stars that kill you
 - [ ] Music
 - [ ] Better GFX
+- [ ] Pimp UI
+  - [ ] General looks
+  - [ ] current hole
+  - [ ] average launches per hole
 
 ## Stretch goals
 

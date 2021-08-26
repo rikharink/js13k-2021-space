@@ -31,7 +31,9 @@ export class Player
   public isInputting: boolean = false;
   public launches: number = 0;
   public totalLaunches: number = 0;
+  public holeLaunches: number = 0;
   public launchVector?: Vector2;
+  public startPos?: Point2D;
   public launchPower?: number;
   public maxLaunches: number = 2;
   public readonly maxSp: number = Settings.tps * 2;
@@ -40,9 +42,9 @@ export class Player
   public positions: Vector2[] = [];
   public lastStationaryPosition?: Point2D;
   public awayCount: number = 0;
+  public oob: boolean = false;
 
   private _sc: number = 0;
-  private _startPos?: Point2D;
   private _pm: PointerManager;
 
   constructor(pm: PointerManager, id?: UUIDV4) {
@@ -85,6 +87,7 @@ export class Player
         new Rectangle([0, 0], Settings.resolution as Vector2),
       )
     ) {
+      this.oob = true;
       const vec = normalize(
         [0, 0],
         subtract([0, 0], this.position, this.attraction!.position),
@@ -95,12 +98,20 @@ export class Player
       } else {
         this.awayCount = 0;
       }
+    } else {
+      this.awayCount = 0;
+      this.oob = false;
     }
     if (this.awayCount > Settings.maxAwayCount) {
       this.awayCount = 0;
       copy(this.position, this.lastStationaryPosition);
       this.velocity = [0, 0];
     }
+  }
+
+  public victory(): void {
+    this.totalLaunches += this.holeLaunches;
+    this.holeLaunches = 0;
   }
 
   public get spp(): Percentage {
@@ -131,7 +142,7 @@ export class Player
     //START
     if (!this.isInputting && active) {
       this.launchVector = [0, 0];
-      this._startPos = this._pm.position;
+      this.startPos = copy([0, 0], this._pm.position);
       if (this.launches >= 1) {
         Settings.speedScale = 0.1;
         this.hasSlowmotion = true;
@@ -142,16 +153,16 @@ export class Player
       this.launch();
     }
     //MOVE
-    else if (this._pm.position && this._startPos) {
+    else if (this._pm.position && this.startPos) {
       negate(
         this.launchVector!,
         normalize(
           this.launchVector!,
-          subtract(this.launchVector!, this._pm.position, this._startPos),
+          subtract(this.launchVector!, this._pm.position, this.startPos),
         ),
       );
       this.launchPower =
-        clamp(0, 100, distance(this._startPos, this._pm.position)) / 100;
+        clamp(0, 100, distance(this.startPos, this._pm.position)) / 100;
     }
     this.isInputting = active;
   }
@@ -164,11 +175,11 @@ export class Player
         this.launchPower! *
         (this.hasSlowmotion ? 0.5 : 1),
     );
-    this._startPos = undefined;
+    this.startPos = undefined;
     this.launchVector = undefined;
     this.launchPower = undefined;
     this.launches++;
-    this.totalLaunches++;
+    this.holeLaunches++;
     this.hasSlowmotion = false;
   }
 
@@ -184,11 +195,13 @@ export class Player
     player.launchVector = copy([0, 0], this.launchVector);
     player.launchPower = this.launchPower;
     player.totalLaunches = this.totalLaunches;
+    player.holeLaunches = this.holeLaunches;
     player.launches = this.launches;
-    player._startPos = copy([0, 0], this._startPos);
+    player.startPos = copy([0, 0], this.startPos);
     player.maxLaunches = this.maxLaunches;
     player.sp = this.sp;
     player.positions = this.positions.map((op) => copy([0, 0], op)!);
+    player.oob = this.oob;
     player.awayCount = this.awayCount;
     return player;
   }

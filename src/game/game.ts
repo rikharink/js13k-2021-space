@@ -88,6 +88,7 @@ class GameObject {
       const result = this.currentState.step(1 / Settings.tps);
       if (result.hitGoal) {
         //GOAL GOAL GOAL
+        this.currentState.player.victory();
         this.currentState.player.position = copy([0, 0], level1.spawn)!;
       }
       this._accumulator -= 1 / Settings.tps;

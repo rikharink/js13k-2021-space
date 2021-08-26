@@ -1,6 +1,7 @@
-import { RADIAN_TO_DEGREE } from './../math/math';
+import { foreground } from './../palette';
+import { RADIAN_TO_DEGREE, DEGREE_TO_RADIAN } from './../math/math';
 import { CelestialBody } from './../game/celestial-body';
-import { RgbColor } from './../types';
+import { Point2D, RgbColor } from './../types';
 import { OrientedRectangle } from './../geometry/oriented-rectangle';
 import { Circle } from '../geometry/circle';
 import { Line } from '../geometry/line';
@@ -36,8 +37,9 @@ export function drawLine(
   ctx: CanvasRenderingContext2D,
   line: Line,
   color: RgbColor,
+  lineWidth: number = 1,
 ): void {
-  ctx.lineWidth = 1;
+  ctx.lineWidth = lineWidth;
   ctx.lineCap = 'round';
   ctx.strokeStyle = rgbaString(color, 1);
   ctx.beginPath();
@@ -51,8 +53,21 @@ export function drawArrow(
   ctx: CanvasRenderingContext2D,
   line: Line,
   color: RgbColor,
+  lineWidth: number,
 ) {
-  drawLine(ctx, line, color);
+  drawCircle(ctx, new Circle(line.start, lineWidth), color);
+  const v = normalize([0, 0], subtract([0, 0], line.end, line.start));
+  const rot1 = from_rotation(create(), 135 * DEGREE_TO_RADIAN);
+  const rot2 = from_rotation(create(), -135 * DEGREE_TO_RADIAN);
+  const v1 = transform_point([0, 0], v, rot1);
+  const v2 = transform_point([0, 0], v, rot2);
+  scale(v1, v1, 10);
+  scale(v2, v2, 10);
+  const arrowOne = new Line(line.end, add([0, 0], line.end, v1));
+  const arrowTwo = new Line(line.end, add([0, 0], line.end, v2));
+  drawLine(ctx, line, color, lineWidth);
+  drawLine(ctx, arrowOne, color, lineWidth);
+  drawLine(ctx, arrowTwo, color, lineWidth);
 }
 
 export function drawFlag(
@@ -121,4 +136,29 @@ export function drawOrientedRectangle(
   ctx.lineTo(p4[0], p4[1]);
   ctx.closePath();
   ctx.stroke();
+}
+
+interface ColorSettings {
+  background: RgbColor;
+  foreground: RgbColor;
+  text: RgbColor;
+}
+
+export function drawPercentagebar(
+  ctx: CanvasRenderingContext2D,
+  percentage: number,
+  label: string,
+  position: Point2D,
+  { foreground, background, text }: ColorSettings,
+) {
+  ctx.font = 'normal 12px sans-serif';
+  ctx.fillStyle = rgbaString(background, 1);
+  ctx.fillRect(position[0], position[1], 100, 20);
+  ctx.fillStyle = rgbaString(foreground, 1);
+  ctx.fillRect(position[0], position[1], percentage, 20);
+  ctx.fillStyle = rgbaString(text, 1);
+  ctx.strokeStyle = 'black';
+  ctx.lineWidth = 2;
+  ctx.strokeText(label, position[0] + 108, position[1] + 14);
+  ctx.fillText(label, position[0] + 108, position[1] + 14);
 }
