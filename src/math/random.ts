@@ -66,7 +66,8 @@ export function getRandomElement<T>(rand: Random, arr: Array<T>): T {
   return arr[getRandomInt(rand, 0, arr.length)];
 }
 
-export function getRandomColor(rand: Random = Math.random): number {
+export function getRandomColor(rand?: Random): number {
+  rand = rand ?? Math.random;
   const r = getRandomInt(rand, 0, 255);
   const g = getRandomInt(rand, 0, 255);
   const b = getRandomInt(rand, 0, 255);

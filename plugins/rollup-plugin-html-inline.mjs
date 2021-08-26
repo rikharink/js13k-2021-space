@@ -1,14 +1,22 @@
 import { minify } from 'html-minifier';
+import { Packer } from 'roadroller';
 
 export const defaultTemplate = (options, script, sourcemap, style) =>
   `${options.meta.join('')}
   <title>${options.title}</title>
   ${options.scripts.map((s) => `<script src="${s}"></script>`).join('')}
-<style>${style}</style>
+${style ? `<style>${style}</style>` : ''}
 <canvas id="${options.canvasId}"></canvas>
 <script>${script.trim()}${
     sourcemap ? '//# sourceMappingURL=' + sourcemap : ''
   }</script>`;
+
+export const roadrollerTemplate = (options, src) =>
+  `${options.meta.join('')}<title>${options.title}</title>${options.scripts
+    .map((s) => `<script src="${s}"></script>`)
+    .join('')}<canvas id="${
+    options.canvasId
+  }"></canvas><script>${src.trim()}</script>`;
 
 export default function inline(
   options = {
@@ -19,11 +27,12 @@ export default function inline(
     delete: false,
     meta: [],
     scripts: [],
+    roadroller: false,
   },
 ) {
   return {
     name: 'rollup-plugin-html-inline',
-    generateBundle(_, bundle, isWrite) {
+    async generateBundle(_, bundle, isWrite) {
       if (!isWrite) return;
       const renderTemplate = options.template || defaultTemplate;
       const scripts = [];
@@ -41,14 +50,32 @@ export default function inline(
         }
       });
 
-      let source = minify(
-        renderTemplate(
-          options,
-          scripts.join(),
-          options.sourcemap,
-          styles.join(),
-        ),
-        {
+      let src = scripts.join();
+      let css = styles.join();
+      let source = '';
+
+      if (options.roadroller) {
+        src += `document.write("<style>${css}</style>");`;
+        css = '';
+        const inputs = [
+          {
+            data: src,
+            type: 'js',
+            action: 'eval',
+          },
+        ];
+
+        const roadrollerOptions = {
+          maxMemoryMB: 150,
+        };
+        const packer = new Packer(inputs, roadrollerOptions);
+        await packer.optimize();
+        const { firstLine, secondLine } = packer.makeDecoder();
+        src = firstLine + '\n' + secondLine;
+
+        source = minify(roadrollerTemplate(options, src));
+      } else {
+        source = minify(renderTemplate(options, src, options.sourcemap, css), {
           collapseWhitespace: true,
           collapseBooleanAttributes: true,
           removeAttributeQuotes: true,
@@ -57,8 +84,8 @@ export default function inline(
           removeOptionalTags: true,
           removeRedundantAttributes: true,
           html5: true,
-        },
-      );
+        });
+      }
 
       const output = {
         fileName: 'index.html',

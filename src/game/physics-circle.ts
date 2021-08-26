@@ -10,13 +10,13 @@ export class PhysicsCircle extends Circle {
   public bounceDampening: number;
   public attraction?: PhysicsCircle;
 
-  public constructor(position: Point2D, radius: number, mass: number = 0, velocity?: Vector2, acceleration?: Vector2, bounceDampening: number = 0.8) {
+  public constructor(position: Point2D, radius: number, mass: number = 0, velocity?: Vector2, acceleration?: Vector2, bounceDampening?: number) {
     super(position, radius);
     copy(this.previousPosition, this.position);
     this.mass = mass;
     this.velocity = velocity;
     this.acceleration = acceleration;
-    this.bounceDampening = bounceDampening;
+    this.bounceDampening = bounceDampening ?? 0.8;
   }
 
   public isInside(point: Point2D): boolean {

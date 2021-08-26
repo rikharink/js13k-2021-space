@@ -8,6 +8,23 @@ import zipstats from 'zipstats';
 import ect from 'ect-bin';
 import chalk from 'chalk';
 
+async function pack(data) {
+  const inputs = [
+    {
+      data: data,
+      type: 'text',
+      action: 'write',
+    },
+  ];
+  const options = {
+    maxMemoryMB: 150,
+  };
+  const packer = new Packer(inputs, options);
+  await packer.optimize();
+  const packed = packer.makeDecoder();
+  return packed.firstLine + '\n' + packed.secondLine;
+}
+
 function notifyFilesize(title, path, notify) {
   const stat = fs.statSync(path);
   const size = filesize(stat.size);

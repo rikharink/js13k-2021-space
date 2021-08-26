@@ -19,15 +19,16 @@ export function handleCircleCircleCollision(
   o2: PhysicsCircle,
 ): boolean {
   if (o1 === o2) return false;
+  if (!o1.velocity) return false;
 
   if (hasCircleCircleCollision(o1, o2)) {
     let tmp: Vector2 = [0, 0];
     copy(o1.position, o1.previousPosition);
     const pc: Point2D = [
       (o1.position[0] * o2.radius + o2.position[1] * o1.radius) /
-        (o1.radius + o2.radius),
+      (o1.radius + o2.radius),
       (o1.position[1] * o2.radius + o2.position[1] * o1.radius) /
-        (o1.radius + o2.radius),
+      (o1.radius + o2.radius),
     ];
 
     let n: Vector2 = [0, 0];
@@ -58,13 +59,12 @@ export function handleCircleOrientedRectangleCollision(
 export function handleCollisions(state: State): CollisionResult {
   let hadCollision = false;
   let hitGoal = false;
-  let check = [state.player, ...state.celestialBodies];
-  for (let o1 of check) {
-    for (let o2 of check) {
-      hadCollision = handleCircleCircleCollision(o1, o2);
-    }
+  let o1 = state.player;
+  let check = state.celestialBodies;
+  for (let o2 of check) {
+    hadCollision = handleCircleCircleCollision(o1, o2);
   }
-
+  
   let goalBodies = state.celestialBodies.filter((cb) => cb.goal !== undefined);
   for (let gb of goalBodies) {
     hadCollision = hitGoal = handleCircleOrientedRectangleCollision(

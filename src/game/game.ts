@@ -16,7 +16,6 @@ const ALPHA = 0.9;
 class GameObject {
   public fps: number = 60;
   public isActive: boolean = false;
-  public sctx!: AudioContext;
   private readonly _pointerManager;
   private readonly _monetizationManager;
   private _dt: number = 0;
@@ -34,9 +33,6 @@ class GameObject {
   public constructor() {
     this.cnvs = <HTMLCanvasElement>document.getElementById(Settings.canvasId);
     this._pointerManager = new PointerManager(this.cnvs);
-    this._pointerManager.once(
-      (() => (this.sctx = new AudioContext())).bind(this),
-    );
     this._monetizationManager = new WebmonetizationManger();
     this._rng = seedRand(Settings.seed);
     this._renderer = new CanvasRenderer(this.cnvs, this._rng);
