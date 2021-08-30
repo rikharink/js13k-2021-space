@@ -6,10 +6,10 @@ import { IRenderer } from '../interfaces/renderer';
 import { Settings } from '../settings';
 import { seedRand } from '../math/random';
 import { WebmonetizationManger } from '../managers/webmonetization-manager';
-import { Level } from './level';
+import { generateLevel, Level } from './level';
 //@ts-ignore
 import level1 from './levels/level1.lvl.json';
-import { copy } from '../math/vector2';
+import { copy, Vector2 } from '../math/vector2';
 
 const ALPHA = 0.9;
 
@@ -27,6 +27,7 @@ class GameObject {
   private _accumulator: number = 0;
   private _raf?: number;
 
+  private _level: number = 1;
   private _previousState!: State;
   public currentState!: State;
 
@@ -88,8 +89,10 @@ class GameObject {
       const result = this.currentState.step(1 / Settings.tps);
       if (result.hitGoal) {
         //GOAL GOAL GOAL
+        const lvl = generateLevel(this._rng, this._level++, <Vector2>Settings.resolution);
+        this.loadLevel(lvl);
         this.currentState.player.victory();
-        this.currentState.player.position = copy([0, 0], level1.spawn)!;
+        this.currentState.player.position = copy([0, 0], lvl.spawn)!;
       }
       this._accumulator -= 1 / Settings.tps;
       t += this._dt;
