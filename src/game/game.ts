@@ -90,9 +90,9 @@ class GameObject {
       if (result.hitGoal) {
         //GOAL GOAL GOAL
         const lvl = generateLevel(this._rng, this._level++, <Vector2>Settings.resolution);
-        this.loadLevel(lvl);
+        // this.loadLevel(lvl);
         this.currentState.player.victory();
-        this.currentState.player.position = copy([0, 0], lvl.spawn)!;
+        this.currentState.player.position = copy([0, 0], level1.spawn)!;
       }
       this._accumulator -= 1 / Settings.tps;
       t += this._dt;
