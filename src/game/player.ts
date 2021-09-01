@@ -35,7 +35,7 @@ export class Player
   public launchVector?: Vector2;
   public startPos?: Point2D;
   public launchPower?: number;
-  public maxLaunches: number = 2;
+  public maxLaunches: number = 3;
   public readonly maxSp: number = Settings.tps * 2;
   public sp: number = Settings.tps * 2;
   public hasSlowmotion = false;
@@ -45,7 +45,9 @@ export class Player
   public oob: boolean = false;
 
   private _sc: number = 0;
+  private _lc: number = 0;
   private _pm: PointerManager;
+  public canInput: boolean = true;
 
   constructor(pm: PointerManager, id?: UUIDV4) {
     super([10, 10], Settings.playerRadius, Settings.playerMass, [0, 0], [0, 0]);
@@ -64,8 +66,17 @@ export class Player
 
     if (this._sc > 30) {
       this._sc = 0;
+      this._lc = 0;
       this.launches = 0;
       this.lastStationaryPosition = copy([0, 0], this.position)!;
+    }
+
+    if (this.launches === this.maxLaunches) {
+      this._lc++;
+    }
+    if (this._lc > Settings.tps * 3) {
+      this.launches = Math.min(0, this.launches - 1);
+      this._lc = 0;
     }
 
     if (this.hasSlowmotion) {
@@ -127,7 +138,15 @@ export class Player
     return this.launches < this.maxLaunches;
   }
 
-  public saveCurrentPosition() {
+  public saveCurrentPosition(hasTrail?: boolean) {
+    if (!(hasTrail ?? true)) {
+      this.positions = [
+        copy([0, 0], this.position)!,
+        copy([0, 0], this.position)!,
+      ];
+      return;
+    }
+
     this.positions.push(copy([0, 0], this.position)!);
     if (this.positions.length > Settings.trailSize) {
       this.positions.shift();
@@ -204,6 +223,7 @@ export class Player
     player.positions = this.positions.map((op) => copy([0, 0], op)!);
     player.oob = this.oob;
     player.awayCount = this.awayCount;
+    player.canInput = this.canInput;
     return player;
   }
 }

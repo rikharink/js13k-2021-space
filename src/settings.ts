@@ -17,4 +17,5 @@ export const Settings = {
   trailSize: 50,
   futureSize: 125,
   maxAwayCount: 1000,
+  safeAreaInsets: [200, 25, 1334, 725],
 };

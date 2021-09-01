@@ -15,7 +15,7 @@ import {
   CollisionResult,
   handleCollisions,
 } from '../physics/collision-handler';
-import { goalPlanet, Level, spawnPlanet } from './level';
+import { Level } from './level';
 import { PointerManager } from '../managers/pointer-manager';
 import { Settings } from '../settings';
 
@@ -80,8 +80,12 @@ export class State implements IStepable<CollisionResult> {
     );
   }
 
-  public static fromLevel(pm: PointerManager, level: Level): State {
-    let player = new Player(pm);
+  public static fromLevel(
+    pm: PointerManager,
+    level: Level,
+    player?: Player,
+  ): State {
+    player = player ?? new Player(pm);
     copy(player.position, level.spawn);
     const state = new State({
       currentLevel: level.number,
@@ -89,10 +93,10 @@ export class State implements IStepable<CollisionResult> {
       player: player,
       celestialBodies: level.bodies.map(State.createCelestialBody),
       spawnPlanet: State.createCelestialBody(
-        level.spawnPlanet ?? spawnPlanet(level.bodies),
+        level.spawnPlanet ?? level.bodies[0],
       ),
       goalPlanet: State.createCelestialBody(
-        level.goalPlanet ?? goalPlanet(level.bodies),
+        level.goalPlanet ?? level.bodies[level.bodies.length - 1],
       ),
     });
 

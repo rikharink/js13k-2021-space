@@ -1,6 +1,7 @@
 import { swap } from '../util/util';
 import type { Random } from '../types';
 import { mergeRgb } from './color';
+import { TAU, Radian } from './math';
 
 //FROM: https://github.com/straker/kontra/blob/main/src/helpers.js
 /*
@@ -72,4 +73,8 @@ export function getRandomColor(rand?: Random): number {
   const g = getRandomInt(rand, 0, 255);
   const b = getRandomInt(rand, 0, 255);
   return mergeRgb([r, g, b]);
+}
+
+export function getRandomAngle(rng: Random): Radian {
+  return getRandom(rng, 0, TAU);
 }

@@ -169,13 +169,7 @@ export class CanvasRenderer implements IRenderer {
     }
   }
 
-  private _renderDebug(ctx: CanvasRenderingContext2D, state: State) {
-    drawLine(
-      ctx,
-      new Line(state.player.position, state.getGoalTop()),
-      splitRgb(palette[0]),
-    );
-  }
+  private _renderDebug(ctx: CanvasRenderingContext2D, state: State) {}
 
   public render(state: State) {
     const ctx = this._bufferContext;
@@ -183,7 +177,6 @@ export class CanvasRenderer implements IRenderer {
     this._renderCelestialBodies(ctx, state);
     this._renderPlayer(ctx, state);
     this._renderUi(ctx, state);
-
     if (DEBUG) {
       this._renderDebug(ctx, state);
     }
