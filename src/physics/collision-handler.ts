@@ -6,7 +6,7 @@ import { Point2D } from './../types';
 import {
   hasCircleCircleCollision,
   hasCircleOrientedRectangleCollision,
-} from './collision/collision-checks';
+} from '../geometry/collision-checks';
 import { OrientedRectangle } from '../geometry/oriented-rectangle';
 
 export interface CollisionResult {
@@ -26,9 +26,9 @@ export function handleCircleCircleCollision(
     copy(o1.position, o1.previousPosition);
     const pc: Point2D = [
       (o1.position[0] * o2.radius + o2.position[1] * o1.radius) /
-      (o1.radius + o2.radius),
+        (o1.radius + o2.radius),
       (o1.position[1] * o2.radius + o2.position[1] * o1.radius) /
-      (o1.radius + o2.radius),
+        (o1.radius + o2.radius),
     ];
 
     let n: Vector2 = [0, 0];
@@ -64,7 +64,7 @@ export function handleCollisions(state: State): CollisionResult {
   for (let o2 of check) {
     hadCollision = handleCircleCircleCollision(o1, o2);
   }
-  
+
   let goalBodies = state.celestialBodies.filter((cb) => cb.goal !== undefined);
   for (let gb of goalBodies) {
     hadCollision = hitGoal = handleCircleOrientedRectangleCollision(

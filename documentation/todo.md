@@ -41,7 +41,6 @@
 
 ## Level Generation TODO
 
-- [ ] Make sure flag is not spawned (partially) out of screen
 - [ ] Place spawn planet at same Y height as goal planet previous level
 - [ ] Place spawn planet at left of the screen and goal planet at the right?
 - [ ] Generate moons

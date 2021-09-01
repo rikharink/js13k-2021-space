@@ -19,7 +19,7 @@ import { splitRgb } from '../math/color';
 import { clamp } from '../math/math';
 import { uuidv4 } from '../util/util';
 import { IStepable } from '../interfaces/stepable';
-import { hasCircleRectangleCollision } from '../physics/collision/collision-checks';
+import { hasCircleRectangleCollision } from '../geometry/collision-checks';
 import { Rectangle } from '../geometry/rectangle';
 
 export class Player

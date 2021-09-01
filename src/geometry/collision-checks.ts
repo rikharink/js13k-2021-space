@@ -1,21 +1,19 @@
-import { Circle } from '../../geometry/circle';
-import { Line } from '../../geometry/line';
-import { OrientedRectangle } from '../../geometry/oriented-rectangle';
-import { Rectangle } from '../../geometry/rectangle';
+import { Circle } from './circle';
+import { Line } from './line';
+import { OrientedRectangle } from './oriented-rectangle';
+import { Rectangle } from './rectangle';
 import {
   create,
   from_rotation,
   Matrix2D,
   transform_point,
-} from '../../math/matrix2d';
-import { add, scale, subtract } from '../../math/vector2';
+} from '../math/matrix2d';
+import { add, distance_squared, scale, subtract } from '../math/vector2';
 
 export function hasCircleCircleCollision(a: Circle, b: Circle): boolean {
-  const dx = a.position[0] - b.position[0];
-  const dy = a.position[1] - b.position[1];
-  const dsquared = dx * dx + dy * dy;
+  const d2 = distance_squared(a.position, b.position);
   const r = a.radius + b.radius;
-  return dsquared < r * r;
+  return d2 < r * r;
 }
 
 export function hasCircleRectangleCollision(

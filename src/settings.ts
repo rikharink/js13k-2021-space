@@ -6,7 +6,7 @@ export const Settings = {
   canvasId: 'g',
   seed: 'IPTS',
   planetWeightScaling: 1000000,
-  G: 0.4,
+  G: 0.8,
   nrOfBackgroundStars: 2000,
   playerRadius: 5,
   playerMass: 0,

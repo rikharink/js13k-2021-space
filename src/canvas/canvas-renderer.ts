@@ -1,4 +1,3 @@
-import { Player } from './../game/player';
 import { palette } from '../palette';
 import { State } from '../game/state';
 import { DEBUG, Settings } from '../settings';
@@ -68,7 +67,12 @@ export class CanvasRenderer implements IRenderer {
             Settings.flagmastLength,
           ),
         );
-        drawFlag(ctx, new Line(start, end), splitRgb(palette[2]));
+        drawFlag(
+          ctx,
+          `${state.currentLevel}`,
+          new Line(start, end),
+          splitRgb(palette[2]),
+        );
       }
     }
   }
@@ -165,12 +169,24 @@ export class CanvasRenderer implements IRenderer {
     }
   }
 
+  private _renderDebug(ctx: CanvasRenderingContext2D, state: State) {
+    drawLine(
+      ctx,
+      new Line(state.player.position, state.getGoalTop()),
+      splitRgb(palette[0]),
+    );
+  }
+
   public render(state: State) {
     const ctx = this._bufferContext;
     ctx.drawImage(this._background, 0, 0);
     this._renderCelestialBodies(ctx, state);
     this._renderPlayer(ctx, state);
     this._renderUi(ctx, state);
+
+    if (DEBUG) {
+      this._renderDebug(ctx, state);
+    }
     this._ctx.drawImage(this._bufferContext.canvas, 0, 0);
   }
 }

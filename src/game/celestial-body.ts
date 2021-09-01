@@ -1,3 +1,4 @@
+import { Circle } from './../geometry/circle';
 import { RgbColor } from '../types';
 import { IIdentifiable } from '../interfaces/identifiable';
 import { PhysicsCircle } from './physics-circle';
@@ -5,7 +6,15 @@ import { Point2D } from '../types';
 import { accent } from '../palette';
 import { splitRgb } from '../math/color';
 import { Settings } from '../settings';
-import { copy, distance, normalize, perpendicular, scale, subtract, Vector2 } from '../math/vector2';
+import {
+  copy,
+  distance,
+  normalize,
+  perpendicular,
+  scale,
+  subtract,
+  Vector2,
+} from '../math/vector2';
 import { Radian } from '../math/math';
 import { uuidv4 } from '../util/util';
 
@@ -23,7 +32,8 @@ export interface ICelestialBody {
 
 export class CelestialBody
   extends PhysicsCircle
-  implements IIdentifiable, ICelestialBody {
+  implements IIdentifiable, ICelestialBody
+{
   public id: string;
   public readonly color: RgbColor = splitRgb(accent);
   public goal?: Radian;
@@ -63,7 +73,14 @@ export class CelestialBody
     const perp = perpendicular(tmp, dir, clockwise ?? true);
     cb.acceleration = [0, 0];
     cb.velocity = [0, 0];
-    copy(cb.velocity, scale(tmp, perp, Math.sqrt(this.mu / distance(cb.position, this.position))));
+    copy(
+      cb.velocity,
+      scale(
+        tmp,
+        perp,
+        Math.sqrt(this.mu / distance(cb.position, this.position)),
+      ),
+    );
     this.moons.push(cb.id);
   }
 

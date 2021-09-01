@@ -28,6 +28,7 @@ class GameObject {
   private _raf?: number;
 
   private _level: number = 1;
+  private _currentLevel!: Level;
   private _previousState!: State;
   public currentState!: State;
 
@@ -44,8 +45,13 @@ class GameObject {
   }
 
   public loadLevel(level: Level) {
+    this._currentLevel = level;
     this.currentState = State.fromLevel(this._pointerManager, level);
     this._previousState = this.currentState;
+  }
+
+  public resetLevel(): void {
+    this.loadLevel(this._currentLevel);
   }
 
   public start() {

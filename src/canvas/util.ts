@@ -72,6 +72,7 @@ export function drawArrow(
 
 export function drawFlag(
   ctx: CanvasRenderingContext2D,
+  text: string,
   line: Line,
   color: RgbColor,
 ) {

@@ -1,21 +1,31 @@
 import { IStepable } from './../interfaces/stepable';
 import { Point2D, Seconds } from '../types';
 import { Player } from './player';
-import { CelestialBody } from './celestial-body';
+import { CelestialBody, ICelestialBody } from './celestial-body';
 import { applyPhysics, predictFuture } from '../physics/physics';
-import { add as vadd, copy, scale, Vector2 } from '../math/vector2';
+import {
+  add as vadd,
+  copy,
+  normalize,
+  scale,
+  subtract,
+  Vector2,
+} from '../math/vector2';
 import {
   CollisionResult,
   handleCollisions,
 } from '../physics/collision-handler';
-import { Level } from './level';
+import { goalPlanet, Level, spawnPlanet } from './level';
 import { PointerManager } from '../managers/pointer-manager';
+import { Settings } from '../settings';
 
 interface StateOptions {
   size: Vector2;
   player: Player;
   celestialBodies: CelestialBody[];
   currentLevel?: number;
+  spawnPlanet: CelestialBody;
+  goalPlanet: CelestialBody;
 }
 
 export class State implements IStepable<CollisionResult> {
@@ -24,12 +34,50 @@ export class State implements IStepable<CollisionResult> {
   public size: Vector2;
   public future: Point2D[] = [];
   public currentLevel: number;
+  public spawnPlanet: CelestialBody;
+  public goalPlanet: CelestialBody;
 
-  constructor({ size, player, celestialBodies, currentLevel }: StateOptions) {
+  private constructor({
+    size,
+    player,
+    celestialBodies,
+    currentLevel,
+    spawnPlanet,
+    goalPlanet,
+  }: StateOptions) {
     this.size = size;
     this.player = player;
     this.celestialBodies = celestialBodies;
     this.currentLevel = currentLevel ?? 1;
+    this.spawnPlanet = spawnPlanet;
+    this.goalPlanet = goalPlanet;
+  }
+
+  public static createCelestialBody(c: ICelestialBody): CelestialBody {
+    return new CelestialBody(
+      copy([0, 0], c.position)!,
+      c.radius,
+      c.mass,
+      c.id,
+      copy([0, 0], c.velocity)!,
+      copy([0, 0], c.acceleration)!,
+      c.bounceDampening,
+      c.goal,
+      c.moons,
+    );
+  }
+
+  public getGoalTop() {
+    const goal = this.goalPlanet.getPoint(this.goalPlanet.goal!);
+    return vadd(
+      goal,
+      goal,
+      scale(
+        [0, 0],
+        normalize([0, 0], subtract([0, 0], goal, this.goalPlanet.position)),
+        Settings.flagmastLength,
+      ),
+    );
   }
 
   public static fromLevel(pm: PointerManager, level: Level): State {
@@ -39,19 +87,12 @@ export class State implements IStepable<CollisionResult> {
       currentLevel: level.number,
       size: level.size,
       player: player,
-      celestialBodies: level.bodies.map(
-        (c) =>
-          new CelestialBody(
-            copy([0, 0], c.position)!,
-            c.radius,
-            c.mass,
-            c.id,
-            copy([0, 0], c.velocity)!,
-            copy([0, 0], c.acceleration)!,
-            c.bounceDampening,
-            c.goal,
-            c.moons,
-          ),
+      celestialBodies: level.bodies.map(State.createCelestialBody),
+      spawnPlanet: State.createCelestialBody(
+        level.spawnPlanet ?? spawnPlanet(level.bodies),
+      ),
+      goalPlanet: State.createCelestialBody(
+        level.goalPlanet ?? goalPlanet(level.bodies),
       ),
     });
 
@@ -81,6 +122,8 @@ export class State implements IStepable<CollisionResult> {
       player: this.player.clone(),
       celestialBodies: this.celestialBodies.map((cb) => cb.clone()),
       currentLevel: this.currentLevel,
+      spawnPlanet: this.spawnPlanet.clone(),
+      goalPlanet: this.goalPlanet.clone(),
     });
     state.future = [...this.future.map((f) => copy([0, 0], f)!)];
     return state;
