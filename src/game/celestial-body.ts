@@ -1,17 +1,16 @@
-import { UUIDV4, RgbColor } from '../types';
+import { RgbColor } from '../types';
 import { IIdentifiable } from '../interfaces/identifiable';
 import { PhysicsCircle } from './physics-circle';
 import { Point2D } from '../types';
-import { uuidv4 } from '../util/util';
 import { accent } from '../palette';
 import { splitRgb } from '../math/color';
 import { Settings } from '../settings';
-import { copy, Vector2 } from '../math/vector2';
+import { copy, distance, normalize, perpendicular, scale, subtract, Vector2 } from '../math/vector2';
 import { Radian } from '../math/math';
-import { OrientedRectangle } from '../geometry/oriented-rectangle';
+import { uuidv4 } from '../util/util';
 
 export interface ICelestialBody {
-  id?: UUIDV4;
+  id?: string;
   position: Point2D;
   radius: number;
   mass: number;
@@ -19,25 +18,27 @@ export interface ICelestialBody {
   acceleration?: Vector2;
   bounceDampening?: number;
   goal?: Radian;
+  moons: string[];
 }
 
 export class CelestialBody
   extends PhysicsCircle
-  implements IIdentifiable, ICelestialBody
-{
-  public id: UUIDV4;
+  implements IIdentifiable, ICelestialBody {
+  public id: string;
   public readonly color: RgbColor = splitRgb(accent);
   public goal?: Radian;
+  public moons: string[];
 
   constructor(
     position: Point2D,
     radius: number,
     mass: number,
-    id?: UUIDV4,
+    id?: string,
     velocity?: Vector2,
     acceleration?: Vector2,
     bounceDampening?: number,
     goal?: Radian,
+    moons?: string[],
   ) {
     super(
       position,
@@ -49,14 +50,21 @@ export class CelestialBody
     );
     this.id = id ?? uuidv4();
     this.goal = goal;
+    this.moons = moons ?? [];
   }
 
   public get mu(): number {
     return Settings.G * this.mass;
   }
 
-  public orbitalVelocity(radius: number): number {
-    return Math.sqrt(this.mu / radius);
+  public addMoon(cb: CelestialBody, clockwise?: boolean): void {
+    let tmp: Vector2 = [0, 0];
+    const dir = normalize(tmp, subtract(tmp, this.position, cb.position));
+    const perp = perpendicular(tmp, dir, clockwise ?? true);
+    cb.acceleration = [0, 0];
+    cb.velocity = [0, 0];
+    copy(cb.velocity, scale(tmp, perp, Math.sqrt(this.mu / distance(cb.position, this.position))));
+    this.moons.push(cb.id);
   }
 
   public clone(): CelestialBody {
@@ -71,6 +79,7 @@ export class CelestialBody
       this.goal,
     );
     cb.attraction = this.attraction;
+    cb.moons = [...this.moons];
     return cb;
   }
 }

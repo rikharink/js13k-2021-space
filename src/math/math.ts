@@ -24,7 +24,8 @@ export function normalize(value: number, min: number, max: number): number {
 
 const DEFAULT_EPSILON = 1e-5;
 const MIN_NORMAL = Math.pow(2, -1022);
-export function nearlyEqual(a: number, b: number, epsilon: number = DEFAULT_EPSILON) {
+export function nearlyEqual(a: number, b: number, epsilon?: number) {
+  epsilon = epsilon ?? DEFAULT_EPSILON;
   let diff;
   if (a === b) {
     return true;

@@ -8,3 +8,4 @@
 - length
 - start
 - end
+- clone

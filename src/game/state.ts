@@ -32,7 +32,7 @@ export class State implements IStepable<CollisionResult> {
   public static fromLevel(pm: PointerManager, level: Level): State {
     let player = new Player(pm);
     copy(player.position, level.spawn);
-    return new State({
+    const state = new State({
       size: level.size,
       player: player,
       celestialBodies: level.bodies.map(
@@ -46,9 +46,18 @@ export class State implements IStepable<CollisionResult> {
             copy([0, 0], c.acceleration)!,
             c.bounceDampening,
             c.goal,
+            c.moons,
           ),
       ),
     });
+
+    for (let cb of state.celestialBodies) {
+      const moons = cb.moons.flatMap(mid => state.celestialBodies.filter(c => c.id === mid));
+      for (let moon of moons) {
+        cb.addMoon(moon);
+      }
+    }
+    return state;
   }
 
   public step(dt: Seconds): CollisionResult {

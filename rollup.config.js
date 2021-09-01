@@ -10,7 +10,7 @@ import image from '@rollup/plugin-image';
 import replace from '@rollup/plugin-replace';
 import inline, {
   defaultTemplate,
-} from './plugins/rollup-plugin-html-inline.js';
+} from './plugins/rollup-plugin-html-inline.mjs';
 import packageOutput from './plugins/rollup-plugin-package-js13k.js';
 
 const env = process.env.NODE_ENV || 'production';
@@ -72,6 +72,7 @@ let plugins = [
     scripts: [
       //'https://cdn.jsdelivr.net/npm/near-api-js@0.41.0/dist/near-api-js.min.js',
     ],
+    roadroller: !isDev,
   }),
   packageOutput({
     name: 'js13k-2021-interplanetary-transport-system',
