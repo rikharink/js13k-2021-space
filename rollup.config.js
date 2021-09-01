@@ -61,6 +61,7 @@ let plugins = [
           'seed',
           'totalLaunches',
           'holeLaunches',
+          'position',
           'v',
         ],
       },

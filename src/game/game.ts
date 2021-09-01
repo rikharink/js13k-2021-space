@@ -1,3 +1,4 @@
+import { Vector2 } from './../math/vector2';
 import { PointerManager } from '../managers/pointer-manager';
 import { blend, State } from './state';
 import { Milliseconds, Random, Seconds } from '../types';
@@ -7,7 +8,7 @@ import { Settings } from '../settings';
 import { currentSeed, reseed, seedRand } from '../math/random';
 import { WebmonetizationManger } from '../managers/webmonetization-manager';
 import { generateLevel, Level } from './level';
-import { copy, Vector2 } from '../math/vector2';
+import { copy } from '../math/vector2';
 
 const ALPHA = 0.9;
 
@@ -17,6 +18,7 @@ export interface SerializableGame {
   seed: number;
   totalLaunches: number;
   holeLaunches: number;
+  position?: Vector2;
 }
 
 class GameObject {
@@ -82,6 +84,9 @@ class GameObject {
           this.loadLevel(state.level);
           this.currentState.player.totalLaunches = state.totalLaunches;
           this.currentState.player.holeLaunches = state.holeLaunches;
+          if (state.position) {
+            this.currentState.player.position = state.position;
+          }
           return true;
         }
       } catch {}
@@ -98,6 +103,7 @@ class GameObject {
         seed: currentSeed,
         holeLaunches: this.currentState.player.holeLaunches,
         totalLaunches: this.currentState.player.totalLaunches,
+        position: this.currentState.player.lastStationaryPosition,
       }),
     );
   }
