@@ -75,6 +75,17 @@ class GameObject {
     return r;
   }
 
+  public nextLevel() {
+    const lvl = generateLevel(
+      this._rng,
+      ++this._level,
+      <Vector2>Settings.resolution,
+    );
+    this.loadLevel(lvl);
+    this.currentState.player.victory();
+    this.currentState.player.position = copy([0, 0], lvl.spawn)!;
+  }
+
   private _loop(t: Milliseconds): void {
     this._raf = requestAnimationFrame(this._loop.bind(this));
     t = this._updateTimes(t);
@@ -88,11 +99,7 @@ class GameObject {
       this._previousState = this.currentState.clone();
       const result = this.currentState.step(1 / Settings.tps);
       if (result.hitGoal) {
-        //GOAL GOAL GOAL
-        const lvl = generateLevel(this._rng, this._level++, <Vector2>Settings.resolution);
-        // this.loadLevel(lvl);
-        this.currentState.player.victory();
-        this.currentState.player.position = copy([0, 0], level1.spawn)!;
+        this.nextLevel();
       }
       this._accumulator -= 1 / Settings.tps;
       t += this._dt;

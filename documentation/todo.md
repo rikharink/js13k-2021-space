@@ -38,3 +38,13 @@
 - [ ] Restructure gamestate
   - [ ] model player as a celestial body and specifiy id(s) that can be controlled?
   - [ ] move player input to input manager and apply impulse to controlled bodies?
+
+## Level Generation TODO
+
+- [ ] Make sure flag is not spawned (partially) out of screen
+- [ ] Place spawn planet at same Y height as goal planet previous level
+- [ ] Place spawn planet at left of the screen and goal planet at the right?
+- [ ] Generate moons
+- [ ] Generate more interesting obstacles depending on current level (more planets in the way (with moons) the higher level)
+  - [ ] heuristic number of planets that collide with the line between spawn and goal planet?
+- [ ] Pan camera to next level instead of jerky level swap

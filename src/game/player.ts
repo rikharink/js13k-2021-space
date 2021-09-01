@@ -48,7 +48,7 @@ export class Player
   private _pm: PointerManager;
 
   constructor(pm: PointerManager, id?: UUIDV4) {
-    super([10, 10], 5, Settings.playerMass, [0, 0], [0, 0]);
+    super([10, 10], Settings.playerRadius, Settings.playerMass, [0, 0], [0, 0]);
     this.id = id ?? uuidv4();
     this._pm = pm;
   }
@@ -82,6 +82,7 @@ export class Player
     }
 
     if (
+      this.attraction &&
       !hasCircleRectangleCollision(
         this,
         new Rectangle([0, 0], Settings.resolution as Vector2),
@@ -90,7 +91,7 @@ export class Player
       this.oob = true;
       const vec = normalize(
         [0, 0],
-        subtract([0, 0], this.position, this.attraction!.position),
+        subtract([0, 0], this.position, this.attraction.position),
       );
 
       if (dot(normalize([0, 0], this.velocity!), vec) > 0) {

@@ -15,6 +15,7 @@ interface StateOptions {
   size: Vector2;
   player: Player;
   celestialBodies: CelestialBody[];
+  currentLevel?: number;
 }
 
 export class State implements IStepable<CollisionResult> {
@@ -22,17 +23,20 @@ export class State implements IStepable<CollisionResult> {
   public player: Player;
   public size: Vector2;
   public future: Point2D[] = [];
+  public currentLevel: number;
 
-  constructor({ size, player, celestialBodies }: StateOptions) {
+  constructor({ size, player, celestialBodies, currentLevel }: StateOptions) {
     this.size = size;
     this.player = player;
     this.celestialBodies = celestialBodies;
+    this.currentLevel = currentLevel ?? 1;
   }
 
   public static fromLevel(pm: PointerManager, level: Level): State {
     let player = new Player(pm);
     copy(player.position, level.spawn);
     const state = new State({
+      currentLevel: level.number,
       size: level.size,
       player: player,
       celestialBodies: level.bodies.map(
@@ -52,7 +56,9 @@ export class State implements IStepable<CollisionResult> {
     });
 
     for (let cb of state.celestialBodies) {
-      const moons = cb.moons.flatMap(mid => state.celestialBodies.filter(c => c.id === mid));
+      const moons = cb.moons.flatMap((mid) =>
+        state.celestialBodies.filter((c) => c.id === mid),
+      );
       for (let moon of moons) {
         cb.addMoon(moon);
       }
@@ -74,6 +80,7 @@ export class State implements IStepable<CollisionResult> {
       size: copy([0, 0], this.size)!,
       player: this.player.clone(),
       celestialBodies: this.celestialBodies.map((cb) => cb.clone()),
+      currentLevel: this.currentLevel,
     });
     state.future = [...this.future.map((f) => copy([0, 0], f)!)];
     return state;

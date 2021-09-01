@@ -117,22 +117,33 @@ export class CanvasRenderer implements IRenderer {
 
     ctx.font = 'normal 32px sans-serif';
     ctx.fillStyle = rgbaString(txt, 1);
-    const totalLaunchesText = `${state.player.totalLaunches}`;
+
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 4;
-    ctx.strokeText(totalLaunchesText, 8, 32);
-    ctx.fillText(totalLaunchesText, 8, 32);
+    let m: TextMetrics;
+    let x = 8;
+    let y = 32;
+    const currentLevelText = `${state.currentLevel}`;
+    m = ctx.measureText(currentLevelText);
+    ctx.strokeText(currentLevelText, x, y);
+    ctx.fillText(currentLevelText, x, y);
+    x += m.width + 24;
+    const totalLaunchesText = `${state.player.totalLaunches}`;
+    m = ctx.measureText(totalLaunchesText);
+    ctx.strokeText(totalLaunchesText, x, y);
+    ctx.fillText(totalLaunchesText, x, y);
+    x += m.width + 24;
 
     if (state.player.holeLaunches > 0) {
-      const m = ctx.measureText(totalLaunchesText);
       const holeLaunchesText = `${state.player.holeLaunches > 0 ? '+' : ''}${
         state.player.holeLaunches
       }`;
-      ctx.strokeText(holeLaunchesText, m.width + 24, 32);
-      ctx.fillText(holeLaunchesText, m.width + 24, 32);
+      ctx.strokeText(holeLaunchesText, x, 32);
+      ctx.fillText(holeLaunchesText, x, 32);
     }
-    let x = 8;
-    let y = Settings.resolution[1] - 28;
+
+    x = 8;
+    y = Settings.resolution[1] - 28;
     drawPercentagebar(ctx, state.player.spp, 'slo-mo', [x, y], colors);
     y -= 26;
 

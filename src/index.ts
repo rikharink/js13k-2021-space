@@ -34,6 +34,8 @@ if (DEBUG) {
         cb.mass = -(cb.mass * 10);
         cb.acceleration = [0, 0];
       });
+    } else if (e.key === 'n') {
+      Game.nextLevel();
     }
   });
 }

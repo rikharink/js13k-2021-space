@@ -1,47 +1,28 @@
 {
-  "size": [
-    1920,
-    1080
-  ],
-  "spawn": [
-    155,
-    246
-  ],
+  "number": 1,
+  "size": [1920, 1080],
+  "spawn": [155, 246],
   "bodies": [
     {
-      "position": [
-        200,
-        320
-      ],
+      "position": [200, 320],
       "radius": 75,
       "mass": 75,
-      "moons": [
-        "a"
-      ]
+      "moons": ["a"]
     },
     {
-      "position": [
-        600,
-        520
-      ],
+      "position": [600, 520],
       "radius": 75,
       "mass": 75
     },
     {
-      "position": [
-        950,
-        120
-      ],
+      "position": [950, 120],
       "radius": 100,
       "mass": 100,
       "goal": 0
     },
     {
       "id": "a",
-      "position": [
-        362,
-        462
-      ],
+      "position": [362, 462],
       "radius": 25,
       "mass": 10
     }
