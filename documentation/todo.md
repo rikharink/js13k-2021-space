@@ -2,6 +2,7 @@
 
 ## Should Have
 
+- [ ] regain launches after some time
 - [ ] level generation
 - [ ] Add moons
 - [ ] bounce particles
@@ -11,9 +12,9 @@
 
 ## Nice to have
 
+- [ ] Better GFX
 - [ ] Add stars that kill you
 - [ ] Music
-- [ ] Better GFX
 - [ ] Pimp UI
   - [ ] General looks
   - [ ] current hole
