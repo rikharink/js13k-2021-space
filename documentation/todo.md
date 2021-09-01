@@ -4,15 +4,13 @@
 
 - [ ] bounce particles
 - [ ] bounce physics (prevent "weird" backwards bounce)
-- [ ] add stars that kill you
+- [ ] Better GFX
 - [ ] sfx
-- [ ] bounce physics (prevent "weird" backwards bounce)
-- [ ] visualize ball position when OOB
+- [ ] add stars that kill you
 - [ ] visualize ball position when OOB
 
 ## Nice to have
 
-- [ ] Better GFX
 - [ ] Music
 - [ ] Pimp UI
   - [ ] General looks
