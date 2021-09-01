@@ -43,8 +43,9 @@ export class Player
   public lastStationaryPosition?: Point2D;
   public awayCount: number = 0;
   public oob: boolean = false;
+  public isMoving: boolean = false;
 
-  private _sc: number = 0;
+  public sc: number = 0;
   private _lc: number = 0;
   private _pm: PointerManager;
   public canInput: boolean = true;
@@ -61,14 +62,15 @@ export class Player
 
   public step(): void {
     if (this.stationary) {
-      this._sc++;
+      this.sc++;
     }
 
-    if (this._sc > 30) {
-      this._sc = 0;
+    if (this.sc > 30) {
+      this.sc = 0;
       this._lc = 0;
       this.launches = 0;
       this.lastStationaryPosition = copy([0, 0], this.position)!;
+      this.isMoving = false;
     }
 
     if (this.launches === this.maxLaunches) {
@@ -201,6 +203,7 @@ export class Player
     this.launches++;
     this.holeLaunches++;
     this.hasSlowmotion = false;
+    this.isMoving = true;
   }
 
   public clone(): Player {
@@ -224,6 +227,7 @@ export class Player
     player.oob = this.oob;
     player.awayCount = this.awayCount;
     player.canInput = this.canInput;
+    player.isMoving = this.isMoving;
     return player;
   }
 }

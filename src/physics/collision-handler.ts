@@ -62,15 +62,20 @@ export function handleCollisions(state: State): CollisionResult {
   let o1 = state.player;
   let check = state.celestialBodies;
   for (let o2 of check) {
-    hadCollision = handleCircleCircleCollision(o1, o2);
+    if (handleCircleCircleCollision(o1, o2)) {
+      hadCollision = true;
+    }
   }
 
   let goalBodies = state.celestialBodies.filter((cb) => cb.goal !== undefined);
   for (let gb of goalBodies) {
-    hadCollision = hitGoal = handleCircleOrientedRectangleCollision(
+    hitGoal = handleCircleOrientedRectangleCollision(
       state.player,
       getGoalHitbox(gb),
     );
+    if (hitGoal) {
+      hadCollision = true;
+    }
   }
 
   return {

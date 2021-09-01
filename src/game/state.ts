@@ -18,6 +18,7 @@ import {
 import { Level } from './level';
 import { PointerManager } from '../managers/pointer-manager';
 import { Settings } from '../settings';
+import { playGolfBounce } from '../audio/fx';
 
 interface StateOptions {
   size: Vector2;
@@ -36,6 +37,7 @@ export class State implements IStepable<CollisionResult> {
   public currentLevel: number;
   public spawnPlanet: CelestialBody;
   public goalPlanet: CelestialBody;
+  private _lastBounce: number = 0;
 
   private constructor({
     size,
@@ -115,6 +117,16 @@ export class State implements IStepable<CollisionResult> {
     this.player.step();
     applyPhysics(dt, this);
     const result = handleCollisions(this);
+    const diff = performance.now() - this._lastBounce;
+    if (
+      result.hadCollision &&
+      !result.hitGoal &&
+      this.player.isMoving &&
+      diff > 80
+    ) {
+      this._lastBounce = performance.now();
+      playGolfBounce();
+    }
     this.player.saveCurrentPosition();
     this.future = predictFuture(this, dt);
     return result;
@@ -130,6 +142,7 @@ export class State implements IStepable<CollisionResult> {
       goalPlanet: this.goalPlanet.clone(),
     });
     state.future = [...this.future.map((f) => copy([0, 0], f)!)];
+    state._lastBounce = this._lastBounce;
     return state;
   }
 }
