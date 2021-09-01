@@ -6,8 +6,6 @@
 - [ ] bounce physics (prevent "weird" backwards bounce)
 - [ ] add stars that kill you
 - [ ] sfx
-- [ ] Draw UI
-  - [ ] average launches per hole
 - [ ] bounce physics (prevent "weird" backwards bounce)
 - [ ] visualize ball position when OOB
 - [ ] visualize ball position when OOB
