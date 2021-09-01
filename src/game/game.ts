@@ -4,12 +4,20 @@ import { Milliseconds, Random, Seconds } from '../types';
 import { CanvasRenderer } from '../canvas/canvas-renderer';
 import { IRenderer } from '../interfaces/renderer';
 import { Settings } from '../settings';
-import { seedRand } from '../math/random';
+import { currentSeed, reseed, seedRand } from '../math/random';
 import { WebmonetizationManger } from '../managers/webmonetization-manager';
 import { generateLevel, Level } from './level';
-import { copy } from '../math/vector2';
+import { copy, Vector2 } from '../math/vector2';
 
 const ALPHA = 0.9;
+
+export interface SerializableGame {
+  v: number;
+  level: Level;
+  seed: number;
+  totalLaunches: number;
+  holeLaunches: number;
+}
 
 class GameObject {
   public fps: number = 60;
@@ -42,10 +50,13 @@ class GameObject {
     this._renderer = new CanvasRenderer(this.cnvs, this._rng);
     window.addEventListener('focus', this.start.bind(this));
     window.addEventListener('blur', this.stop.bind(this));
-    this.loadLevel(generateLevel(this._rng, this._level));
+    if (!this.hydrate()) {
+      this.loadLevel(generateLevel(this._rng, this._level));
+    }
   }
 
   public loadLevel(level: Level) {
+    this._level = level.number;
     this._currentLevel = level;
     this.currentState = State.fromLevel(
       this._pointerManager,
@@ -59,6 +70,36 @@ class GameObject {
     this.currentState.player.velocity = [0, 0];
     this.currentState.player.acceleration = [0, 0];
     this.loadLevel(this._currentLevel);
+  }
+
+  public hydrate(): boolean {
+    const stateString = localStorage.getItem(Settings.localStoragePrefix);
+    if (stateString) {
+      try {
+        const state = JSON.parse(stateString) as SerializableGame;
+        if (state) {
+          reseed(state.seed);
+          this.loadLevel(state.level);
+          this.currentState.player.totalLaunches = state.totalLaunches;
+          this.currentState.player.holeLaunches = state.holeLaunches;
+          return true;
+        }
+      } catch {}
+    }
+    return false;
+  }
+
+  public dehydrate() {
+    localStorage.setItem(
+      Settings.localStoragePrefix,
+      JSON.stringify({
+        v: 1,
+        level: this._currentLevel,
+        seed: currentSeed,
+        holeLaunches: this.currentState.player.holeLaunches,
+        totalLaunches: this.currentState.player.totalLaunches,
+      }),
+    );
   }
 
   public start() {
@@ -170,7 +211,6 @@ class GameObject {
       this._accumulator -= 1 / Settings.tps;
       t += this._dt;
     }
-
     this._renderer.render(
       blend(
         this._previousState,
@@ -178,7 +218,14 @@ class GameObject {
         this._accumulator / this._dt,
       ),
     );
+    this.dehydrate();
   }
 }
 
-export const Game = new GameObject();
+export function resetGame() {
+  localStorage.setItem(Settings.localStoragePrefix, '');
+  Game = new GameObject();
+}
+
+let Game = new GameObject();
+export { Game };

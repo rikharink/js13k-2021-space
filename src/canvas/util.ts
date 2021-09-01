@@ -1,6 +1,4 @@
-import { foreground } from './../palette';
-import { RADIAN_TO_DEGREE, DEGREE_TO_RADIAN } from './../math/math';
-import { CelestialBody } from './../game/celestial-body';
+import { DEGREE_TO_RADIAN, Radian } from './../math/math';
 import { Point2D, RgbColor } from './../types';
 import { OrientedRectangle } from './../geometry/oriented-rectangle';
 import { Circle } from '../geometry/circle';
@@ -74,24 +72,57 @@ export function drawFlag(
   ctx: CanvasRenderingContext2D,
   text: string,
   line: Line,
+  angle: Radian,
   color: RgbColor,
 ) {
+  if (Settings.flagmastLength === 0) {
+    return;
+  }
   drawLine(ctx, line, color);
   let tmp: Vector2 = [0, 0];
+  ctx.save();
+  ctx.font = 'bold 16px sans-serif';
+  ctx.fillStyle = 'black';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  text = `  ${text}  `;
+  const textMeasure = ctx.measureText(text);
+  ctx.restore();
   line.lengthen(-Settings.flagLength);
   let mp = line.midpoint;
   let vec = perpendicular(
     [0, 0],
     normalize(tmp, subtract(tmp, line.start, line.end)),
   );
-  let tip = add([0, 0], mp, scale(tmp, vec, Settings.flagLength));
+  let tip = add(
+    [0, 0],
+    mp,
+    scale(tmp, vec, Settings.flagLength / 1.5 + textMeasure.width),
+  );
+
+  let startTip = add([0, 0], line.start, scale(tmp, vec, textMeasure.width));
+  let endTip = add([0, 0], line.end, scale(tmp, vec, textMeasure.width));
   ctx.fillStyle = rgbaString(splitRgb(palette[1]), 1);
   ctx.beginPath();
   ctx.moveTo(line.start[0], line.start[1]);
+  ctx.lineTo(startTip[0], startTip[1]);
   ctx.lineTo(tip[0], tip[1]);
+  ctx.lineTo(endTip[0], endTip[1]);
   ctx.lineTo(line.end[0], line.end[1]);
   ctx.closePath();
   ctx.fill();
+
+  ctx.save();
+  const mp2 = new Line(mp, new Line(startTip, endTip).midpoint).midpoint;
+  ctx.translate(mp2[0], mp2[1]);
+  ctx.rotate(0.5 * Math.PI + angle);
+  ctx.translate(-mp2[0], -mp2[1]);
+  ctx.font = 'bold 18px sans-serif';
+  ctx.fillStyle = 'black';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, mp2[0], mp2[1]);
+  ctx.restore();
 }
 
 export function drawOrientedRectangle(

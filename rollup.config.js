@@ -51,7 +51,18 @@ let plugins = [
     },
     mangle: {
       properties: {
-        reserved: [],
+        reserved: [
+          'number',
+          'size',
+          'spawn',
+          'bodies',
+          'spawnPlanet',
+          'goalPlanet',
+          'seed',
+          'totalLaunches',
+          'holeLaunches',
+          'v',
+        ],
       },
       module: true,
       toplevel: true,

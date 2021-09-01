@@ -26,6 +26,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
+let currentSeed: number;
+export { currentSeed };
+
+export function reseed(seed: number) {
+  currentSeed = seed;
+}
+
 export function seedRand(str: string) {
   // first create a suitable hash of the seed string using xfnv1a
   // @see https://github.com/bryc/code/blob/master/jshash/PRNGs.md#addendum-a-seed-generating-functions
@@ -36,11 +43,11 @@ export function seedRand(str: string) {
   h ^= h >>> 7;
   h += h << 3;
   h ^= h >>> 17;
-  let seed = (h += h << 5) >>> 0;
-
+  currentSeed = (h += h << 5) >>> 0;
   // then return the seed function and discard the first result
   // @see https://github.com/bryc/code/blob/master/jshash/PRNGs.md#lcg-lehmer-rng
-  let rand = () => ((2 ** 31 - 1) & (seed = Math.imul(48271, seed))) / 2 ** 31;
+  let rand = () =>
+    ((2 ** 31 - 1) & (currentSeed = Math.imul(48271, currentSeed))) / 2 ** 31;
   rand();
   return rand;
 }

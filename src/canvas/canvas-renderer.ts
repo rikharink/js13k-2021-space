@@ -53,6 +53,7 @@ export class CanvasRenderer implements IRenderer {
   }
 
   private _renderCelestialBodies(ctx: CanvasRenderingContext2D, state: State) {
+    ctx.save();
     let tmp: Vector2 = [0, 0];
     for (let body of state.celestialBodies ?? []) {
       drawCircle(ctx, body, body.color);
@@ -71,13 +72,16 @@ export class CanvasRenderer implements IRenderer {
           ctx,
           `${state.currentLevel}`,
           new Line(start, end),
+          body.goal,
           splitRgb(palette[2]),
         );
       }
     }
+    ctx.restore();
   }
 
   private _renderPlayer(ctx: CanvasRenderingContext2D, state: State) {
+    ctx.save();
     for (let i = state.player.positions.length - 1; i > 0; i--) {
       const p = i / (state.player.positions.length - 1);
       drawCircle(
@@ -103,15 +107,19 @@ export class CanvasRenderer implements IRenderer {
       drawArrow(ctx, new Line(start, end), splitRgb(palette[0]), 3);
       this._renderFuture(ctx, state);
     }
+    ctx.restore();
   }
 
   private _renderFuture(ctx: CanvasRenderingContext2D, state: State) {
+    ctx.save();
     for (let pos of state.future) {
       drawCircle(ctx, new Circle(pos, 1), splitRgb(palette[0]));
     }
+    ctx.restore();
   }
 
   private _renderUi(ctx: CanvasRenderingContext2D, state: State) {
+    ctx.save();
     const txt = splitRgb(palette[0]);
     const colors = {
       foreground: splitRgb(palette[1]),
@@ -121,17 +129,13 @@ export class CanvasRenderer implements IRenderer {
 
     ctx.font = 'normal 32px sans-serif';
     ctx.fillStyle = rgbaString(txt, 1);
-
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 4;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     let m: TextMetrics;
-    let x = 8;
-    let y = 32;
-    const currentLevelText = `${state.currentLevel}`;
-    m = ctx.measureText(currentLevelText);
-    ctx.strokeText(currentLevelText, x, y);
-    ctx.fillText(currentLevelText, x, y);
-    x += m.width + 24;
+    let x = Settings.resolution[0] / 2;
+    let y = 24;
     const totalLaunchesText = `${state.player.totalLaunches}`;
     m = ctx.measureText(totalLaunchesText);
     ctx.strokeText(totalLaunchesText, x, y);
@@ -142,10 +146,12 @@ export class CanvasRenderer implements IRenderer {
       const holeLaunchesText = `${state.player.holeLaunches > 0 ? '+' : ''}${
         state.player.holeLaunches
       }`;
-      ctx.strokeText(holeLaunchesText, x, 32);
-      ctx.fillText(holeLaunchesText, x, 32);
+      ctx.strokeText(holeLaunchesText, x, y);
+      ctx.fillText(holeLaunchesText, x, y);
     }
 
+    ctx.restore();
+    ctx.save();
     x = 8;
     y = Settings.resolution[1] - 28;
     drawPercentagebar(ctx, state.player.spp, 'slo-mo', [x, y], colors);
@@ -167,12 +173,17 @@ export class CanvasRenderer implements IRenderer {
     if (awayPercentage < 100) {
       drawPercentagebar(ctx, awayPercentage, 'respawn', [x, y], colors);
     }
+    ctx.restore();
   }
 
-  private _renderDebug(ctx: CanvasRenderingContext2D, state: State) {}
+  private _renderDebug(ctx: CanvasRenderingContext2D, state: State) {
+    ctx.save();
+    ctx.restore();
+  }
 
   public render(state: State) {
     const ctx = this._bufferContext;
+    ctx.save();
     ctx.drawImage(this._background, 0, 0);
     this._renderCelestialBodies(ctx, state);
     this._renderPlayer(ctx, state);
@@ -181,5 +192,6 @@ export class CanvasRenderer implements IRenderer {
       this._renderDebug(ctx, state);
     }
     this._ctx.drawImage(this._bufferContext.canvas, 0, 0);
+    ctx.restore();
   }
 }

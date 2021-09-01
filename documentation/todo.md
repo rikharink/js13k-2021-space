@@ -2,6 +2,7 @@
 
 ## Should Have
 
+- [ ] hydrate & dehydrate state from localStorage
 - [ ] bounce particles
 - [ ] bounce physics (prevent "weird" backwards bounce)
 - [ ] add stars that kill you

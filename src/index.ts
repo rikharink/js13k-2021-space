@@ -1,8 +1,7 @@
 import './style/main.css';
-import { Game } from './game/game';
-import { DEBUG, Settings } from './settings';
+import { Game, resetGame } from './game/game';
+import { DEBUG } from './settings';
 import { CanvasRecorder } from './debug/canvas-recorder';
-
 Game.start();
 
 if (DEBUG) {
@@ -25,15 +24,11 @@ if (DEBUG) {
         w.vcr.download('IPTS-demo.webm');
         delete w.vcr;
       }
-    } else if (e.key === 's') {
-      Settings.speedScale = Settings.speedScale < 1 ? 1 : 0.05;
-    } else if (e.key === 'b') {
-      Game.currentState.celestialBodies.forEach((cb) => {
-        cb.mass = -(cb.mass * 10);
-        cb.acceleration = [0, 0];
-      });
     } else if (e.key === 'n') {
       Game.nextLevel();
+    } else if (e.key === 'k') {
+      resetGame();
+      Game.start();
     }
   });
 }

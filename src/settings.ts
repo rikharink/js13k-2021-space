@@ -18,4 +18,5 @@ export const Settings = {
   futureSize: 125,
   maxAwayCount: 1000,
   safeAreaInsets: [200, 25, 1334, 725],
+  localStoragePrefix: 'HAR-INK-IPTS',
 };
