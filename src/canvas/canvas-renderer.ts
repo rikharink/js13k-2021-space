@@ -1,12 +1,26 @@
+import { Position } from './../types';
 import { palette } from '../palette';
 import { State } from '../game/state';
 import { DEBUG, Settings } from '../settings';
 import { IRenderer } from '../interfaces/renderer';
 import { splitRgb } from '../math/color';
 import { rgbaString } from '../util/util';
-import { drawArrow, drawCircle, drawFlag, drawPercentagebar } from './util';
+import {
+  drawArrow,
+  drawCircle,
+  drawFlag,
+  drawLine,
+  drawPercentagebar,
+} from './util';
 import { renderBackground } from '../game/background';
-import { add, scale, subtract, Vector2, normalize } from '../math/vector2';
+import {
+  add,
+  scale,
+  subtract,
+  Vector2,
+  normalize,
+  length,
+} from '../math/vector2';
 import { Line } from '../geometry/line';
 import { Circle } from '../geometry/circle';
 import { Random } from '../math/random';
@@ -172,6 +186,18 @@ export class CanvasRenderer implements IRenderer {
 
   private _renderDebug(ctx: CanvasRenderingContext2D, state: State) {
     ctx.save();
+    // for (let cb of state.celestialBodies.filter((x) => x.velocity)) {
+    //   const normalizedVelocity = normalize([0, 0], cb.velocity!);
+    //   const line = new Line(
+    //     cb.position,
+    //     add(
+    //       [0, 0],
+    //       cb.position,
+    //       scale([0, 0], normalizedVelocity, 100 * length(normalizedVelocity)),
+    //     ),
+    //   );
+    //   drawArrow(ctx, line, splitRgb(palette[0]), 2);
+    // }
     ctx.restore();
   }
 

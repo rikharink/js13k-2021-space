@@ -6,6 +6,7 @@ import { accent, palette } from '../palette';
 import { splitRgb } from '../math/color';
 import { Settings } from '../settings';
 import {
+  abs,
   copy,
   distance,
   normalize,
@@ -27,7 +28,7 @@ export interface ICelestialBody {
   goal?: Radian;
   isStar: boolean;
   isMoon: boolean;
-  moons: Set<string>;
+  moons: string[];
 }
 
 export class CelestialBody
@@ -38,7 +39,7 @@ export class CelestialBody
   public goal?: Radian;
   public isStar: boolean;
   public isMoon: boolean;
-  public moons: Set<string>;
+  public moons: string[];
 
   constructor(
     position: Point2D,
@@ -49,7 +50,7 @@ export class CelestialBody
     acceleration?: Vector2,
     bounceDampening?: number,
     goal?: Radian,
-    moons?: Set<string>,
+    moons?: string[],
     isStar?: boolean,
     isMoon?: boolean,
   ) {
@@ -65,7 +66,7 @@ export class CelestialBody
     );
     this.id = id;
     this.goal = goal;
-    this.moons = moons ?? new Set();
+    this.moons = moons ?? [];
     this.isStar = isStar ?? false;
     this.isMoon = isMoon ?? false;
   }
@@ -80,14 +81,13 @@ export class CelestialBody
     }
   }
 
-  public get mu(): number {
-    return Settings.G * this.mass;
-  }
-
   public addMoon(cb: CelestialBody, clockwise?: boolean): void {
     let tmp: Vector2 = [0, 0];
-    const dir = normalize(tmp, subtract(tmp, this.position, cb.position));
-    const perp = perpendicular(tmp, dir, clockwise ?? true);
+    const perp: Vector2 = perpendicular(
+      [0, 0],
+      abs(tmp, subtract(tmp, cb.position, this.position)),
+      clockwise,
+    );
     cb.acceleration = [0, 0];
     cb.velocity = [0, 0];
     copy(
@@ -95,7 +95,9 @@ export class CelestialBody
       scale(
         tmp,
         perp,
-        Math.sqrt(this.mu / distance(cb.position, this.position)),
+        Math.sqrt(
+          (Settings.G * this.mass) / distance(cb.position, this.position),
+        ),
       ),
     );
   }
@@ -110,9 +112,7 @@ export class CelestialBody
       this.acceleration,
       this.bounceDampening,
       this.goal,
-      Object.entries(this.moons).length === 0
-        ? new Set()
-        : new Set([...this.moons]),
+      [...this.moons],
       this.isStar,
     );
     cb.attraction = this.attraction;

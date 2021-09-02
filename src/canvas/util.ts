@@ -5,6 +5,7 @@ import { Circle } from '../geometry/circle';
 import { Line } from '../geometry/line';
 import { TAU } from '../math/math';
 import {
+  abs,
   add,
   normalize,
   perpendicular,
@@ -193,4 +194,9 @@ export function drawPercentagebar(
   ctx.lineWidth = 2;
   ctx.strokeText(label, position[0] + 108, position[1] + 14);
   ctx.fillText(label, position[0] + 108, position[1] + 14);
+}
+
+export function drawIconButton(ctx: CanvasRenderingContext2D, label: string) {
+  ctx.save();
+  ctx.restore();
 }

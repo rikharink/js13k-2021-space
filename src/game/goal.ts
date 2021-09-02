@@ -2,6 +2,7 @@ import { OrientedRectangle } from './../geometry/oriented-rectangle';
 import { Settings } from '../settings';
 import { CelestialBody } from './celestial-body';
 import {
+  abs,
   add,
   normalize,
   perpendicular,

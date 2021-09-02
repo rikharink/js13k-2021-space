@@ -16,6 +16,17 @@ import { hasCircleCircleCollision } from '../geometry/collision-checks';
 import { Settings } from '../settings';
 import { uuidv4 } from '../util/util';
 
+interface TryFixPlacementResult {
+  success: boolean;
+  others?: ICelestialBody[];
+}
+
+interface PlacementResults {
+  bodies: ICelestialBody[];
+  noStarGenerated: number;
+  noMoonsGenerated: number;
+}
+
 export interface Level {
   number: number;
   levelSeed: string;
@@ -29,14 +40,14 @@ export interface Level {
 }
 
 function generateCelestialBody(rng: Random, level: number): ICelestialBody {
-  let radius = rng.getRandomInt(20, 100);
+  let radius = rng.getRandomInt(35, 100);
   let mass = radius;
   return {
     id: uuidv4(rng),
     position: [0, 0],
     radius: radius,
     mass: mass,
-    moons: new Set<string>(),
+    moons: [],
     isStar: false,
     isMoon: false,
   };
@@ -97,7 +108,7 @@ function createSpawnPlanet(
       position: [previousGoalPlanet.radius * 2, previousGoalPlanet.position[1]],
       radius: previousGoalPlanet.radius,
       mass: previousGoalPlanet.mass,
-      moons: new Set<string>(),
+      moons: [],
       isStar: false,
       isMoon: false,
     };
@@ -137,7 +148,7 @@ function generateStar(rng: Random, size: Vector2): ICelestialBody {
     position: position,
     radius: radius,
     mass: radius,
-    moons: new Set<string>(),
+    moons: [],
     isStar: true,
     isMoon: false,
   };
@@ -149,7 +160,7 @@ function tryFixStar(
   star: ICelestialBody,
   protectedBodies: ICelestialBody[],
   otherBodies: ICelestialBody[],
-): { success: boolean; others?: ICelestialBody[] } {
+): TryFixPlacementResult {
   const failure = {
     success: false,
   };
@@ -180,27 +191,50 @@ function generateMoon(
   planet: ICelestialBody,
 ): ICelestialBody {
   const moon = generateCelestialBody(rng, level);
-  moon.radius = rng.getRandom(10, 25);
+  moon.radius = rng.getRandom(20, 35);
   moon.mass = moon.radius;
   moon.isMoon = true;
   const normal = normalize(
     [0, 0],
     subtract([0, 0], moon.position, planet.position),
   );
-  scale(normal, normal, planet.radius);
-  moon.position = normal;
+  scale(normal, normal, planet.radius + moon.radius * 6);
+  moon.position = add([0, 0], normal, planet.position);
   return moon;
+}
+
+function tryFixMoon(
+  moon: ICelestialBody,
+  planet: ICelestialBody,
+  protectedBodies: ICelestialBody[],
+  otherBodies: ICelestialBody[],
+): TryFixPlacementResult {
+  const radius = distance(moon.position, planet.position) + moon.radius;
+  const bounds = new Circle(planet.position, radius);
+  for (let o of protectedBodies) {
+    const c1 = new Circle(o.position, o.radius);
+    if (hasCircleCircleCollision(c1, bounds)) {
+      return { success: false };
+    }
+  }
+
+  const others: ICelestialBody[] = [];
+  for (let o of otherBodies) {
+    const c1 = new Circle(o.position, o.radius);
+    if (!hasCircleCircleCollision(c1, bounds)) {
+      others.push(o);
+    }
+  }
+
+  return {
+    success: true,
+    others: others,
+  };
 }
 
 function getMoonMinX(planet: ICelestialBody, moon: ICelestialBody): number {
   const dx = Math.abs(planet.position[0] - moon.position[0]);
   return planet.position[0] + dx + moon.radius * 2;
-}
-
-interface PlacementResults {
-  bodies: ICelestialBody[];
-  noStarGenerated: number;
-  noMoonsGenerated: number;
 }
 
 function placeCelestialBodies(
@@ -232,32 +266,40 @@ function placeCelestialBodies(
       isInvalidPlacement(planet, [spawnPlanet, ...otherPlanets, goalPlanet])
     );
 
-    // //SEE IF WE GENERATE MOONS
-    // let moon: ICelestialBody | undefined;
-    // if (
-    //   rng.random() <
-    //   lerp(
-    //     lerp(0.05, 0.15, noMoonsGenerated / 20),
-    //     0.15,
-    //     Math.min(level, 50) / 50,
-    //   )
-    // ) {
-    //   noMoonsGenerated = 0;
-    //   console.debug('MAKING A MOON');
-    //   moon = generateMoon(rng, level, planet);
-    //   planet.moons = new Set([moon.id]);
-    // } else {
-    //   noMoonsGenerated = Math.min(20, ++noMoonsGenerated);
-    // }
-    // if (moon) {
-    //   minX = getMoonMinX(planet, moon);
-    //   otherPlanets.push(planet, moon);
-    // } else {
-    //   minX = planet.position[0] + planet.radius * 2;
-    //   otherPlanets.push(planet);
-    // }
-    minX = planet.position[0] + planet.radius * 2;
-    otherPlanets.push(planet);
+    //SEE IF WE GENERATE MOONS
+    let moon: ICelestialBody | undefined;
+    if (
+      rng.random() <
+      lerp(
+        lerp(0.15, 0.4, noMoonsGenerated / 20),
+        0.4,
+        Math.min(level, 50) / 50,
+      )
+    ) {
+      moon = generateMoon(rng, level, planet);
+      let result = tryFixMoon(
+        moon,
+        planet,
+        [spawnPlanet, goalPlanet],
+        otherPlanets.filter((p) => p.id === planet.id),
+      );
+      if (result.success) {
+        otherPlanets = result.others!;
+        planet.moons = [moon.id];
+      } else {
+        moon = undefined;
+      }
+    } else {
+      noMoonsGenerated = Math.min(20, ++noMoonsGenerated);
+    }
+    if (moon) {
+      noMoonsGenerated = 0;
+      minX = getMoonMinX(planet, moon);
+      otherPlanets.push(planet, moon);
+    } else {
+      minX = planet.position[0] + planet.radius * 2;
+      otherPlanets.push(planet);
+    }
   } while (minX < goalPlanet.position[0]);
 
   //SEE IF WE GENERATE A STAR

@@ -97,7 +97,6 @@ class GameObject {
       try {
         const state = JSON.parse(stateString) as SerializableGame;
         if (state) {
-          console.debug('loading level');
           this.loadLevel(state.level);
           this.currentState.player.totalLaunches = state.totalLaunches;
           this.currentState.player.holeLaunches = state.holeLaunches;
@@ -235,20 +234,17 @@ class GameObject {
           1 / Settings.tps,
         );
         if (hitGoal) {
-          console.debug('goal hit');
           playGoalHit();
           this.currentState.player.canInput = false;
           copy(this.currentState.player.velocity!, [0, 0]);
           this.dehydrate();
           this.nextLevel();
         } else if (hitStar) {
-          console.debug('star hit');
           playStarHit();
           this.resetLevel();
         } else if (hadCollision) {
           const diff = t - this._lastBounce;
           if (this.currentState.player.isMoving && diff > 0.05) {
-            console.debug('collision hit');
             this._lastBounce = t;
             playBounce();
           }

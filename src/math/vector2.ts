@@ -92,6 +92,12 @@ export function distance_manhattan(a: Vector2, b: Vector2) {
   return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]);
 }
 
+export function abs(out: Vector2, a: Vector2): Vector2 {
+  out[0] = Math.abs(a[0]);
+  out[1] = Math.abs(a[1]);
+  return out;
+}
+
 export function length(a: Vector2) {
   const x = a[0];
   const y = a[1];
@@ -129,11 +135,11 @@ export function bezier(
 
 export function perpendicular(
   out: Vector2,
-  a: Vector2,
+  dxdy: Vector2,
   clockwise: boolean = true,
 ): Vector2 {
-  out[0] = a[1];
-  out[1] = a[0];
+  out[0] = dxdy[1];
+  out[1] = dxdy[0];
   clockwise ? (out[1] = -out[1]) : (out[0] = -out[0]);
   return normalize(out, out);
 }

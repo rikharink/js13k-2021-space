@@ -98,13 +98,14 @@ export class State implements IStepable<CollisionResult> {
     });
 
     for (let cb of state.celestialBodies) {
-      if (Object.entries(cb.moons).length === 0) continue;
-      for (let moonId of cb.moons) {
-        const moon = state.celestialBodies.find((i) => i.id === moonId);
-        if (moon) {
-          cb.addMoon(moon);
+      try {
+        for (let moonId of cb.moons) {
+          const moon = state.celestialBodies.find((i) => i.id === moonId);
+          if (moon) {
+            cb.addMoon(moon);
+          }
         }
-      }
+      } catch {}
     }
     return state;
   }

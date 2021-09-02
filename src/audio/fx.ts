@@ -1,8 +1,9 @@
 //@ts-ignore
 import { zzfx } from './zzfx.js';
+import { Settings } from '../settings.js';
 
 export function playLaunch() {
-  if (!zzfx) return;
+  if (!zzfx || Settings.muted) return;
   zzfx(
     ...[
       0.8,
@@ -30,7 +31,7 @@ export function playLaunch() {
 }
 
 export function playStarHit() {
-  if (!zzfx) return;
+  if (!zzfx || Settings.muted) return;
   zzfx(
     ...[
       0.6,
@@ -57,7 +58,7 @@ export function playStarHit() {
 }
 
 export function playGoalHit() {
-  if (!zzfx) return;
+  if (!zzfx || Settings.muted) return;
   zzfx(
     ...[
       0.8,
@@ -85,7 +86,7 @@ export function playGoalHit() {
 }
 
 export function playBounce() {
-  if (!zzfx) return;
+  if (!zzfx || Settings.muted) return;
   zzfx(
     ...[
       ,
