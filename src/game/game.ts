@@ -13,6 +13,9 @@ import { playBounce, playGoalHit, playStarHit } from '../audio/fx';
 import { Player } from './player';
 import { uuidv4 } from '../util/util';
 
+//@ts-ignore
+import { zzfx, initZzfx } from '../audio/zzfx.js';
+
 const ALPHA = 0.9;
 
 export interface SerializableGame {
@@ -21,6 +24,7 @@ export interface SerializableGame {
   totalLaunches: number;
   holeLaunches: number;
   position?: Vector2;
+  showSplash: boolean;
 }
 
 class GameObject {
@@ -46,6 +50,7 @@ class GameObject {
   private _playerAnimationDone: boolean = false;
   private _flagAnimationDone: boolean = false;
   private _lastBounce: Milliseconds = 0;
+  public showSplash: boolean = true;
 
   public constructor() {
     this.cnvs = <HTMLCanvasElement>document.getElementById(Settings.canvasId);
@@ -58,12 +63,24 @@ class GameObject {
     if (!this.hydrate()) {
       this.loadLevel(generateLevel(this._rng, this._level, 0, 0));
     }
+    this.currentState.player.canInput = !this.showSplash;
+    document.addEventListener('pointerup', this.hideSplash.bind(this));
+  }
+
+  private hideSplash() {
+    this.showSplash = false;
+    this.currentState.player.canInput = true;
+    this.dehydrate();
+    if (!zzfx) {
+      initZzfx();
+    }
   }
 
   public reset() {
     localStorage.removeItem(Settings.localStoragePrefix + 'STATE');
     //@ts-ignore
     this.currentState = undefined;
+    this.showSplash = true;
     this._rng = new Random(Settings.seed);
     this._level = 1;
     this.loadLevel(generateLevel(this._rng, this._level, 0, 0));
@@ -90,24 +107,26 @@ class GameObject {
   }
 
   public hydrate(): boolean {
-    const stateString = localStorage.getItem(
-      Settings.localStoragePrefix + 'STATE',
-    );
-    if (stateString) {
-      try {
+    try {
+      const stateString = localStorage.getItem(
+        Settings.localStoragePrefix + 'STATE',
+      );
+      if (stateString) {
         const state = JSON.parse(stateString) as SerializableGame;
         if (state) {
+          this.showSplash = state.showSplash;
           this.loadLevel(state.level);
           this.currentState.player.totalLaunches = state.totalLaunches;
           this.currentState.player.holeLaunches = state.holeLaunches;
           if (state.position) {
             this.currentState.player.position = state.position;
           }
+          this.currentState.player.canInput = !state.showSplash;
           return true;
         }
-      } catch (er) {
-        console.trace(er);
       }
+    } catch (er) {
+      console.error(er);
     }
     return false;
   }
@@ -121,6 +140,7 @@ class GameObject {
         holeLaunches: this.currentState.player.holeLaunches,
         totalLaunches: this.currentState.player.totalLaunches,
         position: this.currentState.player.lastStationaryPosition,
+        showSplash: this.showSplash,
       }),
     );
   }
@@ -137,6 +157,7 @@ class GameObject {
     }
     this._raf = undefined;
     this.isActive = false;
+    this.showSplash = true;
   }
 
   private _updateTimes(t: Milliseconds): Seconds {
@@ -215,50 +236,55 @@ class GameObject {
     if (this._dt > 1) {
       return;
     }
-    this.currentState.player.tick();
-    this._accumulator += this._dt;
-    this._accumulator += this._dt;
-    while (this._accumulator >= 1 / Settings.tps) {
-      this._previousState = this.currentState.clone();
-      if (this._victoryCallback && this._nextLevel) {
-        if (!this._playerAnimationDone) {
-          this._animatePlayer();
-        } else if (!this._flagAnimationDone) {
-          this.currentState.player.isVictoryAnimation = false;
-          this._animateFlag();
+
+    if (!this.showSplash) {
+      this.currentState.player.tick();
+      this._accumulator += this._dt;
+      this._accumulator += this._dt;
+      while (this._accumulator >= 1 / Settings.tps) {
+        this._previousState = this.currentState.clone();
+        if (this._victoryCallback && this._nextLevel) {
+          if (!this._playerAnimationDone) {
+            this._animatePlayer();
+          } else if (!this._flagAnimationDone) {
+            this.currentState.player.isVictoryAnimation = false;
+            this._animateFlag();
+          } else {
+            this._animatePositions();
+          }
         } else {
-          this._animatePositions();
-        }
-      } else {
-        const { hitGoal, hitStar, hadCollision } = this.currentState.step(
-          1 / Settings.tps,
-        );
-        if (hitGoal) {
-          playGoalHit();
-          this.currentState.player.canInput = false;
-          copy(this.currentState.player.velocity!, [0, 0]);
-          this.dehydrate();
-          this.nextLevel();
-        } else if (hitStar) {
-          playStarHit();
-          this.resetLevel();
-        } else if (hadCollision) {
-          const diff = t - this._lastBounce;
-          if (this.currentState.player.isMoving && diff > 0.05) {
-            this._lastBounce = t;
-            playBounce();
+          const { hitGoal, hitStar, hadCollision } = this.currentState.step(
+            1 / Settings.tps,
+          );
+          if (hitGoal) {
+            playGoalHit();
+            this.currentState.player.canInput = false;
+            copy(this.currentState.player.velocity!, [0, 0]);
+            this.dehydrate();
+            this.nextLevel();
+          } else if (hitStar) {
+            playStarHit();
+            this.resetLevel();
+          } else if (hadCollision) {
+            const diff = t - this._lastBounce;
+            if (this.currentState.player.isMoving && diff > 0.05) {
+              this._lastBounce = t;
+              playBounce();
+            }
           }
         }
+        this._accumulator -= 1 / Settings.tps;
+        t += this._dt;
       }
-      this._accumulator -= 1 / Settings.tps;
-      t += this._dt;
     }
+
     this._renderer.render(
       blend(
         this._previousState,
         this.currentState,
         this._accumulator / this._dt,
       ),
+      this.showSplash,
     );
   }
 }

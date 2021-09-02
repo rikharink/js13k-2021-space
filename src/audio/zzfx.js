@@ -5,7 +5,7 @@ export function setVolume(volume) {
   zzfxV = volume;
 }
 
-function init() {
+export function initZzfx() {
   zzfxX = new (window.AudioContext || webkitAudioContext)(); // audio context
   zzfx = (
     // play sound
@@ -96,9 +96,6 @@ function init() {
     b.start();
     return b;
   };
-  window.removeEventListener('click', init);
 }
-
-window.addEventListener('click', init);
 
 export { zzfx };

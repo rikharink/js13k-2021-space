@@ -1,3 +1,4 @@
+import { Rectangle } from './../geometry/rectangle';
 import { DEGREE_TO_RADIAN, Radian } from './../math/math';
 import { Point2D, RgbColor } from './../types';
 import { OrientedRectangle } from './../geometry/oriented-rectangle';
@@ -131,8 +132,9 @@ export function drawOrientedRectangle(
   ctx: CanvasRenderingContext2D,
   rect: OrientedRectangle,
   color: RgbColor,
-  dashed: boolean = false,
+  dashed?: boolean,
 ) {
+  dashed = dashed ?? false;
   const rotationMatrix = from_rotation(create(), rect.orientation);
   const o: Vector2 = [0, 0];
   const hx = rect.halfExtends[0];

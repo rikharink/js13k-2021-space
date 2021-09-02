@@ -50,7 +50,7 @@ export class Player
   public sc: number = 0;
   private _lc: number = 0;
   private _pm: PointerManager;
-  public canInput: boolean = true;
+  public canInput: boolean = false;
 
   constructor(pm: PointerManager, id: UUIDV4) {
     super([10, 10], Settings.playerRadius, Settings.playerMass, [0, 0], [0, 0]);
@@ -158,6 +158,7 @@ export class Player
   }
 
   private handleInput() {
+    if (!this.canInput) return;
     if (!this.canLaunch) {
       Settings.speedScale = 1;
       return;

@@ -48,6 +48,7 @@ function generateCelestialBody(rng: Random, level: number): ICelestialBody {
     moons: [],
     isStar: false,
     isMoon: false,
+    bounceDampening: 0.8,
   };
 }
 
@@ -204,7 +205,7 @@ function tryFixMoon(
   protectedBodies: ICelestialBody[],
   otherBodies: ICelestialBody[],
 ): TryFixPlacementResult {
-  const radius = distance(moon.position, planet.position) + moon.radius;
+  const radius = distance(moon.position, planet.position) + moon.radius * 2;
   const bounds = new Circle(planet.position, radius);
   for (let o of protectedBodies) {
     const c1 = new Circle(o.position, o.radius);

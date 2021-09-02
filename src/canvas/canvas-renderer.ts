@@ -4,13 +4,7 @@ import { DEBUG, Settings } from '../settings';
 import { IRenderer } from '../interfaces/renderer';
 import { splitRgb } from '../math/color';
 import { rgbaString } from '../util/util';
-import {
-  drawArrow,
-  drawCircle,
-  drawFlag,
-  drawPercentagebar,
-  drawVelocity,
-} from './util';
+import { drawArrow, drawCircle, drawFlag, drawPercentagebar } from './util';
 import { renderBackground } from '../game/background';
 import { add, scale, subtract, Vector2, normalize } from '../math/vector2';
 import { Line } from '../geometry/line';
@@ -48,8 +42,8 @@ export class CanvasRenderer implements IRenderer {
   }
 
   private _renderCelestialBodies(ctx: CanvasRenderingContext2D, state: State) {
-    ctx.save();
     let tmp: Vector2 = [0, 0];
+    ctx.save();
     for (let body of state.celestialBodies ?? []) {
       drawCircle(ctx, body, body.color);
       if (body.goal !== undefined) {
@@ -71,8 +65,8 @@ export class CanvasRenderer implements IRenderer {
           splitRgb(palette[2]),
         );
       }
+      ctx.restore();
     }
-    ctx.restore();
   }
 
   private _renderPlayer(ctx: CanvasRenderingContext2D, state: State) {
@@ -173,26 +167,81 @@ export class CanvasRenderer implements IRenderer {
 
   private _renderDebug(ctx: CanvasRenderingContext2D, state: State) {
     ctx.save();
-    // drawVelocity(ctx, state.player);
+    // for (let body of state.celestialBodies.filter((cb) => cb.velocity)) {
+    //   drawVelocity(ctx, body);
+    // }
+
+    // for (let body of state.celestialBodies.filter(
+    //   (cb) => cb.moons.length > 0,
+    // )) {
+    //   const moons = body.moons.flatMap((x) =>
+    //     state.celestialBodies.filter((y) => y.id === x),
+    //   );
+    //   for (let moon of moons) {
+    //     drawLine(
+    //       ctx,
+    //       new Line(body.position, moon.position),
+    //       splitRgb(palette[0]),
+    //       2,
+    //     );
+    //   }
+    // }
     ctx.restore();
   }
 
-  private _renderStartInfo(ctx: CanvasRenderingContext2D, state: State) {}
+  private _renderSplash(ctx: CanvasRenderingContext2D, state: State) {
+    const mid = scale([0, 0], <Vector2>Settings.resolution, 0.5);
+    ctx.save();
+    drawCircle(ctx, new Circle(mid, 400), state.player.color);
+    ctx.translate(0.5, 0.5);
+    ctx.font = 'bold 38px sans-serif';
+    ctx.fillStyle = rgbaString(splitRgb(palette[5]), 1);
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 4;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    let x = mid[0];
+    let y = mid[1] - 74;
+    ctx.fillText('INTERPLANETARY TRANSPORT SYSTEM', x, y);
+    y += 44;
+    ctx.font = 'italic 32px sans-serif';
+    ctx.fillText('A JS13K GAME BY', x, y);
+    y += 44;
+    ctx.font = 'bold 32px sans-serif';
+    ctx.fillText('RIK HARINK', x, y);
+    y += 88;
+    ctx.fillText('CONTROLS MOUSE/TOUCH', x, y);
+    y += 24;
+    ctx.font = 'bold 16px sans-serif';
+    ctx.fillText('M TO MUTE, R TO RESET CURRENT HOLE', x, y);
+    y += 44;
+    ctx.font = 'italic 24px sans-serif';
+    ctx.fillText('CLICK TO START', x, y);
 
-  public render(state: State) {
-    const ctx = this._bufferContext;
+    ctx.fillStyle = rgbaString(state.player.color, 1);
+    ctx.font = 'bold 24px sans-serif';
+    ctx.fillText(
+      'https://github.com/rikharink/js13k-2021-space/',
+      x,
+      Settings.resolution[1] - 24,
+    );
+    ctx.restore();
+  }
+
+  public render(state: State, showSplash: boolean) {
+    const ctx = this._ctx;
     ctx.save();
     ctx.drawImage(this._background, 0, 0);
-    this._renderCelestialBodies(ctx, state);
-    this._renderPlayer(ctx, state);
-    this._renderUi(ctx, state);
-    if (state.currentLevel === 1) {
-      this._renderStartInfo(ctx, state);
+    if (showSplash) {
+      this._renderSplash(ctx, state);
+    } else {
+      this._renderCelestialBodies(ctx, state);
+      this._renderPlayer(ctx, state);
+      this._renderUi(ctx, state);
+      if (DEBUG) {
+        this._renderDebug(ctx, state);
+      }
     }
-    if (DEBUG) {
-      this._renderDebug(ctx, state);
-    }
-    this._ctx.drawImage(this._bufferContext.canvas, 0, 0);
     ctx.restore();
   }
 }

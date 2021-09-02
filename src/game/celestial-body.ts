@@ -85,6 +85,7 @@ export class CelestialBody
       abs(tmp, subtract(tmp, cb.position, this.position)),
       clockwise,
     );
+    cb.attraction = this;
     cb.acceleration = [0, 0];
     cb.velocity = [0, 0];
     copy(

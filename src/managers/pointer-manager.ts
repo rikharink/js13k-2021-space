@@ -21,6 +21,7 @@ export class PointerManager extends EventEmitter<boolean> {
   private _handlePointerEvent(ev: PointerEvent) {
     this.position = this.scalePosition(this._canvas, [ev.clientX, ev.clientY]);
     this._state = !!ev.buttons;
+    
     this.emit(this._state);
   }
 

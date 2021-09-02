@@ -63,6 +63,7 @@ let plugins = [
           'holeLaunches',
           'position',
           'v',
+          'tutorialDone',
         ],
       },
       module: true,

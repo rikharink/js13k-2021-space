@@ -8,6 +8,7 @@ import {
   scale,
   subtract,
   Vector2,
+  length,
 } from '../math/vector2';
 import { Settings } from '../settings';
 import { Milliseconds, Point2D } from '../types';
@@ -41,7 +42,12 @@ function updateAttractions(checks: PhysicsCircle[], state: State): void {
   }
 }
 
-function semiImplicitEuler(c: PhysicsCircle, dt: Milliseconds) {
+function semiImplicitEuler(
+  c: PhysicsCircle,
+  dt: Milliseconds,
+  isPlayer?: boolean,
+) {
+  isPlayer = isPlayer ?? false;
   if (!c.attraction || !c.acceleration) return;
 
   const tmp: Vector2 = [0, 0];
@@ -51,6 +57,7 @@ function semiImplicitEuler(c: PhysicsCircle, dt: Milliseconds) {
     normalize(tmp, subtract(tmp, c.attraction.position, c.position)),
     getGravitationalForce(c, c.attraction),
   );
+
   if (!c.velocity) c.velocity = [0, 0];
   add(c.velocity, c.velocity, scale(tmp, c.acceleration, dt));
   add(c.position, c.position, scale(tmp, c.velocity, dt));
@@ -80,8 +87,8 @@ export function predictFuture(state: State, dt: Milliseconds): Point2D[] {
 
 export function applyPhysics(dt: Milliseconds, state: State) {
   updateAttractions([state.player, ...state.celestialBodies], state);
-  let objects = [state.player, ...state.celestialBodies];
-  for (let o of objects) {
+  semiImplicitEuler(state.player, dt * Settings.speedScale, true);
+  for (let o of state.celestialBodies) {
     semiImplicitEuler(o, dt * Settings.speedScale);
   }
 }
