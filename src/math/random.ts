@@ -1,9 +1,8 @@
 import { swap } from '../util/util';
-import type { Random } from '../types';
 import { mergeRgb } from './color';
 import { TAU, Radian } from './math';
 
-//FROM: https://github.com/straker/kontra/blob/main/src/helpers.js
+//ADAPTED FROM: https://github.com/straker/kontra/blob/main/src/helpers.js
 /*
 The MIT License (MIT)
 Copyright (c) 2015 Steven Lambert
@@ -26,62 +25,75 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-let currentSeed: number;
-export { currentSeed };
+type Rand = () => number;
 
-export function reseed(seed: number) {
-  currentSeed = seed;
-}
+export class Random {
+  private _currentSeed!: number;
 
-export function seedRand(str: string) {
-  // first create a suitable hash of the seed string using xfnv1a
-  // @see https://github.com/bryc/code/blob/master/jshash/PRNGs.md#addendum-a-seed-generating-functions
-  for (var i = 0, h = 2166136261 >>> 0; i < str.length; i++) {
-    h = Math.imul(h ^ str.charCodeAt(i), 16777619);
+  constructor(seed: string) {
+    this.reseed(seed);
   }
-  h += h << 13;
-  h ^= h >>> 7;
-  h += h << 3;
-  h ^= h >>> 17;
-  currentSeed = (h += h << 5) >>> 0;
-  // then return the seed function and discard the first result
-  // @see https://github.com/bryc/code/blob/master/jshash/PRNGs.md#lcg-lehmer-rng
-  let rand = () =>
-    ((2 ** 31 - 1) & (currentSeed = Math.imul(48271, currentSeed))) / 2 ** 31;
-  rand();
-  return rand;
-}
 
-export function getRandom(rand: Random, min: number, max: number): number {
-  return rand() * (max - min + 1) + min;
-}
-
-export function getRandomInt(rand: Random, min: number, max: number): number {
-  return Math.floor(getRandom(rand, Math.ceil(min), Math.floor(max)));
-}
-
-export function getDie(rand: Random, max: number): Random {
-  return () => getRandomInt(rand, 1, max);
-}
-
-export function shuffle<T>(rand: Random, arr: Array<T>): void {
-  for (let i = 0; i < arr.length - 2; i++) {
-    swap(arr, i, getRandomInt(rand, i, arr.length - 1));
+  public reseed(seed: string): void {
+    this._currentSeed = this.getSeed(seed);
+    this.random();
   }
-}
 
-export function getRandomElement<T>(rand: Random, arr: Array<T>): T {
-  return arr[getRandomInt(rand, 0, arr.length)];
-}
+  private getSeed(seed: string): number {
+    for (var i = 0, h = 2166136261 >>> 0; i < seed.length; i++) {
+      h = Math.imul(h ^ seed.charCodeAt(i), 16777619);
+    }
+    h += h << 13;
+    h ^= h >>> 7;
+    h += h << 3;
+    h ^= h >>> 17;
+    return (h += h << 5) >>> 0;
+  }
 
-export function getRandomColor(rand?: Random): number {
-  rand = rand ?? Math.random;
-  const r = getRandomInt(rand, 0, 255);
-  const g = getRandomInt(rand, 0, 255);
-  const b = getRandomInt(rand, 0, 255);
-  return mergeRgb([r, g, b]);
-}
+  public random() {
+    if (!this) console.trace();
+    this._currentSeed = Math.imul(48271, this._currentSeed);
+    return ((2 ** 31 - 1) & this._currentSeed) / 2 ** 31;
+  }
 
-export function getRandomAngle(rng: Random): Radian {
-  return getRandom(rng, 0, TAU);
+  public get currentSeed(): number {
+    return this._currentSeed;
+  }
+
+  public set currentSeed(seed: number) {
+    this._currentSeed = seed;
+  }
+
+  public getRandom(min: number, max: number): number {
+    return this.random() * (max - min + 1) + min;
+  }
+
+  public getRandomInt(min: number, max: number): number {
+    return Math.floor(this.getRandom(Math.ceil(min), Math.floor(max)));
+  }
+
+  public getDie(max: number): Rand {
+    return () => this.getRandomInt(1, max);
+  }
+
+  public shuffle<T>(arr: Array<T>): void {
+    for (let i = 0; i < arr.length - 2; i++) {
+      swap(arr, i, this.getRandomInt(i, arr.length - 1));
+    }
+  }
+
+  public getRandomElement<T>(arr: Array<T>): T {
+    return arr[this.getRandomInt(0, arr.length)];
+  }
+
+  public getRandomColor(): number {
+    const r = this.getRandomInt(0, 255);
+    const g = this.getRandomInt(0, 255);
+    const b = this.getRandomInt(0, 255);
+    return mergeRgb([r, g, b]);
+  }
+
+  public getRandomAngle(): Radian {
+    return this.getRandom(0, TAU);
+  }
 }

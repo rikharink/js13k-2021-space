@@ -1,14 +1,14 @@
+import { Random } from '../math/random';
 import { subtract, Vector2 } from '../math/vector2';
-import { Random, RgbColor, UUIDV4 } from '../types';
+import { RgbColor, UUIDV4 } from '../types';
 
 export function swap<T>(arr: T[], i: number, j: number): void {
   [arr[j], arr[i]] = [arr[i], arr[j]];
 }
 
-export function uuidv4(rand?: Random): UUIDV4 {
-  rand = rand ?? Math.random;
+export function uuidv4(rand: Random): UUIDV4 {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    let r = (rand!() * 16) | 0,
+    let r = (rand.random() * 16) | 0,
       v = c == 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });

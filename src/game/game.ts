@@ -1,21 +1,23 @@
 import { Vector2 } from './../math/vector2';
 import { PointerManager } from '../managers/pointer-manager';
 import { blend, State } from './state';
-import { Milliseconds, Random, Seconds } from '../types';
+import { Milliseconds, Seconds } from '../types';
 import { CanvasRenderer } from '../canvas/canvas-renderer';
 import { IRenderer } from '../interfaces/renderer';
 import { Settings } from '../settings';
-import { currentSeed, reseed, seedRand } from '../math/random';
+import { Random } from '../math/random';
 import { WebmonetizationManger } from '../managers/webmonetization-manager';
 import { generateLevel, Level } from './level';
 import { copy } from '../math/vector2';
+import { playBounce, playGoalHit, playStarHit } from '../audio/fx';
+import { Player } from './player';
+import { uuidv4 } from '../util/util';
 
 const ALPHA = 0.9;
 
 export interface SerializableGame {
   v: number;
   level: Level;
-  seed: number;
   totalLaunches: number;
   holeLaunches: number;
   position?: Vector2;
@@ -43,44 +45,59 @@ class GameObject {
   private _nextLevel?: Level = undefined;
   private _playerAnimationDone: boolean = false;
   private _flagAnimationDone: boolean = false;
+  private _lastBounce: Milliseconds = 0;
 
   public constructor() {
     this.cnvs = <HTMLCanvasElement>document.getElementById(Settings.canvasId);
     this._pointerManager = new PointerManager(this.cnvs);
     this._monetizationManager = new WebmonetizationManger();
-    this._rng = seedRand(Settings.seed);
+    this._rng = new Random(Settings.seed);
     this._renderer = new CanvasRenderer(this.cnvs, this._rng);
     window.addEventListener('focus', this.start.bind(this));
     window.addEventListener('blur', this.stop.bind(this));
     if (!this.hydrate()) {
-      this.loadLevel(generateLevel(this._rng, this._level));
+      this.loadLevel(generateLevel(this._rng, this._level, 0, 0));
     }
   }
 
+  public reset() {
+    localStorage.removeItem(Settings.localStoragePrefix + 'STATE');
+    //@ts-ignore
+    this.currentState = undefined;
+    this._rng = new Random(Settings.seed);
+    this._level = 1;
+    this.loadLevel(generateLevel(this._rng, this._level, 0, 0));
+  }
+
   public loadLevel(level: Level) {
+    this._rng.reseed(level.levelSeed);
     this._level = level.number;
     this._currentLevel = level;
-    this.currentState = State.fromLevel(
-      this._pointerManager,
-      level,
-      this.currentState?.player,
-    );
+    const player =
+      this.currentState?.player ??
+      new Player(this._pointerManager, uuidv4(this._rng));
+    this.currentState = State.fromLevel(level, player);
     this._previousState = this.currentState;
   }
 
   public resetLevel(): void {
     this.currentState.player.velocity = [0, 0];
     this.currentState.player.acceleration = [0, 0];
-    this.loadLevel(this._currentLevel);
+    copy(
+      this.currentState.player.position,
+      this.currentState.player.lastStationaryPosition,
+    );
   }
 
   public hydrate(): boolean {
-    const stateString = localStorage.getItem(Settings.localStoragePrefix);
+    const stateString = localStorage.getItem(
+      Settings.localStoragePrefix + 'STATE',
+    );
     if (stateString) {
       try {
         const state = JSON.parse(stateString) as SerializableGame;
         if (state) {
-          reseed(state.seed);
+          console.debug('loading level');
           this.loadLevel(state.level);
           this.currentState.player.totalLaunches = state.totalLaunches;
           this.currentState.player.holeLaunches = state.holeLaunches;
@@ -89,18 +106,19 @@ class GameObject {
           }
           return true;
         }
-      } catch {}
+      } catch (er) {
+        console.trace(er);
+      }
     }
     return false;
   }
 
   public dehydrate() {
     localStorage.setItem(
-      Settings.localStoragePrefix,
+      Settings.localStoragePrefix + 'STATE',
       JSON.stringify({
         v: 1,
         level: this._currentLevel,
-        seed: currentSeed,
         holeLaunches: this.currentState.player.holeLaunches,
         totalLaunches: this.currentState.player.totalLaunches,
         position: this.currentState.player.lastStationaryPosition,
@@ -139,6 +157,8 @@ class GameObject {
     this._nextLevel = generateLevel(
       this._rng,
       ++this._level,
+      this._currentLevel.noStarGenerated,
+      this._currentLevel.noMoonsGenerated,
       this._currentLevel.goalPlanet,
     );
     this._victoryCallback = ((level: Level) => {
@@ -152,6 +172,10 @@ class GameObject {
       Settings.flagmastLength = 45;
       this.loadLevel(level);
     }).bind(this);
+  }
+
+  public dumpLevel() {
+    console.debug(JSON.stringify(this._currentLevel));
   }
 
   private _animatePlayer(): void {
@@ -207,11 +231,27 @@ class GameObject {
           this._animatePositions();
         }
       } else {
-        const { hitGoal } = this.currentState.step(1 / Settings.tps);
+        const { hitGoal, hitStar, hadCollision } = this.currentState.step(
+          1 / Settings.tps,
+        );
         if (hitGoal) {
+          console.debug('goal hit');
+          playGoalHit();
           this.currentState.player.canInput = false;
           copy(this.currentState.player.velocity!, [0, 0]);
+          this.dehydrate();
           this.nextLevel();
+        } else if (hitStar) {
+          console.debug('star hit');
+          playStarHit();
+          this.resetLevel();
+        } else if (hadCollision) {
+          const diff = t - this._lastBounce;
+          if (this.currentState.player.isMoving && diff > 0.05) {
+            console.debug('collision hit');
+            this._lastBounce = t;
+            playBounce();
+          }
         }
       }
       this._accumulator -= 1 / Settings.tps;
@@ -224,13 +264,7 @@ class GameObject {
         this._accumulator / this._dt,
       ),
     );
-    this.dehydrate();
   }
-}
-
-export function resetGame() {
-  localStorage.setItem(Settings.localStoragePrefix, '');
-  Game = new GameObject();
 }
 
 let Game = new GameObject();

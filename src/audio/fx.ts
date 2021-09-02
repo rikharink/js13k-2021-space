@@ -1,25 +1,90 @@
-import { whiteNoise } from './util';
-
 //@ts-ignore
 import { zzfx } from './zzfx.js';
 
-export function playLaunch(ctx: AudioContext, power: number) {
-  const noise = whiteNoise(ctx);
-  const filter = ctx.createBiquadFilter();
-  const duration = 0.2 * power;
-  filter.type = 'lowpass';
-  filter.frequency.setValueAtTime(1000, ctx.currentTime);
-  filter.frequency.exponentialRampToValueAtTime(
-    2000,
-    ctx.currentTime + duration / 4,
+export function playLaunch() {
+  if (!zzfx) return;
+  zzfx(
+    ...[
+      0.8,
+      ,
+      250,
+      0.01,
+      ,
+      0.01,
+      ,
+      0.2,
+      -0.2,
+      -4,
+      -50,
+      -0.32,
+      0.01,
+      ,
+      ,
+      ,
+      0.09,
+      0.98,
+      0.04,
+      0.06,
+    ],
   );
-  noise.connect(filter);
-  filter.connect(ctx.destination);
-  noise.start(ctx.currentTime);
-  noise.stop(ctx.currentTime + duration);
 }
 
-export function playGolfBounce() {
+export function playStarHit() {
+  if (!zzfx) return;
+  zzfx(
+    ...[
+      0.6,
+      ,
+      438,
+      ,
+      0.04,
+      0.4,
+      2,
+      1.78,
+      ,
+      6.8,
+      ,
+      ,
+      ,
+      0.3,
+      -6.2,
+      0.5,
+      0.04,
+      0.8,
+      0.05,
+    ],
+  );
+}
+
+export function playGoalHit() {
+  if (!zzfx) return;
+  zzfx(
+    ...[
+      0.8,
+      ,
+      158,
+      ,
+      0.2,
+      0.55,
+      1,
+      1.53,
+      0.7,
+      3,
+      -104,
+      0.08,
+      0.09,
+      ,
+      ,
+      0.1,
+      ,
+      0.77,
+      0.09,
+      0.19,
+    ],
+  );
+}
+
+export function playBounce() {
   if (!zzfx) return;
   zzfx(
     ...[

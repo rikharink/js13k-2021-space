@@ -1,7 +1,7 @@
 import { splitRgb } from '../math/color';
+import { Random } from '../math/random';
 import { Vector3 } from '../math/vector3';
 import { palette } from '../palette';
-import { Random } from '../types';
 import { rgbaString } from '../util/util';
 
 export function renderBackground(
@@ -17,7 +17,11 @@ export function renderBackground(
   const ctx = canvas.getContext('2d')!;
   const backgroundStars: Vector3[] = [];
   for (; stars > 0; stars--) {
-    backgroundStars.push([rng() * width, rng() * height, rng() * 1.2]);
+    backgroundStars.push([
+      rng.random() * width,
+      rng.random() * height,
+      rng.random() * 1.2,
+    ]);
   }
 
   ctx.fillStyle = rgbaString(splitRgb(palette[5]), 1);

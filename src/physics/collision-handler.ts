@@ -1,3 +1,4 @@
+import { CelestialBody } from './../game/celestial-body';
 import { PhysicsCircle } from './../game/physics-circle';
 import { getGoalHitbox } from '../game/goal';
 import { copy, distance, scale, subtract, Vector2 } from '../math/vector2';
@@ -12,16 +13,21 @@ import { OrientedRectangle } from '../geometry/oriented-rectangle';
 export interface CollisionResult {
   hadCollision: boolean;
   hitGoal: boolean;
+  hitStar: boolean;
 }
 
 export function handleCircleCircleCollision(
   o1: PhysicsCircle,
   o2: PhysicsCircle,
+  isStar: boolean,
 ): boolean {
   if (o1 === o2) return false;
   if (!o1.velocity) return false;
 
   if (hasCircleCircleCollision(o1, o2)) {
+    if (isStar) {
+      return true;
+    }
     let tmp: Vector2 = [0, 0];
     copy(o1.position, o1.previousPosition);
     const pc: Point2D = [
@@ -59,11 +65,15 @@ export function handleCircleOrientedRectangleCollision(
 export function handleCollisions(state: State): CollisionResult {
   let hadCollision = false;
   let hitGoal = false;
+  let hitStar = false;
   let o1 = state.player;
   let check = state.celestialBodies;
   for (let o2 of check) {
-    if (handleCircleCircleCollision(o1, o2)) {
+    if (handleCircleCircleCollision(o1, o2, o2.isStar)) {
       hadCollision = true;
+      if (o2.isStar) {
+        hitStar = true;
+      }
     }
   }
 
@@ -81,5 +91,6 @@ export function handleCollisions(state: State): CollisionResult {
   return {
     hadCollision,
     hitGoal,
+    hitStar,
   };
 }

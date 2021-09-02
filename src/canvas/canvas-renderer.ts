@@ -4,18 +4,12 @@ import { DEBUG, Settings } from '../settings';
 import { IRenderer } from '../interfaces/renderer';
 import { splitRgb } from '../math/color';
 import { rgbaString } from '../util/util';
-import {
-  drawArrow,
-  drawCircle,
-  drawFlag,
-  drawLine,
-  drawPercentagebar,
-} from './util';
+import { drawArrow, drawCircle, drawFlag, drawPercentagebar } from './util';
 import { renderBackground } from '../game/background';
-import { Random } from '../types';
 import { add, scale, subtract, Vector2, normalize } from '../math/vector2';
 import { Line } from '../geometry/line';
 import { Circle } from '../geometry/circle';
+import { Random } from '../math/random';
 
 export class CanvasRenderer implements IRenderer {
   private _canvas: HTMLCanvasElement;

@@ -6,7 +6,6 @@
 - [ ] bounce physics (prevent "weird" backwards bounce)
 - [ ] Better GFX
 - [ ] sfx
-- [ ] add stars that kill you
 - [ ] visualize ball position when OOB
 
 ## Nice to have
@@ -23,10 +22,11 @@
 - [ ] decentralization
 - [ ] achievements
 - [ ] shareable hole replay
+- [ ] astroid fields
+- [ ] planets orbiting suns
 
 ## Level Generation TODO
 
 - [ ] Generate moons
-- [ ] Generate stars?
-- [ ] Generate more interesting levels depending on current level (more planets in the way (with moons) the higher level)
+- [ ] Generate more difficult levels depending on current level (more planets in the way (with moons) the higher level)
   - [ ] heuristic number of planets that collide with the line between spawn and goal planet?

@@ -1,7 +1,7 @@
 export const DEBUG = process.env.NODE_ENV === 'development';
 
 export const Settings = {
-  resolution: [1334, 750],
+  resolution: [1920, 1080],
   tps: 164,
   canvasId: 'g',
   seed: 'IPTS',
@@ -18,5 +18,5 @@ export const Settings = {
   futureSize: 125,
   maxAwayCount: 1000,
   safeAreaInsets: [200, 25, 1334, 725],
-  localStoragePrefix: 'HAR-INK-IPTS',
+  localStoragePrefix: 'HAR-INK-IPTS-',
 };

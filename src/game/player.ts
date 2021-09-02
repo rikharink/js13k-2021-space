@@ -17,10 +17,10 @@ import { PhysicsCircle } from './physics-circle';
 import { palette } from '../palette';
 import { splitRgb } from '../math/color';
 import { clamp } from '../math/math';
-import { uuidv4 } from '../util/util';
 import { IStepable } from '../interfaces/stepable';
 import { hasCircleRectangleCollision } from '../geometry/collision-checks';
 import { Rectangle } from '../geometry/rectangle';
+import { playLaunch } from '../audio/fx';
 
 export class Player
   extends PhysicsCircle
@@ -50,9 +50,9 @@ export class Player
   private _pm: PointerManager;
   public canInput: boolean = true;
 
-  constructor(pm: PointerManager, id?: UUIDV4) {
+  constructor(pm: PointerManager, id: UUIDV4) {
     super([10, 10], Settings.playerRadius, Settings.playerMass, [0, 0], [0, 0]);
-    this.id = id ?? uuidv4();
+    this.id = id;
     this._pm = pm;
   }
 
@@ -173,6 +173,7 @@ export class Player
     //RELEASE
     else if (this.isInputting && !active) {
       this.launch();
+      playLaunch();
     }
     //MOVE
     else if (this._pm.position && this.startPos) {
@@ -207,8 +208,7 @@ export class Player
   }
 
   public clone(): Player {
-    let player = new Player(this._pm);
-    player.id = this.id;
+    let player = new Player(this._pm, this.id);
     player.attraction = this.attraction?.clone();
     player.position = copy([0, 0], this.position)!;
     player.previousPosition = copy([0, 0], this.previousPosition)!;

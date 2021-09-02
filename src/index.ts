@@ -1,14 +1,23 @@
 import './style/main.css';
-import { Game, resetGame } from './game/game';
+import { Game } from './game/game';
 import { DEBUG } from './settings';
 import { CanvasRecorder } from './debug/canvas-recorder';
 Game.start();
+
+//AUTO SAVE GAME
+setInterval(() => {
+  Game.dehydrate();
+}, 10_000);
+
+window.addEventListener('unload', () => {
+  Game.dehydrate();
+});
 
 if (DEBUG) {
   const w = <any>window;
   w.recorder = () =>
     new CanvasRecorder(<HTMLCanvasElement>document.getElementById('g'));
-  document.addEventListener('keypress', (e: KeyboardEvent) => {
+  window.addEventListener('keypress', (e: KeyboardEvent) => {
     if (e.key === 'r') {
       Game.resetLevel();
     } else if (e.key === 'p') {
@@ -27,8 +36,9 @@ if (DEBUG) {
     } else if (e.key === 'n') {
       Game.nextLevel();
     } else if (e.key === 'k') {
-      resetGame();
-      Game.start();
+      Game.reset();
+    } else if (e.key === 'd') {
+      Game.dumpLevel();
     }
   });
 }

@@ -1,9 +1,8 @@
-import { Circle } from './../geometry/circle';
 import { RgbColor } from '../types';
 import { IIdentifiable } from '../interfaces/identifiable';
 import { PhysicsCircle } from './physics-circle';
 import { Point2D } from '../types';
-import { accent } from '../palette';
+import { accent, palette } from '../palette';
 import { splitRgb } from '../math/color';
 import { Settings } from '../settings';
 import {
@@ -16,10 +15,9 @@ import {
   Vector2,
 } from '../math/vector2';
 import { Radian } from '../math/math';
-import { uuidv4 } from '../util/util';
 
 export interface ICelestialBody {
-  id?: string;
+  id: string;
   position: Point2D;
   radius: number;
   mass: number;
@@ -27,7 +25,9 @@ export interface ICelestialBody {
   acceleration?: Vector2;
   bounceDampening?: number;
   goal?: Radian;
-  moons: string[];
+  isStar: boolean;
+  isMoon: boolean;
+  moons: Set<string>;
 }
 
 export class CelestialBody
@@ -35,20 +35,23 @@ export class CelestialBody
   implements IIdentifiable, ICelestialBody
 {
   public id: string;
-  public readonly color: RgbColor = splitRgb(accent);
   public goal?: Radian;
-  public moons: string[];
+  public isStar: boolean;
+  public isMoon: boolean;
+  public moons: Set<string>;
 
   constructor(
     position: Point2D,
     radius: number,
     mass: number,
-    id?: string,
+    id: string,
     velocity?: Vector2,
     acceleration?: Vector2,
     bounceDampening?: number,
     goal?: Radian,
-    moons?: string[],
+    moons?: Set<string>,
+    isStar?: boolean,
+    isMoon?: boolean,
   ) {
     super(
       position,
@@ -57,10 +60,24 @@ export class CelestialBody
       velocity,
       acceleration,
       bounceDampening,
+      isStar,
+      isMoon,
     );
-    this.id = id ?? uuidv4();
+    this.id = id;
     this.goal = goal;
-    this.moons = moons ?? [];
+    this.moons = moons ?? new Set();
+    this.isStar = isStar ?? false;
+    this.isMoon = isMoon ?? false;
+  }
+
+  public get color(): RgbColor {
+    if (this.isStar) {
+      return splitRgb(palette[1]);
+    } else if (this.isMoon) {
+      return splitRgb(palette[4]);
+    } else {
+      return splitRgb(accent);
+    }
   }
 
   public get mu(): number {
@@ -81,7 +98,6 @@ export class CelestialBody
         Math.sqrt(this.mu / distance(cb.position, this.position)),
       ),
     );
-    this.moons.push(cb.id);
   }
 
   public clone(): CelestialBody {
@@ -94,9 +110,12 @@ export class CelestialBody
       this.acceleration,
       this.bounceDampening,
       this.goal,
+      Object.entries(this.moons).length === 0
+        ? new Set()
+        : new Set([...this.moons]),
+      this.isStar,
     );
     cb.attraction = this.attraction;
-    cb.moons = [...this.moons];
     return cb;
   }
 }

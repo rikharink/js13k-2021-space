@@ -35,7 +35,9 @@ function updateAttractions(checks: PhysicsCircle[], state: State): void {
         mostAttractive = c2;
       }
     }
-    c1.attraction = mostAttractive;
+    if (!c1.isFixedAttraction || c1.attraction === undefined) {
+      c1.attraction = mostAttractive;
+    }
   }
 }
 
@@ -63,7 +65,14 @@ export function predictFuture(state: State, dt: Milliseconds): Point2D[] {
   for (let i = 0; i < Settings.futureSize; i++) {
     updateAttractions([p], state);
     semiImplicitEuler(p, dt);
-    handleCircleCircleCollision(p, p.attraction!);
+    const collision = handleCircleCircleCollision(
+      p,
+      p.attraction!,
+      p.attraction!.isDeadly,
+    );
+    if (collision && p.attraction!.isDeadly) {
+      break;
+    }
     result.push([p.position[0], p.position[1]]);
   }
   return result;

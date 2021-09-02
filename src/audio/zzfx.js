@@ -1,5 +1,9 @@
 let zzfx, zzfxV, zzfxX;
-zzfxV = 0.8; // volume
+zzfxV = 0.6; // volume
+
+export function setVolume(volume) {
+  zzfxV = volume;
+}
 
 function init() {
   zzfxX = new (window.AudioContext || webkitAudioContext)(); // audio context

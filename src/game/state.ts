@@ -16,9 +16,7 @@ import {
   handleCollisions,
 } from '../physics/collision-handler';
 import { Level } from './level';
-import { PointerManager } from '../managers/pointer-manager';
 import { Settings } from '../settings';
-import { playGolfBounce } from '../audio/fx';
 
 interface StateOptions {
   size: Vector2;
@@ -66,6 +64,8 @@ export class State implements IStepable<CollisionResult> {
       c.bounceDampening,
       c.goal,
       c.moons,
+      c.isStar,
+      c.isMoon,
     );
   }
 
@@ -82,12 +82,7 @@ export class State implements IStepable<CollisionResult> {
     );
   }
 
-  public static fromLevel(
-    pm: PointerManager,
-    level: Level,
-    player?: Player,
-  ): State {
-    player = player ?? new Player(pm);
+  public static fromLevel(level: Level, player: Player): State {
     copy(player.position, level.spawn);
     const state = new State({
       currentLevel: level.number,
@@ -103,11 +98,12 @@ export class State implements IStepable<CollisionResult> {
     });
 
     for (let cb of state.celestialBodies) {
-      const moons = cb.moons.flatMap((mid) =>
-        state.celestialBodies.filter((c) => c.id === mid),
-      );
-      for (let moon of moons) {
-        cb.addMoon(moon);
+      if (Object.entries(cb.moons).length === 0) continue;
+      for (let moonId of cb.moons) {
+        const moon = state.celestialBodies.find((i) => i.id === moonId);
+        if (moon) {
+          cb.addMoon(moon);
+        }
       }
     }
     return state;
@@ -117,16 +113,6 @@ export class State implements IStepable<CollisionResult> {
     this.player.step();
     applyPhysics(dt, this);
     const result = handleCollisions(this);
-    const diff = performance.now() - this._lastBounce;
-    if (
-      result.hadCollision &&
-      !result.hitGoal &&
-      this.player.isMoving &&
-      diff > 80
-    ) {
-      this._lastBounce = performance.now();
-      playGolfBounce();
-    }
     this.player.saveCurrentPosition();
     this.future = predictFuture(this, dt);
     return result;

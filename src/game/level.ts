@@ -7,11 +7,10 @@ import {
   subtract,
   Vector2,
 } from '../math/vector2';
-import { getRandom, getRandomAngle, getRandomInt } from '../math/random';
+import { Random } from '../math/random';
 import { Point2D } from '../types';
 import { ICelestialBody } from './celestial-body';
-import { Random } from '../types';
-import { Radian, TAU } from '../math/math';
+import { lerp, Radian } from '../math/math';
 import { Circle } from '../geometry/circle';
 import { hasCircleCircleCollision } from '../geometry/collision-checks';
 import { Settings } from '../settings';
@@ -19,6 +18,9 @@ import { uuidv4 } from '../util/util';
 
 export interface Level {
   number: number;
+  levelSeed: string;
+  noStarGenerated: number;
+  noMoonsGenerated: number;
   size: Vector2;
   spawn: Point2D;
   bodies: ICelestialBody[];
@@ -27,14 +29,16 @@ export interface Level {
 }
 
 function generateCelestialBody(rng: Random, level: number): ICelestialBody {
-  let radius = getRandomInt(rng, 20, 100);
+  let radius = rng.getRandomInt(20, 100);
   let mass = radius;
   return {
     id: uuidv4(rng),
     position: [0, 0],
     radius: radius,
     mass: mass,
-    moons: [],
+    moons: new Set<string>(),
+    isStar: false,
+    isMoon: false,
   };
 }
 
@@ -77,8 +81,8 @@ function placeCelestialBody(
   bounds: Rectangle,
 ) {
   body.position = [
-    getRandom(rng, bounds.position[0], bounds.size[0]),
-    getRandom(rng, bounds.position[1], bounds.size[1]),
+    rng.getRandom(bounds.position[0], bounds.size[0]),
+    rng.getRandom(bounds.position[1], bounds.size[1]),
   ];
 }
 
@@ -89,16 +93,19 @@ function createSpawnPlanet(
 ): ICelestialBody {
   if (previousGoalPlanet !== undefined) {
     const body: ICelestialBody = {
+      id: uuidv4(rng),
       position: [previousGoalPlanet.radius * 2, previousGoalPlanet.position[1]],
       radius: previousGoalPlanet.radius,
       mass: previousGoalPlanet.mass,
-      moons: [...previousGoalPlanet.moons],
+      moons: new Set<string>(),
+      isStar: false,
+      isMoon: false,
     };
     return body;
   }
   const body = generateCelestialBody(rng, level);
-  const offsetX = getRandom(rng, 0, body.radius);
-  const offsetY = getRandom(rng, 0, body.radius);
+  const offsetX = rng.getRandom(0, body.radius);
+  const offsetY = rng.getRandom(0, body.radius);
   body.position = [body.radius * 2 + offsetX, body.radius * 2 + offsetY];
   return body;
 }
@@ -111,18 +118,99 @@ function createGoalPlanet(
   const planet = generateCelestialBody(rng, level);
   const baseBound = planet.radius + Settings.flagmastLength;
   planet.position = [
-    getRandom(rng, size[0] - baseBound * 2, size[0] - baseBound),
-    getRandom(rng, baseBound, size[1] - baseBound),
+    rng.getRandom(size[0] - baseBound * 2, size[0] - baseBound),
+    rng.getRandom(baseBound, size[1] - baseBound),
   ];
   return planet;
+}
+
+function generateStar(rng: Random, size: Vector2): ICelestialBody {
+  const radius = rng.getRandom(105, 175);
+  const position = scale([0, 0], size, 0.5);
+  const displacement: Vector2 = [
+    rng.getRandom(0, radius),
+    rng.getRandom(0, radius),
+  ];
+  add(position, position, displacement);
+  let star: ICelestialBody = {
+    id: uuidv4(rng),
+    position: position,
+    radius: radius,
+    mass: radius,
+    moons: new Set<string>(),
+    isStar: true,
+    isMoon: false,
+  };
+
+  return star;
+}
+
+function tryFixStar(
+  star: ICelestialBody,
+  protectedBodies: ICelestialBody[],
+  otherBodies: ICelestialBody[],
+): { success: boolean; others?: ICelestialBody[] } {
+  const failure = {
+    success: false,
+  };
+  if (isInvalidPlacement(star, protectedBodies)) {
+    return failure;
+  }
+  let result: ICelestialBody[] = [];
+  for (let body of otherBodies) {
+    const isValid = !isInvalidPlacement(star, [body]);
+    if (isValid) {
+      result.push(body);
+    }
+  }
+
+  if (result.length === 0) {
+    return failure;
+  }
+
+  return {
+    success: true,
+    others: result,
+  };
+}
+
+function generateMoon(
+  rng: Random,
+  level: number,
+  planet: ICelestialBody,
+): ICelestialBody {
+  const moon = generateCelestialBody(rng, level);
+  moon.radius = rng.getRandom(10, 25);
+  moon.mass = moon.radius;
+  moon.isMoon = true;
+  const normal = normalize(
+    [0, 0],
+    subtract([0, 0], moon.position, planet.position),
+  );
+  scale(normal, normal, planet.radius);
+  moon.position = normal;
+  return moon;
+}
+
+function getMoonMinX(planet: ICelestialBody, moon: ICelestialBody): number {
+  const dx = Math.abs(planet.position[0] - moon.position[0]);
+  return planet.position[0] + dx + moon.radius * 2;
+}
+
+interface PlacementResults {
+  bodies: ICelestialBody[];
+  noStarGenerated: number;
+  noMoonsGenerated: number;
 }
 
 function placeCelestialBodies(
   rng: Random,
   size: Vector2,
   level: number,
+  noStarGenerated: number,
+  noMoonsGenerated: number,
   previousGoalPlanet?: ICelestialBody,
-): ICelestialBody[] {
+): PlacementResults {
   const spawnPlanet = createSpawnPlanet(rng, level, previousGoalPlanet);
   const goalPlanet = createGoalPlanet(rng, level, size);
   let minX = spawnPlanet.position[0] + spawnPlanet.radius * 2;
@@ -143,10 +231,57 @@ function placeCelestialBodies(
     } while (
       isInvalidPlacement(planet, [spawnPlanet, ...otherPlanets, goalPlanet])
     );
+
+    // //SEE IF WE GENERATE MOONS
+    // let moon: ICelestialBody | undefined;
+    // if (
+    //   rng.random() <
+    //   lerp(
+    //     lerp(0.05, 0.15, noMoonsGenerated / 20),
+    //     0.15,
+    //     Math.min(level, 50) / 50,
+    //   )
+    // ) {
+    //   noMoonsGenerated = 0;
+    //   console.debug('MAKING A MOON');
+    //   moon = generateMoon(rng, level, planet);
+    //   planet.moons = new Set([moon.id]);
+    // } else {
+    //   noMoonsGenerated = Math.min(20, ++noMoonsGenerated);
+    // }
+    // if (moon) {
+    //   minX = getMoonMinX(planet, moon);
+    //   otherPlanets.push(planet, moon);
+    // } else {
+    //   minX = planet.position[0] + planet.radius * 2;
+    //   otherPlanets.push(planet);
+    // }
     minX = planet.position[0] + planet.radius * 2;
     otherPlanets.push(planet);
   } while (minX < goalPlanet.position[0]);
-  return [spawnPlanet, ...otherPlanets, goalPlanet];
+
+  //SEE IF WE GENERATE A STAR
+  if (
+    rng.random() <
+    lerp(lerp(0.1, 0.5, noStarGenerated / 10), 0.5, Math.min(level, 100) / 100)
+  ) {
+    noStarGenerated = 0;
+    let star = generateStar(rng, size);
+    let result = tryFixStar(star, [spawnPlanet, goalPlanet], otherPlanets);
+    if (result.success) {
+      return {
+        noMoonsGenerated: noMoonsGenerated,
+        noStarGenerated: noStarGenerated,
+        bodies: [spawnPlanet, ...result.others!, star, goalPlanet],
+      };
+    }
+  }
+  noStarGenerated = Math.min(10, ++noStarGenerated);
+  return {
+    noMoonsGenerated: noMoonsGenerated,
+    noStarGenerated: noStarGenerated,
+    bodies: [spawnPlanet, ...otherPlanets, goalPlanet],
+  };
 }
 
 function placeSpawn(
@@ -157,7 +292,7 @@ function placeSpawn(
   const sp = bodies[0];
   const spc = new Circle(sp.position, sp.radius);
   let spawn: Vector2;
-  const spawnAngle = angle ?? getRandomAngle(rng);
+  const spawnAngle = angle ?? rng.getRandomAngle();
   spawn = spc.getPoint(spawnAngle);
   const normal = normalize([0, 0], subtract([0, 0], spawn, sp.position));
   add(spawn, spawn, scale([0, 0], normal, Settings.playerRadius));
@@ -168,7 +303,7 @@ function placeGoal(rng: Random, bodies: ICelestialBody[]): ICelestialBody {
   const gp = bodies[bodies.length - 1];
   const gpc = new Circle(gp.position, gp.radius);
   const goalTop: Vector2 = [0, 0];
-  gp.goal = getRandomAngle(rng);
+  gp.goal = rng.getRandomAngle();
   const goal = gpc.getPoint(gp.goal!);
   add(
     goalTop,
@@ -185,10 +320,25 @@ function placeGoal(rng: Random, bodies: ICelestialBody[]): ICelestialBody {
 export function generateLevel(
   rng: Random,
   level: number,
+  noStarGenerated: number,
+  noMoonsGenerated: number,
   previousGoalPlanet?: ICelestialBody,
 ): Level {
+  let levelSeed = `${Settings.seed}-${level}`;
+  rng.reseed(levelSeed);
   const size = <Vector2>Settings.resolution;
-  const bodies = placeCelestialBodies(rng, size, level, previousGoalPlanet);
+  const {
+    noStarGenerated: nsg,
+    noMoonsGenerated: nmg,
+    bodies,
+  } = placeCelestialBodies(
+    rng,
+    size,
+    level,
+    noStarGenerated,
+    noMoonsGenerated,
+    previousGoalPlanet,
+  );
   const { spawnPlanet, spawnLocation } = placeSpawn(
     rng,
     bodies,
@@ -196,6 +346,9 @@ export function generateLevel(
   );
   const result: Level = {
     number: level,
+    levelSeed: levelSeed,
+    noStarGenerated: nsg,
+    noMoonsGenerated: nmg,
     size: size,
     spawn: spawnLocation,
     bodies: bodies,
