@@ -10,7 +10,7 @@ export const Settings = {
   nrOfBackgroundStars: 2000,
   playerRadius: 5,
   playerMass: 0,
-  launchForceMultiplier: 1400,
+  launchForceMultiplier: 1300,
   speedScale: 1,
   flagmastLength: 45,
   flagLength: 18,

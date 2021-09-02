@@ -177,6 +177,7 @@ class GameObject {
   }
 
   private _animatePlayer(): void {
+    this.currentState.player.isVictoryAnimation = true;
     this.currentState.step(1 / Settings.tps);
     this._playerAnimationDone = this.currentState.player.stationary;
   }
@@ -223,6 +224,7 @@ class GameObject {
         if (!this._playerAnimationDone) {
           this._animatePlayer();
         } else if (!this._flagAnimationDone) {
+          this.currentState.player.isVictoryAnimation = false;
           this._animateFlag();
         } else {
           this._animatePositions();

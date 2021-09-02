@@ -15,6 +15,7 @@ import {
   hasCircleOrientedRectangleCollision,
 } from '../geometry/collision-checks';
 import { OrientedRectangle } from '../geometry/oriented-rectangle';
+import { Player } from '../game/player';
 
 export interface CollisionResult {
   hadCollision: boolean;
@@ -61,9 +62,10 @@ export function handleCircleCircleCollision(
 }
 
 export function handleCircleOrientedRectangleCollision(
-  o1: PhysicsCircle,
+  o1: Player,
   o2: OrientedRectangle,
 ): boolean {
+  if (o1.isVictoryAnimation) return false;
   if (hasCircleOrientedRectangleCollision(o1, o2)) {
     o1.velocity = [0, 0];
     return true;

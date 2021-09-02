@@ -13,16 +13,18 @@ window.addEventListener('unload', () => {
   Game.dehydrate();
 });
 
-window.addEventListener('keypress', (e: KeyboardEvent) => {
-  if (e.key === 'r') {
-    Game.resetLevel();
-  } else if (e.key === 'p') {
-    Game.isActive ? Game.stop() : Game.start();
-  } else if (e.key === 'n') {
-    Game.nextLevel();
-  } else if (e.key === 'k') {
-    Game.reset();
-  } else if (e.key === 'd') {
-    Game.dumpLevel();
-  }
-});
+if (DEBUG) {
+  window.addEventListener('keypress', (e: KeyboardEvent) => {
+    if (e.key === 'r') {
+      Game.resetLevel();
+    } else if (e.key === 'p') {
+      Game.isActive ? Game.stop() : Game.start();
+    } else if (e.key === 'n') {
+      Game.nextLevel();
+    } else if (e.key === 'k') {
+      Game.reset();
+    } else if (e.key === 'd') {
+      Game.dumpLevel();
+    }
+  });
+}

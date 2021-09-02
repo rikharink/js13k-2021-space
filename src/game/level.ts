@@ -40,8 +40,7 @@ export interface Level {
 }
 
 function generateCelestialBody(rng: Random, level: number): ICelestialBody {
-  let radius = rng.getRandomInt(35, 100);
-  let mass = radius;
+  let radius = rng.getRandomInt(55, 100);
   return {
     id: uuidv4(rng),
     position: [0, 0],
@@ -50,6 +49,43 @@ function generateCelestialBody(rng: Random, level: number): ICelestialBody {
     isStar: false,
     isMoon: false,
   };
+}
+
+function generateStar(rng: Random, size: Vector2): ICelestialBody {
+  const radius = rng.getRandom(105, 175);
+  const position = scale([0, 0], size, 0.5);
+  const displacement: Vector2 = [
+    rng.getRandom(0, radius),
+    rng.getRandom(0, radius),
+  ];
+  add(position, position, displacement);
+  let star: ICelestialBody = {
+    id: uuidv4(rng),
+    position: position,
+    radius: radius,
+    moons: [],
+    isStar: true,
+    isMoon: false,
+  };
+
+  return star;
+}
+
+function generateMoon(
+  rng: Random,
+  level: number,
+  planet: ICelestialBody,
+): ICelestialBody {
+  const moon = generateCelestialBody(rng, level);
+  moon.radius = rng.getRandom(20, 35);
+  moon.isMoon = true;
+  const normal = normalize(
+    [0, 0],
+    subtract([0, 0], moon.position, planet.position),
+  );
+  scale(normal, normal, planet.radius + moon.radius * 6);
+  moon.position = add([0, 0], normal, planet.position);
+  return moon;
 }
 
 function isInvalidPlacement(
@@ -133,26 +169,6 @@ function createGoalPlanet(
   return planet;
 }
 
-function generateStar(rng: Random, size: Vector2): ICelestialBody {
-  const radius = rng.getRandom(105, 175);
-  const position = scale([0, 0], size, 0.5);
-  const displacement: Vector2 = [
-    rng.getRandom(0, radius),
-    rng.getRandom(0, radius),
-  ];
-  add(position, position, displacement);
-  let star: ICelestialBody = {
-    id: uuidv4(rng),
-    position: position,
-    radius: radius,
-    moons: [],
-    isStar: true,
-    isMoon: false,
-  };
-
-  return star;
-}
-
 function tryFixStar(
   star: ICelestialBody,
   protectedBodies: ICelestialBody[],
@@ -182,23 +198,6 @@ function tryFixStar(
   };
 }
 
-function generateMoon(
-  rng: Random,
-  level: number,
-  planet: ICelestialBody,
-): ICelestialBody {
-  const moon = generateCelestialBody(rng, level);
-  moon.radius = rng.getRandom(20, 35);
-  moon.isMoon = true;
-  const normal = normalize(
-    [0, 0],
-    subtract([0, 0], moon.position, planet.position),
-  );
-  scale(normal, normal, planet.radius + moon.radius * 6);
-  moon.position = add([0, 0], normal, planet.position);
-  return moon;
-}
-
 function tryFixMoon(
   moon: ICelestialBody,
   planet: ICelestialBody,
@@ -226,11 +225,6 @@ function tryFixMoon(
     success: true,
     others: others,
   };
-}
-
-function getMoonMinX(planet: ICelestialBody, moon: ICelestialBody): number {
-  const dx = Math.abs(planet.position[0] - moon.position[0]);
-  return planet.position[0] + dx + moon.radius * 2;
 }
 
 function placeCelestialBodies(
@@ -290,7 +284,10 @@ function placeCelestialBodies(
     }
     if (moon) {
       noMoonsGenerated = 0;
-      minX = getMoonMinX(planet, moon);
+      minX =
+        planet.position[0] +
+        Math.abs(planet.position[0] - moon.position[0]) +
+        moon.radius * 2;
       otherPlanets.push(planet, moon);
     } else {
       minX = planet.position[0] + planet.radius * 2;

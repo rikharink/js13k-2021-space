@@ -26,7 +26,7 @@ export class Player
   extends PhysicsCircle
   implements ITickable<void>, IStepable<void>
 {
-  public readonly color: RgbColor = splitRgb(palette[2]);
+  public readonly color: RgbColor = splitRgb(palette[0]);
   public id: UUIDV4;
   public isInputting: boolean = false;
   public launches: number = 0;
@@ -44,6 +44,8 @@ export class Player
   public awayCount: number = 0;
   public oob: boolean = false;
   public isMoving: boolean = false;
+
+  public isVictoryAnimation: boolean = false;
 
   public sc: number = 0;
   private _lc: number = 0;
@@ -228,6 +230,7 @@ export class Player
     player.awayCount = this.awayCount;
     player.canInput = this.canInput;
     player.isMoving = this.isMoving;
+    player.isVictoryAnimation = this.isVictoryAnimation;
     return player;
   }
 }

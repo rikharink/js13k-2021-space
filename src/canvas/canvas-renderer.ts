@@ -173,9 +173,11 @@ export class CanvasRenderer implements IRenderer {
 
   private _renderDebug(ctx: CanvasRenderingContext2D, state: State) {
     ctx.save();
-    drawVelocity(ctx, state.player);
+    // drawVelocity(ctx, state.player);
     ctx.restore();
   }
+
+  private _renderStartInfo(ctx: CanvasRenderingContext2D, state: State) {}
 
   public render(state: State) {
     const ctx = this._bufferContext;
@@ -184,6 +186,9 @@ export class CanvasRenderer implements IRenderer {
     this._renderCelestialBodies(ctx, state);
     this._renderPlayer(ctx, state);
     this._renderUi(ctx, state);
+    if (state.currentLevel === 1) {
+      this._renderStartInfo(ctx, state);
+    }
     if (DEBUG) {
       this._renderDebug(ctx, state);
     }
