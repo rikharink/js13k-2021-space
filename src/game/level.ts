@@ -1,3 +1,4 @@
+import { RgbColor } from './../types';
 import { Rectangle } from './../geometry/rectangle';
 import {
   add,
@@ -15,6 +16,8 @@ import { Circle } from '../geometry/circle';
 import { hasCircleCircleCollision } from '../geometry/collision-checks';
 import { Settings } from '../settings';
 import { uuidv4 } from '../util/util';
+import { palette } from '../palette';
+import { splitRgb } from '../math/color';
 
 interface TryFixPlacementResult {
   success: boolean;
@@ -39,12 +42,25 @@ export interface Level {
   goalPlanet?: ICelestialBody;
 }
 
+const planetColors: RgbColor[] = [palette[2], palette[3], palette[4]].map((c) =>
+  splitRgb(c),
+);
+
 function generateCelestialBody(rng: Random, level: number): ICelestialBody {
   let radius = rng.getRandomInt(55, 100);
+  let colorNum = rng.getRandomInt(2, planetColors.length);
+  let colors: RgbColor[] = [];
+  const pickList = [...planetColors];
+  rng.shuffle(pickList);
+  for (let i = 0; i < colorNum; i++) {
+    colors.push(pickList[i]);
+  }
   return {
     id: uuidv4(rng),
     position: [0, 0],
     radius: radius,
+    colors: colors,
+    rotation: rng.getRandomAngle(),
     moons: [],
     isStar: false,
     isMoon: false,
@@ -63,8 +79,10 @@ function generateStar(rng: Random, size: Vector2): ICelestialBody {
   let star: ICelestialBody = {
     id: uuidv4(rng),
     position: position,
+    rotation: rng.getRandomAngle(),
     radius: radius,
     moons: [],
+    colors: [palette[2], palette[1], palette[0]].map((c) => splitRgb(c)),
     isStar: true,
     isMoon: false,
   };
@@ -80,6 +98,7 @@ function generateMoon(
   const moon = generateCelestialBody(rng, level);
   moon.radius = rng.getRandom(20, 35);
   moon.isMoon = true;
+  moon.colors = [palette[2], palette[4]].map((c) => splitRgb(c));
   const normal = normalize(
     [0, 0],
     subtract([0, 0], moon.position, planet.position),
@@ -141,6 +160,8 @@ function createSpawnPlanet(
   if (previousGoalPlanet !== undefined) {
     const body: ICelestialBody = {
       id: uuidv4(rng),
+      colors: [...previousGoalPlanet.colors],
+      rotation: previousGoalPlanet.rotation,
       position: [previousGoalPlanet.radius * 2, previousGoalPlanet.position[1]],
       radius: previousGoalPlanet.radius,
       moons: [],

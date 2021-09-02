@@ -1,9 +1,8 @@
+import { Radian } from './../math/math';
 import { RgbColor } from '../types';
 import { IIdentifiable } from '../interfaces/identifiable';
 import { PhysicsCircle } from './physics-circle';
 import { Point2D } from '../types';
-import { accent, palette } from '../palette';
-import { splitRgb } from '../math/color';
 import { Settings } from '../settings';
 import {
   abs,
@@ -14,7 +13,6 @@ import {
   subtract,
   Vector2,
 } from '../math/vector2';
-import { Radian } from '../math/math';
 
 export interface ICelestialBody {
   id: string;
@@ -27,6 +25,8 @@ export interface ICelestialBody {
   isStar: boolean;
   isMoon: boolean;
   moons: string[];
+  colors: RgbColor[];
+  rotation: Radian;
 }
 
 export class CelestialBody
@@ -38,11 +38,15 @@ export class CelestialBody
   public isStar: boolean;
   public isMoon: boolean;
   public moons: string[];
+  public colors: RgbColor[];
+  public rotation: Radian;
 
   constructor(
     position: Point2D,
     radius: number,
     id: string,
+    colors: RgbColor[],
+    rotation: Radian,
     velocity?: Vector2,
     acceleration?: Vector2,
     bounceDampening?: number,
@@ -66,16 +70,8 @@ export class CelestialBody
     this.moons = moons ?? [];
     this.isStar = isStar ?? false;
     this.isMoon = isMoon ?? false;
-  }
-
-  public get color(): RgbColor {
-    if (this.isStar) {
-      return splitRgb(palette[1]);
-    } else if (this.isMoon) {
-      return splitRgb(palette[4]);
-    } else {
-      return splitRgb(accent);
-    }
+    this.colors = colors;
+    this.rotation = rotation;
   }
 
   public addMoon(cb: CelestialBody, clockwise?: boolean): void {
@@ -105,6 +101,8 @@ export class CelestialBody
       copy([0, 0], this.position)!,
       this.radius,
       this.id,
+      [...this.colors],
+      this.rotation,
       this.velocity,
       this.acceleration,
       this.bounceDampening,

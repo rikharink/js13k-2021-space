@@ -114,6 +114,9 @@ class GameObject {
       if (stateString) {
         const state = JSON.parse(stateString) as SerializableGame;
         if (state) {
+          if (state.v !== Settings.currentStateVersion) {
+            return false;
+          }
           this.showSplash = state.showSplash;
           this.loadLevel(state.level);
           this.currentState.player.totalLaunches = state.totalLaunches;
@@ -135,7 +138,7 @@ class GameObject {
     localStorage.setItem(
       Settings.localStoragePrefix + 'STATE',
       JSON.stringify({
-        v: 1,
+        v: Settings.currentStateVersion,
         level: this._currentLevel,
         holeLaunches: this.currentState.player.holeLaunches,
         totalLaunches: this.currentState.player.totalLaunches,

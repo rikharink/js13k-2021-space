@@ -20,4 +20,5 @@ export const Settings = {
   safeAreaInsets: [200, 25, 1334, 725],
   localStoragePrefix: 'HAR-INK-IPTS-',
   muted: false,
+  currentStateVersion: 2,
 };

@@ -1,15 +1,23 @@
+import { Listener } from './../interfaces/listener';
 import { palette } from '../palette';
 import { State } from '../game/state';
 import { DEBUG, Settings } from '../settings';
 import { IRenderer } from '../interfaces/renderer';
 import { splitRgb } from '../math/color';
 import { rgbaString } from '../util/util';
-import { drawArrow, drawCircle, drawFlag, drawPercentagebar } from './util';
+import {
+  drawArrow,
+  drawCircle,
+  drawCircleGradient,
+  drawFlag,
+  drawPercentagebar,
+} from './util';
 import { renderBackground } from '../game/background';
 import { add, scale, subtract, Vector2, normalize } from '../math/vector2';
 import { Line } from '../geometry/line';
 import { Circle } from '../geometry/circle';
 import { Random } from '../math/random';
+import { TAU } from '../math/math';
 
 export class CanvasRenderer implements IRenderer {
   private _canvas: HTMLCanvasElement;
@@ -44,8 +52,38 @@ export class CanvasRenderer implements IRenderer {
   private _renderCelestialBodies(ctx: CanvasRenderingContext2D, state: State) {
     let tmp: Vector2 = [0, 0];
     ctx.save();
+
     for (let body of state.celestialBodies ?? []) {
-      drawCircle(ctx, body, body.color);
+      let gradient: CanvasGradient;
+      if (body.isStar) {
+        gradient = ctx.createRadialGradient(
+          body.position[0],
+          body.position[1],
+          body.radius,
+          body.position[0],
+          body.position[1],
+          0,
+        );
+        gradient.addColorStop(0, rgbaString(body.colors[0], 1));
+        gradient.addColorStop(0.4, rgbaString(body.colors[1], 1));
+        gradient.addColorStop(0.8, rgbaString(body.colors[2], 1));
+
+      } else {
+        gradient = ctx.createLinearGradient(
+          body.position[0] - body.radius,
+          body.position[1] - body.radius,
+          body.position[0] + body.radius,
+          body.position[1] + body.radius,
+        );
+        for (let i = 0; i < body.colors.length; i++) {
+          gradient.addColorStop(
+            i / body.colors.length,
+            rgbaString(body.colors[i], 1),
+          );
+        }
+      }
+      drawCircleGradient(ctx, body, gradient, body.rotation);
+      // drawCircle(ctx, body, body.color);
       if (body.goal !== undefined) {
         const start = body.getPoint(body.goal);
         const end = add(
@@ -167,32 +205,23 @@ export class CanvasRenderer implements IRenderer {
 
   private _renderDebug(ctx: CanvasRenderingContext2D, state: State) {
     ctx.save();
-    // for (let body of state.celestialBodies.filter((cb) => cb.velocity)) {
-    //   drawVelocity(ctx, body);
-    // }
-
-    // for (let body of state.celestialBodies.filter(
-    //   (cb) => cb.moons.length > 0,
-    // )) {
-    //   const moons = body.moons.flatMap((x) =>
-    //     state.celestialBodies.filter((y) => y.id === x),
-    //   );
-    //   for (let moon of moons) {
-    //     drawLine(
-    //       ctx,
-    //       new Line(body.position, moon.position),
-    //       splitRgb(palette[0]),
-    //       2,
-    //     );
-    //   }
-    // }
     ctx.restore();
   }
 
   private _renderSplash(ctx: CanvasRenderingContext2D, state: State) {
     const mid = scale([0, 0], <Vector2>Settings.resolution, 0.5);
     ctx.save();
-    drawCircle(ctx, new Circle(mid, 400), state.player.color);
+    const grad = ctx.createLinearGradient(
+      mid[0] - 200,
+      mid[1] - 200,
+      mid[0] + 200,
+      mid[1] + 200,
+    );
+    grad.addColorStop(0, rgbaString(splitRgb(palette[0]), 1));
+    grad.addColorStop(0.25, rgbaString(splitRgb(palette[1]), 1));
+    grad.addColorStop(0.65, rgbaString(splitRgb(palette[2]), 1));
+    grad.addColorStop(1, rgbaString(splitRgb(palette[3]), 1));
+    drawCircleGradient(ctx, new Circle(mid, 400), grad, TAU);
     ctx.translate(0.5, 0.5);
     ctx.font = 'bold 38px sans-serif';
     ctx.fillStyle = rgbaString(splitRgb(palette[5]), 1);

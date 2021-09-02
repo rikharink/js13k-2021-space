@@ -58,6 +58,8 @@ export class State implements IStepable<CollisionResult> {
       copy([0, 0], c.position)!,
       c.radius,
       c.id,
+      c.colors,
+      c.rotation,
       copy([0, 0], c.velocity)!,
       copy([0, 0], c.acceleration)!,
       c.bounceDampening,

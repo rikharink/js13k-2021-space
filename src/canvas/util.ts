@@ -21,6 +21,24 @@ import { splitRgb } from '../math/color';
 import { palette } from '../palette';
 import { PhysicsCircle } from '../game/physics-circle';
 
+export function drawCircleGradient(
+  ctx: CanvasRenderingContext2D,
+  circle: Circle,
+  gradient: CanvasGradient,
+  rotation: Radian,
+) {
+  ctx.save();
+  ctx.translate(circle.position[0], circle.position[1]);
+  ctx.rotate(rotation);
+  ctx.translate(-circle.position[0], -circle.position[1]);
+  ctx.beginPath();
+  ctx.arc(circle.position[0], circle.position[1], circle.radius, 0, TAU);
+  ctx.closePath();
+  ctx.fillStyle = gradient;
+  ctx.fill();
+  ctx.restore();
+}
+
 export function drawCircle(
   ctx: CanvasRenderingContext2D,
   circle: Circle,

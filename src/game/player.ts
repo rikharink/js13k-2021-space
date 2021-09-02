@@ -73,6 +73,7 @@ export class Player
       this.launches = 0;
       this.lastStationaryPosition = copy([0, 0], this.position)!;
       this.isMoving = false;
+      this.sp = this.maxSp;
     }
 
     if (this.launches === this.maxLaunches) {
