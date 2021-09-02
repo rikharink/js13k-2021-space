@@ -4,7 +4,7 @@ export const Settings = {
   resolution: [1920, 1080],
   tps: 164,
   canvasId: 'g',
-  seed: 'IPTS',
+  seed: 'HAR-INK-IPTS',
   planetWeightScaling: 3000,
   G: 0.8,
   nrOfBackgroundStars: 2000,
