@@ -1,4 +1,3 @@
-import { Listener } from './../interfaces/listener';
 import { palette } from '../palette';
 import { State } from '../game/state';
 import { DEBUG, Settings } from '../settings';
@@ -67,7 +66,6 @@ export class CanvasRenderer implements IRenderer {
         gradient.addColorStop(0, rgbaString(body.colors[0], 1));
         gradient.addColorStop(0.4, rgbaString(body.colors[1], 1));
         gradient.addColorStop(0.8, rgbaString(body.colors[2], 1));
-
       } else {
         gradient = ctx.createLinearGradient(
           body.position[0] - body.radius,
@@ -267,6 +265,7 @@ export class CanvasRenderer implements IRenderer {
       this._renderCelestialBodies(ctx, state);
       this._renderPlayer(ctx, state);
       this._renderUi(ctx, state);
+
       if (DEBUG) {
         this._renderDebug(ctx, state);
       }

@@ -20,7 +20,7 @@ import { clamp } from '../math/math';
 import { IStepable } from '../interfaces/stepable';
 import { hasCircleRectangleCollision } from '../geometry/collision-checks';
 import { Rectangle } from '../geometry/rectangle';
-import { playLaunch } from '../audio/fx';
+import { playLaunch, playStarHit } from '../audio/fx';
 
 export class Player
   extends PhysicsCircle
@@ -121,6 +121,7 @@ export class Player
     }
     if (this.awayCount > Settings.maxAwayCount) {
       this.awayCount = 0;
+      playStarHit();
       copy(this.position, this.lastStationaryPosition);
       this.velocity = [0, 0];
     }

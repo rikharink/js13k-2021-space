@@ -48,7 +48,7 @@ const planetColors: RgbColor[] = [palette[2], palette[3], palette[4]].map((c) =>
 
 function generateCelestialBody(rng: Random, level: number): ICelestialBody {
   let radius = rng.getRandomInt(55, 100);
-  let colorNum = rng.getRandomInt(2, planetColors.length);
+  let colorNum = rng.getRandomInt(3, planetColors.length);
   let colors: RgbColor[] = [];
   const pickList = [...planetColors];
   rng.shuffle(pickList);

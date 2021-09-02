@@ -239,7 +239,6 @@ class GameObject {
     if (this._dt > 1) {
       return;
     }
-
     if (!this.showSplash) {
       this.currentState.player.tick();
       this._accumulator += this._dt;
@@ -280,7 +279,6 @@ class GameObject {
         t += this._dt;
       }
     }
-
     this._renderer.render(
       blend(
         this._previousState,
