@@ -5,7 +5,7 @@ export const Settings = {
   tps: 164,
   canvasId: 'g',
   seed: 'IPTS',
-  planetWeightScaling: 1000000,
+  planetWeightScaling: 3000,
   G: 0.8,
   nrOfBackgroundStars: 2000,
   playerRadius: 5,

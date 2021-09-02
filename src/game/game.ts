@@ -1,4 +1,4 @@
-import { Vector2 } from './../math/vector2';
+import { scale, Vector2 } from './../math/vector2';
 import { PointerManager } from '../managers/pointer-manager';
 import { blend, State } from './state';
 import { Milliseconds, Seconds } from '../types';
@@ -145,7 +145,6 @@ class GameObject {
     this._then = r;
     this._adt += this._dt;
     this.fps = ALPHA * this.fps + (1.0 - ALPHA) * (1 / this._dt);
-    this._renderer.fps = ~~this.fps;
     if (this._adt >= 1) {
       this._adt = 0;
     }
@@ -215,7 +214,6 @@ class GameObject {
     if (this._dt > 1) {
       return;
     }
-
     this.currentState.player.tick();
     this._accumulator += this._dt;
     this._accumulator += this._dt;

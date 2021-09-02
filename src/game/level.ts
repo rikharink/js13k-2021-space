@@ -46,7 +46,6 @@ function generateCelestialBody(rng: Random, level: number): ICelestialBody {
     id: uuidv4(rng),
     position: [0, 0],
     radius: radius,
-    mass: mass,
     moons: [],
     isStar: false,
     isMoon: false,
@@ -107,7 +106,6 @@ function createSpawnPlanet(
       id: uuidv4(rng),
       position: [previousGoalPlanet.radius * 2, previousGoalPlanet.position[1]],
       radius: previousGoalPlanet.radius,
-      mass: previousGoalPlanet.mass,
       moons: [],
       isStar: false,
       isMoon: false,
@@ -147,7 +145,6 @@ function generateStar(rng: Random, size: Vector2): ICelestialBody {
     id: uuidv4(rng),
     position: position,
     radius: radius,
-    mass: radius,
     moons: [],
     isStar: true,
     isMoon: false,
@@ -192,7 +189,6 @@ function generateMoon(
 ): ICelestialBody {
   const moon = generateCelestialBody(rng, level);
   moon.radius = rng.getRandom(20, 35);
-  moon.mass = moon.radius;
   moon.isMoon = true;
   const normal = normalize(
     [0, 0],

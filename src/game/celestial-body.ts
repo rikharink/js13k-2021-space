@@ -9,7 +9,6 @@ import {
   abs,
   copy,
   distance,
-  normalize,
   perpendicular,
   scale,
   subtract,
@@ -21,7 +20,6 @@ export interface ICelestialBody {
   id: string;
   position: Point2D;
   radius: number;
-  mass: number;
   velocity?: Vector2;
   acceleration?: Vector2;
   bounceDampening?: number;
@@ -44,7 +42,6 @@ export class CelestialBody
   constructor(
     position: Point2D,
     radius: number,
-    mass: number,
     id: string,
     velocity?: Vector2,
     acceleration?: Vector2,
@@ -57,7 +54,7 @@ export class CelestialBody
     super(
       position,
       radius,
-      mass * Settings.planetWeightScaling,
+      radius * radius * Math.PI * Settings.planetWeightScaling,
       velocity,
       acceleration,
       bounceDampening,
@@ -106,7 +103,6 @@ export class CelestialBody
     let cb = new CelestialBody(
       copy([0, 0], this.position)!,
       this.radius,
-      this.mass,
       this.id,
       this.velocity,
       this.acceleration,

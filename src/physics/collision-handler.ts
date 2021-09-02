@@ -1,9 +1,15 @@
-import { CelestialBody } from './../game/celestial-body';
 import { PhysicsCircle } from './../game/physics-circle';
 import { getGoalHitbox } from '../game/goal';
-import { copy, distance, scale, subtract, Vector2 } from '../math/vector2';
+import {
+  copy,
+  scale,
+  subtract,
+  Vector2,
+  add,
+  dot,
+  normalize,
+} from '../math/vector2';
 import { State } from './../game/state';
-import { Point2D } from './../types';
 import {
   hasCircleCircleCollision,
   hasCircleOrientedRectangleCollision,
@@ -29,23 +35,26 @@ export function handleCircleCircleCollision(
       return true;
     }
     let tmp: Vector2 = [0, 0];
-    copy(o1.position, o1.previousPosition);
-    const pc: Point2D = [
-      (o1.position[0] * o2.radius + o2.position[1] * o1.radius) /
-        (o1.radius + o2.radius),
-      (o1.position[1] * o2.radius + o2.position[1] * o1.radius) /
-        (o1.radius + o2.radius),
-    ];
+    const d = normalize([0, 0], subtract(tmp, o1.position, o2.position));
+    copy(
+      o1.position,
+      add([0, 0], o2.position, scale(tmp, d, o1.radius + o2.radius)),
+    );
 
-    let n: Vector2 = [0, 0];
-    scale(n, subtract(tmp, o2.position, pc), 1 / distance(pc, o2.position));
-    let p =
-      (2 * (o1.velocity![0] * n[0] + o1.velocity![1] * n[1])) /
-      (o1.mass + o2.mass);
-    let w_x = o1.velocity![0] - p * o1.mass * n[0] - p * o2.mass * n[0];
-    let w_y = o1.velocity![1] - p * o1.mass * n[1] - p * o2.mass * n[1];
-
-    o1.velocity = scale(o1.velocity!, [w_x, w_y], o2.bounceDampening);
+    const v = subtract([0, 0], o2.velocity ?? [0, 0], o1.velocity);
+    const dotdv = dot(d, v);
+    if (dotdv >= 0) {
+      const tm = (o1.mass = o2.mass);
+      const c = scale([0, 0], d, (2 * dotdv) / tm);
+      copy(
+        o1.velocity,
+        scale(
+          [0, 0],
+          add(tmp, o1.velocity, scale(tmp, c, o2.mass)),
+          o2.bounceDampening,
+        ),
+      );
+    }
     return true;
   }
   return false;

@@ -36,8 +36,8 @@ export class Player
   public startPos?: Point2D;
   public launchPower?: number;
   public maxLaunches: number = 3;
-  public readonly maxSp: number = Settings.tps * 2;
-  public sp: number = Settings.tps * 2;
+  public readonly maxSp: number = Settings.tps * 4;
+  public sp: number = Settings.tps * 4;
   public hasSlowmotion = false;
   public positions: Vector2[] = [];
   public lastStationaryPosition?: Point2D;

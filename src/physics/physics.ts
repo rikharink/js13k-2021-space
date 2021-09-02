@@ -17,7 +17,7 @@ export function getGravitationalForce(
   a: PhysicsCircle,
   b: PhysicsCircle,
 ): number {
-  const ds = distance_squared(b.position, a.position);
+  const ds = distance_squared(a.position, b.position);
   return ds !== 0 ? Settings.G * (b.mass / ds) : 0;
 }
 

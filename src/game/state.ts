@@ -57,7 +57,6 @@ export class State implements IStepable<CollisionResult> {
     return new CelestialBody(
       copy([0, 0], c.position)!,
       c.radius,
-      c.mass,
       c.id,
       copy([0, 0], c.velocity)!,
       copy([0, 0], c.acceleration)!,

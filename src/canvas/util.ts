@@ -5,7 +5,7 @@ import { Circle } from '../geometry/circle';
 import { Line } from '../geometry/line';
 import { TAU } from '../math/math';
 import {
-  abs,
+  length,
   add,
   normalize,
   perpendicular,
@@ -18,6 +18,7 @@ import { rgbaString } from '../util/util';
 import { create, from_rotation, transform_point } from '../math/matrix2d';
 import { splitRgb } from '../math/color';
 import { palette } from '../palette';
+import { PhysicsCircle } from '../game/physics-circle';
 
 export function drawCircle(
   ctx: CanvasRenderingContext2D,
@@ -199,4 +200,18 @@ export function drawPercentagebar(
 export function drawIconButton(ctx: CanvasRenderingContext2D, label: string) {
   ctx.save();
   ctx.restore();
+}
+
+export function drawVelocity(ctx: CanvasRenderingContext2D, o: PhysicsCircle) {
+  if (!o.velocity) return;
+  const normalizedVelocity = normalize([0, 0], o.velocity);
+  const line = new Line(
+    o.position,
+    add(
+      [0, 0],
+      o.position,
+      scale([0, 0], normalizedVelocity, 100 * length(normalizedVelocity)),
+    ),
+  );
+  drawArrow(ctx, line, splitRgb(palette[0]), 2);
 }
